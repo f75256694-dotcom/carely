@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-sage: #4A7C6F;
+    --color-sage-light: #6a9789;
+    --color-sage-dark: #3d665c;
+    --color-bg: #FAFAF8;
+    --color-bg-soft: #F5F4F0;
+    --color-text: #1a1a1a;
+    --color-text-muted: #6b6b6b;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-warm-50 text-[#1a1a1a] font-sans;
+  }
+
+  ::selection {
+    @apply bg-sage-200 text-sage-900;
+  }
+}
+
+@layer components {
+  .glass-nav {
+    @apply bg-white/70 backdrop-blur-glass border border-white/20 shadow-glass;
+  }
+
+  .glass-card {
+    @apply bg-white/60 backdrop-blur-md border border-white/30 shadow-soft rounded-2xl;
+  }
+
+  .gradient-hero {
+    background: linear-gradient(135deg, #FAFAF8 0%, #f0f5f3 40%, #dce8e4 100%);
+  }
+
+  .gradient-sage {
+    background: linear-gradient(135deg, #4A7C6F 0%, #6a9789 50%, #8fb5a9 100%);
+  }
+
+  .gradient-warm {
+    background: linear-gradient(180deg, #FAFAF8 0%, #F5F4F0 100%);
+  }
+
+  .text-gradient-sage {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #4A7C6F 0%, #6a9789 100%);
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-sage-500 text-white font-medium rounded-2xl transition-all duration-300 hover:bg-sage-600 hover:shadow-elevated active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/80 text-sage-700 font-medium rounded-2xl border border-sage-200 transition-all duration-300 hover:bg-white hover:shadow-soft active:scale-[0.98];
+  }
+
+  .btn-senior {
+    @apply inline-flex items-center justify-center gap-3 px-8 py-5 bg-sage-500 text-white text-xl font-semibold rounded-3xl transition-all duration-300 hover:bg-sage-600 active:scale-[0.97] min-h-[64px];
+  }
+
+  .section-padding {
+    @apply px-6 md:px-12 lg:px-24 py-20 md:py-32;
+  }
+
+  .wireframe-block {
+    @apply bg-warm-100 border-2 border-dashed border-warm-300 rounded-2xl;
+  }
+
+  .glass-senior {
+    @apply bg-white/45 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(74,124,111,0.08),0_2px_8px_rgba(0,0,0,0.04)] rounded-3xl;
+  }
+
+  .glass-senior-item {
+    @apply bg-white/50 backdrop-blur-lg border border-white/55 shadow-[0_4px_20px_rgba(74,124,111,0.06)] rounded-2xl;
+  }
+
+  .mesh-gradient-senior {
+    @apply relative overflow-hidden;
+    background: #FAFAF8;
+  }
+}
+
+@keyframes mesh-drift-1 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  33% { transform: translate(8%, 5%) scale(1.05); }
+  66% { transform: translate(-4%, 8%) scale(0.95); }
+}
+
+@keyframes mesh-drift-2 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  33% { transform: translate(-6%, -4%) scale(1.08); }
+  66% { transform: translate(5%, -6%) scale(0.92); }
+}
+
+@keyframes mesh-drift-3 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  50% { transform: translate(4%, -8%) scale(1.04); }
+}
+
+@layer utilities {
+  .scrollbar-hide,
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar,
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
