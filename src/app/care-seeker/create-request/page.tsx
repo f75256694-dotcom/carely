@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 
 export default function CreateRequestPage() {
   const [title, setTitle] = useState('');
@@ -15,7 +15,7 @@ export default function CreateRequestPage() {
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
-  const supabase = createClient();
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
