@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import Link from "next/link";
 import { Camera, CheckCircle2, HeartPulse, Smile, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
