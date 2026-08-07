@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
@@ -6,11 +6,8 @@ import Link from "next/link";
 import { Camera, CheckCircle2, HeartPulse, Smile, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { ChangeEvent, useState } from "react";
-import { DashboardShell } from "@/components/dashboard/DashboardShell";
-import { useFamilyData } from "@/components/dashboard/FamilyDataContext";
 
 export default function ShiftSummaryPage() {
-  const { setMood, updateHealth, addPhotoMoment, addTrendPoint } = useFamilyData();
   const [mood, setLocalMood] = useState<"super" | "ruhig" | "auffaellig" | "">("");
   const [ernahrung, setErnahrung] = useState(false);
   const [bewegung, setBewegung] = useState(30);
@@ -29,18 +26,17 @@ export default function ShiftSummaryPage() {
 
   function finishShift() {
     if (!mood) return;
-    setMood(mood);
-    updateHealth({ ernahrung, bewegung, medikamente });
-    addTrendPoint(60 + bewegung / 2 + (mood === "super" ? 10 : mood === "auffaellig" ? -10 : 0));
-    addPhotoMoment({ id: `moment-${Date.now()}`, title: "Besuchs-Moment", image: photoPreview || "https://images.unsplash.com/photo-1516910817561-52f4dd742864?auto=format&fit=crop&w=900&q=80", caption: "Ein kurzer Einblick in den Besuch.", date: new Date().toISOString().split("T")[0] });
     setShowThanks(true);
-    window.setTimeout(() => setShowThanks(false), 2600);
+    window.setTimeout(() => {
+      setShowThanks(false);
+      window.location.href = '/caregiver';
+    }, 2000);
   }
 
   return (
-    <DashboardShell role="caregiver" title="Einsatz Check-in" subtitle="Schnell erfassen, wie der Besuch war">
+    <div className="min-h-screen bg-slate-50 py-10">
       <div className="space-y-6 max-w-xl mx-auto px-4">
-        <section className="rounded-[2rem] bg-white p-6 shadow-[0_24px_80px_rgba(0,0,0,0.08)] border border-black/[0.04]">
+        <section className="rounded-[2rem] bg-white p-6 shadow-xl border border-black/[0.04]">
           <div className="flex items-center justify-between mb-6">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Nach dem Einsatz</p>
@@ -107,6 +103,6 @@ export default function ShiftSummaryPage() {
           </motion.div>
         )}
       </div>
-    </DashboardShell>
+    </div>
   );
 }
