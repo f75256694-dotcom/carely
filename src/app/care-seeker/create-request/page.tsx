@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { 
   ArrowLeft, MapPin, AlignLeft, Calendar as CalendarIcon, 
   Sparkles, CheckCircle2, ChevronLeft, ChevronRight, Check,
-  Sunrise, Coffee, Sun, Clock, Sunset
+  Sunrise, Coffee, Sun, Clock, Sunset, Wallet, MessageSquare, Calendar
 } from 'lucide-react';
 
 const CATEGORIES = [
@@ -18,7 +18,8 @@ const CATEGORIES = [
   { id: 'gesellschaft', label: 'Gesellschaft & Freizeit', desc: 'Spazieren & Unterhaltung', icon: '☕' },
   { id: 'termin', label: 'Terminbegleitung', desc: 'Ärzte & Behörden', icon: '🚶' },
   { id: 'nacht', label: 'Nachtwache', desc: 'Sicherheit in der Nacht', icon: '🌙' },
-  { id: 'technik', label: 'Technik-Hilfe', desc: 'Smartphone, PC & TV', icon: '💻' }
+  { id: 'technik', label: 'Technik-Hilfe', desc: 'Smartphone, PC & TV', icon: '💻' },
+  { id: 'sonstiges', label: 'Sonstiges', desc: 'Individuelle Hilfe anfragen', icon: '✨' }
 ];
 
 const TIME_SLOTS = [
@@ -37,6 +38,7 @@ const MONTH_NAMES = [
 
 export default function CreateRequestPage() {
   const [category, setCategory] = useState(CATEGORIES[0].label);
+  const [customCategory, setCustomCategory] = useState('');
   const [description, setDescription] = useState('');
   
   const [dateType, setDateType] = useState<'today' | 'tomorrow' | 'weekend' | 'custom'>('today');
@@ -106,12 +108,13 @@ export default function CreateRequestPage() {
       return;
     }
 
-    const autoTitle = `${category} Unterstützung`;
+    const finalCategory = category === 'Sonstiges' && customCategory ? customCategory : category;
+    const autoTitle = `${finalCategory} Unterstützung`;
 
     const { error: insertError } = await supabase.from('care_requests').insert([{
       user_id: user.id,
       title: autoTitle,
-      category,
+      category: finalCategory,
       description,
       date: getFinalDateString(),
       time,
@@ -128,23 +131,37 @@ export default function CreateRequestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-warm-50 via-teal-50/30 to-warm-100 py-12 px-4 sm:px-6 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-warm-50 via-teal-50/30 to-warm-100 py-8 px-4 sm:px-6 relative overflow-hidden font-sans">
       
-      {/* 2026 Unicorn Glow Orbs */}
+      {/* Glow Orbs */}
       <div className="absolute top-10 left-1/5 w-[500px] h-[500px] bg-teal-400/15 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-10 right-1/5 w-[500px] h-[500px] bg-amber-400/15 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="max-w-3xl mx-auto relative z-10">
+      <div className="max-w-3xl mx-auto relative z-10 space-y-6">
         
-        <Link href="/care-seeker" className="inline-flex items-center text-gray-500 hover:text-teal-700 mb-8 text-sm font-semibold transition-colors group">
-          <ArrowLeft className="h-4 w-4 mr-2 transition-transform group-hover:-translate-x-1" />
-          Zurück zur Übersicht
-        </Link>
+        {/* HEADER ZONE MIT GEWÜNSCHTEN FUNKTIONEN (STATT ANMELDEN / ANFORDERN) */}
+        <div className="backdrop-blur-3xl bg-white/80 border border-white/90 shadow-sm rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <Link href="/care-seeker" className="inline-flex items-center text-gray-600 hover:text-teal-700 text-xs font-bold transition-colors group">
+            <ArrowLeft className="h-4 w-4 mr-2 transition-transform group-hover:-translate-x-1" />
+            Zurück zur Übersicht
+          </Link>
 
-        {/* Liquid Glass Karte */}
+          <div className="flex items-center gap-2 flex-wrap justify-center">
+            <Link href="/care-seeker/week" className="px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-50 hover:bg-teal-100 text-teal-800 transition-all flex items-center gap-1.5 border border-teal-100">
+              <Calendar className="w-3.5 h-3.5" /> Meine Woche
+            </Link>
+            <Link href="/care-seeker/finances" className="px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-50 hover:bg-teal-100 text-teal-800 transition-all flex items-center gap-1.5 border border-teal-100">
+              <Wallet className="w-3.5 h-3.5" /> Finanzen & Budget
+            </Link>
+            <Link href="/care-seeker/messages" className="px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-50 hover:bg-teal-100 text-teal-800 transition-all flex items-center gap-1.5 border border-teal-100">
+              <MessageSquare className="w-3.5 h-3.5" /> Nachrichten
+            </Link>
+          </div>
+        </div>
+
+        {/* Liquid Glass Hauptkarte */}
         <div className="backdrop-blur-3xl bg-white/90 border border-white/80 shadow-[0_20px_50px_rgba(13,148,136,0.08)] rounded-[2.5rem] p-8 sm:p-12">
           
-          {/* Header Zone with Green Question Mark */}
           <div className="mb-12 text-center sm:text-left">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-50/90 border border-teal-100/80 text-teal-800 text-xs font-extrabold tracking-wider uppercase mb-5 shadow-xs backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
@@ -169,7 +186,7 @@ export default function CreateRequestPage() {
             {/* Art der Hilfe */}
             <div>
               <label className="block text-sm font-extrabold text-gray-900 mb-3.5 tracking-wide">1. Art der Hilfe wählen</label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
                 {CATEGORIES.map((cat) => {
                   const isSelected = category === cat.label;
                   return (
@@ -201,10 +218,27 @@ export default function CreateRequestPage() {
               </div>
             </div>
 
+            {/* DYNAMISCHES EINGABEFELD BEI "Sonstiges" */}
+            {category === 'Sonstiges' && (
+              <div className="backdrop-blur-md bg-teal-50/70 border border-teal-200/80 rounded-3xl p-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                <label className="block text-sm font-extrabold text-teal-900 mb-2.5 tracking-wide">
+                  Genaue Bezeichnung der gewünschten Hilfe *
+                </label>
+                <input
+                  type="text"
+                  required={category === 'Sonstiges'}
+                  placeholder="z.B. Fensterputzen, Vorlesen oder Haustierbetreuung"
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  className="w-full backdrop-blur-md bg-white/90 border border-teal-200 rounded-2xl py-4 px-5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 sm:text-base transition-all shadow-sm"
+                />
+              </div>
+            )}
+
             {/* Wann & Ort Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               
-              {/* Wann genau (Clean typography, completely free of emojis and preset icons) */}
+              {/* Wann genau */}
               <div className="relative" ref={calendarRef}>
                 <label className="block text-sm font-extrabold text-gray-900 mb-2.5 tracking-wide">Wann genau?</label>
                 
