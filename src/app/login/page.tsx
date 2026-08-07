@@ -1,103 +1,170 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import AuthCard from "@/components/auth/AuthCard";
-import PasswordInput from "@/components/auth/PasswordInput";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Apple } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import Link from 'next/link';
+import { Heart, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [socialMessage, setSocialMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
     setLoading(true);
+    setErrorMsg(null);
 
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      localStorage.removeItem('carely_bypass');
+      localStorage.removeItem('carely_role');
 
-    if (authError) {
-      setError(authError.message);
+      // 1. Supabase Auth Anmeldeversuch
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
+        if (authError.message.includes('Invalid login credentials')) {
+          setErrorMsg('E-Mail oder Passwort ist ungültig.');
+        } else if (authError.message.includes('Email not confirmed')) {
+          setErrorMsg('Bitte bestätige zuerst deine E-Mail-Adresse.');
+        } else {
+          setErrorMsg(authError.message);
+        }
+        setLoading(false);
+        return;
+      }
+
+      if (authData?.user) {
+        // 2. Profil abfragen, aber ohne Absturz falls die Zeile in der DB fehlt (.maybeSingle statt .single)
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', authData.user.id)
+          .maybeSingle();
+
+        // 3. Falls die Profilzeile in der Datenbank fehlt, automatisch nacherstellen
+        if (!profile) {
+          const metaRole = authData.user.user_metadata?.role || 'helper';
+          const metaName = authData.user.user_metadata?.full_name || authData.user.email;
+
+          await supabase.from('profiles').upsert([
+            {
+              id: authData.user.id,
+              full_name: metaName,
+              role: metaRole,
+            }
+          ]);
+        }
+
+        // 4. Weiterleitung zur Hauptseite mit funktionierendem Cockpit
+        window.location.href = '/';
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Ein unerwarteter Fehler ist aufgetreten.');
       setLoading(false);
-      return;
     }
-
-    // Rolle aus der profiles-Tabelle holen
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', authData.user.id)
-      .single();
-
-    setLoading(false);
-
-    if (profileError || !profile) {
-      setError("Profil konnte nicht geladen werden.");
-      return;
-    }
-
-    // Je nach Rolle unterschiedlich weiterleiten
-    if (profile.role === 'caregiver') {
-      router.push('/caregiver');
-    } else {
-      router.push('/family');
-    }
-  }
+  };
 
   return (
-    <AuthCard title={"Willkommen zurück"} subtitle={"Melde dich bei Carely an — herzlich, sicher, lokal."}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm text-slate-600 mb-1">E-Mail</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required className="w-full border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-200" />
+    <div className="min-h-screen bg-[#FAFAF7] font-sans text-gray-900 flex flex-col justify-center items-center p-6 relative">
+      <div className="w-full max-w-md bg-white rounded-[2.5rem] p-10 shadow-xl border border-gray-100 space-y-8 z-10">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-[#235347] flex items-center justify-center text-white">
+              <Heart className="w-4 h-4 fill-current" />
+            </div>
+            <span className="font-serif font-black text-2xl text-[#235347]">Carely</span>
+          </div>
+
+          <div>
+            <h1 className="text-3xl font-black font-serif text-gray-900 tracking-tight">
+              Willkommen zurück
+            </h1>
+            <p className="text-sm text-gray-500 font-medium mt-1">
+              Melde dich bei Carely an — herzlich, sicher, lokal.
+            </p>
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm text-slate-600 mb-1">Passwort</label>
-          <PasswordInput value={password} onChange={setPassword} placeholder="Dein Passwort" />
-        </div>
-
-        {error && (
-          <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
-            {error}
-          </p>
+        {errorMsg && (
+          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold">
+            {errorMsg}
+          </div>
         )}
 
-        <button type="submit" className="w-full bg-[#3d7066] hover:bg-[#2f5951] text-white font-semibold py-3.5 rounded-full transition-all shadow-md mt-2 disabled:opacity-50 disabled:cursor-not-allowed">{loading ? "Anmelden…" : "Anmelden"}</button>
+        <form onSubmit={handleLogin} className="space-y-5">
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-gray-700">E-Mail</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="deine.email@beispiel.de"
+              className="w-full px-5 py-4 rounded-2xl bg-[#FEFDE8] border border-amber-200/60 focus:bg-white focus:ring-2 focus:ring-[#235347] text-gray-900 text-sm font-medium outline-none transition-all"
+            />
+          </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <button type="button" onClick={() => setSocialMessage("Google-Anmeldung ausgewählt. Wir leiten Sie gleich weiter.")} className="flex items-center gap-2 justify-center border border-slate-200 rounded-lg py-2 text-sm">
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M21.6 12.23c0-.77-.07-1.51-.2-2.23H12v4.22h5.53c-.24 1.3-.98 2.4-2.09 3.14v2.6h3.37c1.97-1.82 3.09-4.48 3.09-7.74z" fill="#4285F4"/>
-              <path d="M12 22c2.7 0 4.97-.9 6.63-2.44l-3.37-2.6c-.94.63-2.14 1.01-3.26 1.01-2.5 0-4.61-1.68-5.36-3.94H2.99v2.48C4.64 19.9 8 22 12 22z" fill="#34A853"/>
-              <path d="M6.64 13.03a5.98 5.98 0 010-2.06V8.49H2.99a9.99 9.99 0 000 7.02l3.65-2.98z" fill="#FBBC05"/>
-              <path d="M12 6.5c1.47 0 2.8.5 3.85 1.47l2.89-2.89C16.96 3.6 14.7 2.5 12 2.5 8 2.5 4.64 4.6 2.99 7.59l3.65 2.49C7.39 8.18 9.5 6.5 12 6.5z" fill="#EA4335"/>
-            </svg>
-            Mit Google anmelden
+          <div className="space-y-1.5 relative">
+            <label className="text-xs font-bold text-gray-700">Passwort</label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-5 py-4 rounded-2xl bg-[#FEFDE8] border border-amber-200/60 focus:bg-white focus:ring-2 focus:ring-[#235347] text-gray-900 text-sm font-medium outline-none transition-all pr-12"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-800"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-4 rounded-2xl bg-[#235347] hover:bg-[#1b4238] text-white font-bold text-base shadow-lg transition-all disabled:opacity-50 cursor-pointer"
+          >
+            {loading ? 'Anmelden...' : 'Anmelden'}
           </button>
-          <button type="button" onClick={() => setSocialMessage("Apple-Anmeldung ausgewählt. Bitte warten.")} className="flex items-center gap-2 justify-center border border-slate-200 rounded-lg py-2 text-sm">
-            <Apple className="w-4 h-4" /> Mit Apple anmelden
+        </form>
+
+        <div className="grid grid-cols-2 gap-3 pt-2">
+          <button className="py-3 px-4 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-bold text-gray-700 flex items-center justify-center gap-2 transition">
+            <span>Mit Google anmelden</span>
+          </button>
+          <button className="py-3 px-4 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-bold text-gray-700 flex items-center justify-center gap-2 transition">
+            <span>Mit Apple anmelden</span>
           </button>
         </div>
 
-        {socialMessage && <p className="text-sm text-sage-700 mt-3">{socialMessage}</p>}
+        <div className="text-center pt-2 space-y-3">
+          <p className="text-xs text-gray-600 font-medium">
+            Noch kein Konto?{' '}
+            <Link href="/register" className="text-[#235347] font-bold hover:underline">
+              Hier registrieren
+            </Link>
+          </p>
 
-        <div className="text-center text-sm text-slate-500">
-          <p>
-            Noch kein Konto? <Link href="/register" className="text-[#3d7066] hover:underline font-medium cursor-pointer">Hier registrieren</Link>
+          <p className="text-[11px] text-gray-400 leading-relaxed px-4">
+            Durch die Anmeldung akzeptieren Sie unsere{' '}
+            <a href="#" className="underline">Nutzungsbedingungen</a> und{' '}
+            <a href="#" className="underline">Datenschutzbestimmungen</a>.
           </p>
         </div>
-      </form>
-    </AuthCard>
+      </div>
+
+    </div>
   );
 }
