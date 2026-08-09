@@ -124,11 +124,14 @@ export default function LandingPage() {
             <Sparkles className="w-4 h-4" /> 100% Alltagshilfe — Ohne medizinische Pflege-Vorkenntnisse
           </div>
 
-          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-serif font-bold text-[#112a24] tracking-tight leading-[1.1] max-w-5xl mx-auto">
-            Nachbarschaftshilfe <br className="hidden sm:block" />
-            neu gedacht. <br />
-            <span className="text-[#3b7364] italic font-light">Hilfe finden oder Gutes tun.</span>
-          </h1>
+          <div className="relative inline-block">
+            <div className="absolute -inset-4 bg-emerald-300/25 rounded-3xl blur-[40px] pointer-events-none -z-10" />
+            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-serif font-bold text-[#112a24] tracking-tight leading-[1.1] max-w-5xl mx-auto">
+              Nachbarschaftshilfe <br className="hidden sm:block" />
+              neu gedacht. <br />
+              <span className="text-[#3b7364] italic font-light">Hilfe finden oder Gutes tun.</span>
+            </h1>
+          </div>
 
           <p className="text-xl sm:text-2xl text-slate-700 max-w-3xl mx-auto font-light leading-relaxed">
             Carely verbindet Familien auf der Suche nach verlässlicher Unterstützung direkt mit geprüften Alltagshelfern in ihrer Nachbarschaft. Transparent, sicher und unkompliziert.
@@ -167,14 +170,18 @@ export default function LandingPage() {
       {/* HOW IT WORKS / PROCESS SECTION */}
       <section id="how-it-works" className="py-24 px-6 bg-[#E9F0EE] relative overflow-hidden border-t border-emerald-900/5">
         <div className="max-w-6xl mx-auto space-y-16">
-          <div className="text-center max-w-4xl mx-auto space-y-5">
+          <div className="text-center max-w-4xl mx-auto space-y-5 flex flex-col items-center">
             <div className="inline-flex items-center px-4.5 py-1.5 rounded-full bg-emerald-200/60 border border-emerald-300/50 text-[#2a524a] text-xs font-bold uppercase tracking-widest shadow-xs">
               Einfach & Transparent
             </div>
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#112a24] leading-[1.15] tracking-tight">
-              In 3 Schritten zur <br className="hidden sm:block" />
-              <span className="text-[#3b7364] italic font-light">passenden Begleitung.</span>
-            </h2>
+            
+            <div className="relative inline-block">
+              <div className="absolute -inset-4 bg-emerald-300/20 rounded-3xl blur-[40px] pointer-events-none -z-10" />
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#112a24] leading-[1.15] tracking-tight">
+                In 3 Schritten zur <br className="hidden sm:block" />
+                <span className="text-[#3b7364] italic font-light">passenden Begleitung.</span>
+              </h2>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -207,14 +214,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* TRUST SECTION (Optimiert: Features integriert) */}
+      {/* TRUST SECTION */}
       <section id="trust" className="py-28 px-6 relative overflow-hidden">
         <div className="max-w-6xl mx-auto space-y-16">
-          <div className="text-center max-w-3xl mx-auto space-y-5">
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#112a24] leading-[1.15] tracking-tight">
-              Sicherheit & Transparenz — <br className="hidden sm:block" />
-              <span className="text-[#3b7364] italic font-light">von Grund auf eingebaut.</span>
-            </h2>
+          <div className="text-center max-w-3xl mx-auto space-y-5 flex flex-col items-center">
+            <div className="relative inline-block">
+              <div className="absolute -inset-4 bg-emerald-300/20 rounded-3xl blur-[40px] pointer-events-none -z-10" />
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#112a24] leading-[1.15] tracking-tight">
+                Sicherheit & Transparenz — <br className="hidden sm:block" />
+                <span className="text-[#3b7364] italic font-light">von Grund auf eingebaut.</span>
+              </h2>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
