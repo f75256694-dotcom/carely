@@ -91,7 +91,7 @@ const MOOD_HISTORY = [
 ];
 
 export default function CarelyDashboard() {
-  const [activeTab, setActiveTab] = useState<'hub' | 'finanzen'>('hub');
+  const [activeTab, setActiveTab] = useState<'requests' | 'hub' | 'week' | 'finanzen' | 'messages'>('hub');
   const [recipients, setRecipients] = useState<CareRecipient[]>(INITIAL_RECIPIENTS);
   const [selectedRecipientId, setSelectedRecipientId] = useState<string>('all');
   
@@ -317,7 +317,7 @@ export default function CarelyDashboard() {
           </div>
         )}
 
-        {/* ================= REITER 2: FINANZEN & BUDGET (EXAKT DAS KOMPLEXE LAYOUT) ================= */}
+        {/* ================= REITER 2: FINANZEN & BUDGET ================= */}
         {activeTab === 'finanzen' && (
           <div className="space-y-8 animate-in fade-in duration-300">
             
@@ -524,53 +524,36 @@ export default function CarelyDashboard() {
                 </table>
               </div>
             </div>
+          </div>
+        )}
 
+        {/* BUDGET EDIT MODAL */}
+        {editingRecipient && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-xl border border-slate-200">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-serif font-bold text-lg">Budget anpassen</h3>
+                <button onClick={() => setEditingRecipient(null)} className="text-slate-400 hover:text-slate-900">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <form onSubmit={handleSaveBudget}>
+                <label className="block text-xs font-bold text-slate-500 mb-2">Maximales Budget (€)</label>
+                <input
+                  type="number"
+                  value={newBudgetInput}
+                  onChange={(e) => setNewBudgetInput(e.target.value)}
+                  className="w-full px-4 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-teal-500 outline-none mb-6"
+                />
+                <button type="submit" className="w-full py-3 bg-[#063934] text-white rounded-xl font-bold hover:bg-[#084d46] transition">
+                  Speichern
+                </button>
+              </form>
+            </div>
           </div>
         )}
 
       </main>
-
-      {/* MODAL: BUDGET HÖHE FESTLEGEN */}
-      {editingRecipient && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6 relative">
-            <button 
-              onClick={() => setEditingRecipient(null)}
-              className="absolute top-6 right-6 text-slate-400 hover:text-slate-800 p-2 rounded-2xl hover:bg-slate-100 transition cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <div className="flex items-center gap-4">
-              <img src={editingRecipient.avatar} alt={editingRecipient.name} className="w-12 h-12 rounded-full object-cover border-2 border-teal-600" />
-              <div>
-                <h3 className="text-xl font-serif font-bold text-slate-900">Budget festlegen</h3>
-                <p className="text-xs text-slate-500">{editingRecipient.name} ({editingRecipient.relation})</p>
-              </div>
-            </div>
-            <form onSubmit={handleSaveBudget} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-1.5">Monatlicher Zielbetrag (€)</label>
-                <div className="relative">
-                  <input 
-                    type="number" step="5" min="0" required value={newBudgetInput} onChange={(e) => setNewBudgetInput(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-4 focus:ring-teal-600/10 focus:border-teal-600 text-slate-900 text-sm font-bold bg-slate-50 pr-8"
-                  />
-                  <span className="absolute right-4 top-3.5 text-slate-400 font-bold">€</span>
-                </div>
-              </div>
-              <div className="pt-2 flex items-center justify-end gap-3 border-t border-slate-100">
-                <button type="button" onClick={() => setEditingRecipient(null)} className="px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
-                  Abbrechen
-                </button>
-                <button type="submit" className="px-5 py-2.5 rounded-2xl bg-[#063934] hover:bg-teal-900 text-white font-bold text-xs shadow-md transition cursor-pointer">
-                  Speichern
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }

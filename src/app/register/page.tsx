@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Heart, Shield, Search, ArrowRight, Lock, Mail, User as UserIcon } from 'lucide-react';
@@ -21,6 +21,7 @@ export default function RegisterPage() {
     setErrorMessage('');
 
     try {
+      const supabase = createClient();
       // 1. Supabase Auth Registrierung mit Übergabe der Rolle in user_metadata
       const { data, error } = await supabase.auth.signUp({
         email,

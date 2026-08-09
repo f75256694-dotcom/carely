@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import React from "react";
+import { createClient } from '@/lib/supabase/client';
 
 export default function AuthCard({ children, title, subtitle }: { children: React.ReactNode; title?: string; subtitle?: string }) {
   return (

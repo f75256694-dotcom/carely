@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Bell, Calendar, Camera, Heart, Home, MessageCircle, Settings, User } from "lucide-react";
+import { 
+  Bell, Calendar, Camera, Heart, Home, MessageCircle, Settings, 
+  User, Search, Users, CreditCard, ShieldCheck, X 
+} from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import PendingVerificationBanner from "@/components/dashboard/PendingVerificationBanner";
@@ -24,11 +27,11 @@ const NAV_ITEMS = {
     { icon: User, label: "Meine Helferin", href: "/care-seeker#helper" },
   ],
   family: [
-    { icon: Home, label: "Übersicht", href: "/family" },
-    { icon: Calendar, label: "Tagesplan", href: "/family#schedule" },
-    { icon: Camera, label: "Momente", href: "/family#moments" },
-    { icon: MessageCircle, label: "Nachrichten", href: "/family#messages" },
-    { icon: Settings, label: "Einstellungen", href: "/family#settings" },
+    { icon: Search, label: "Offene Anfragen", href: "/family/requests" },
+    { icon: Users, label: "Familien-Hub", href: "/family" },
+    { icon: Calendar, label: "Meine Woche", href: "/family/week" },
+    { icon: CreditCard, label: "Finanzen & Budget", href: "/family/finances" },
+    { icon: MessageCircle, label: "Nachrichten", href: "/family/messages" },
   ],
   caregiver: [
     { icon: Home, label: "Übersicht", href: "/caregiver" },
@@ -88,6 +91,7 @@ export function DashboardShell({ role, title, subtitle, verificationStatus, chil
   const pathname = usePathname();
   const navItems = NAV_ITEMS[role];
   const isSenior = role === "care-seeker";
+  const isFamily = role === "family";
 
   const [activeView, setActiveView] = useState(navItems[0]?.label || "");
 
@@ -96,6 +100,16 @@ export function DashboardShell({ role, title, subtitle, verificationStatus, chil
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedFavorite, setSelectedFavorite] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+
+  // Profile modal states
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: "Sarah Mustermann",
+    email: "sarah@mustermann.de",
+    role: "Familienangehörige",
+    phone: "+49 176 12345678",
+  });
 
   const favorites = useMemo(
     () => [
@@ -148,8 +162,55 @@ export function DashboardShell({ role, title, subtitle, verificationStatus, chil
       <div className={cn("min-h-screen relative", isSenior ? "mesh-gradient-senior" : "bg-warm-50")}>
         {isSenior && <SeniorMeshBackground />}
 
+        {/* Top Header for Family view */}
+        {isFamily && (
+          <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-warm-200 px-6 py-4">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              <Link href="/family" className="flex items-center gap-3 group">
+                <div className="w-10 h-10 rounded-2xl bg-[#3d7066] text-white flex items-center justify-center shadow-md group-hover:scale-105 transition">
+                  <Heart className="w-5 h-5 fill-current" />
+                </div>
+                <span className="text-2xl font-bold tracking-tight font-display">Carely</span>
+              </Link>
+
+              <nav className="hidden lg:flex items-center gap-2 bg-warm-100/60 p-1.5 rounded-full border border-warm-200">
+                {navItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
+                        isActive
+                          ? "bg-[#3d7066] text-white shadow-sm"
+                          : "text-warm-600 hover:text-[#141414] hover:bg-warm-200/50"
+                      )}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              <button
+                onClick={() => setProfileModalOpen(true)}
+                className="rounded-full ring-2 ring-emerald-500/30 hover:ring-emerald-600 transition focus:outline-none"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+                  alt="Profil"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              </button>
+            </div>
+          </header>
+        )}
+
         <div className="flex relative">
-          {!isSenior && (
+          {!isSenior && !isFamily && (
             <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-white border-r border-warm-200 p-6 fixed left-0 top-[73px] bottom-0">
               <nav className="space-y-1">
                 {navItems.map((item) => (
@@ -162,7 +223,7 @@ export function DashboardShell({ role, title, subtitle, verificationStatus, chil
             </aside>
           )}
 
-          <main className={cn("flex-1 pt-24", !isSenior && "lg:ml-64 pb-12", isSenior && "pb-32")}>
+          <main className={cn("flex-1 pt-24", !isSenior && !isFamily && "lg:ml-64 pb-12", isFamily && "pt-8", isSenior && "pb-32")}>
             <div className={cn("mx-auto px-6", isSenior ? "max-w-2xl" : "max-w-7xl")}>
               {isSenior ? (
                 <motion.header initial="hidden" animate="visible" variants={headerVariants} className="text-center mb-14">
@@ -170,7 +231,7 @@ export function DashboardShell({ role, title, subtitle, verificationStatus, chil
                   <h1 className="font-display text-[2.75rem] md:text-6xl font-semibold tracking-[-0.03em] leading-[1.05] text-[#141414] mb-4">{title}</h1>
                   {subtitle && <p className="text-xl md:text-2xl text-[#5a5a5a] font-light tracking-[-0.01em] leading-snug max-w-sm mx-auto">{subtitle}</p>}
                 </motion.header>
-              ) : (
+              ) : !isFamily ? (
                 <header className="mb-8">
                   <div className="flex items-center justify-between">
                     <div>
@@ -230,7 +291,7 @@ export function DashboardShell({ role, title, subtitle, verificationStatus, chil
                     </div>
                   </div>
                 </header>
-              )}
+              ) : null}
 
               {verificationStatus === 'pending' && (
                 <PendingVerificationBanner />
@@ -242,6 +303,88 @@ export function DashboardShell({ role, title, subtitle, verificationStatus, chil
         </div>
 
         {isSenior && <SeniorBottomNav navItems={NAV_ITEMS["care-seeker"]} pathname={pathname} />}
+
+        {/* Profile Details & Edit Modal */}
+        {profileModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+            <div className="w-full max-w-md bg-white rounded-[2.5rem] p-8 shadow-2xl border border-warm-200 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+              
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold font-display">Dein Profil</h3>
+                <button 
+                  onClick={() => { setProfileModalOpen(false); setIsEditingProfile(false); }}
+                  className="w-8 h-8 rounded-full bg-warm-100 flex items-center justify-center text-warm-600 hover:bg-warm-200 transition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-4 p-4 bg-warm-50 rounded-2xl border border-warm-200">
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+                  alt="Profil"
+                  className="w-16 h-16 rounded-full object-cover border-2 border-[#3d7066]"
+                />
+                <div>
+                  <h4 className="font-bold text-lg">{profileData.name}</h4>
+                  <p className="text-xs text-warm-500 font-medium">{profileData.role}</p>
+                  <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full mt-1 font-semibold">
+                    <ShieldCheck className="w-3 h-3" /> Verifiziert
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-semibold text-warm-500 uppercase tracking-wider">E-Mail-Adresse</label>
+                  {isEditingProfile ? (
+                    <input
+                      type="email"
+                      value={profileData.email}
+                      onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                      className="w-full mt-1 rounded-xl border border-warm-300 px-4 py-2.5 text-sm focus:outline-none focus:border-[#3d7066]"
+                    />
+                  ) : (
+                    <p className="text-sm font-medium text-warm-800 mt-1 bg-warm-50/50 p-2.5 rounded-xl">{profileData.email}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-warm-500 uppercase tracking-wider">Telefonnummer</label>
+                  {isEditingProfile ? (
+                    <input
+                      type="text"
+                      value={profileData.phone}
+                      onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                      className="w-full mt-1 rounded-xl border border-warm-300 px-4 py-2.5 text-sm focus:outline-none focus:border-[#3d7066]"
+                    />
+                  ) : (
+                    <p className="text-sm font-medium text-warm-800 mt-1 bg-warm-50/50 p-2.5 rounded-xl">{profileData.phone}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="pt-2">
+                {isEditingProfile ? (
+                  <button
+                    onClick={() => setIsEditingProfile(false)}
+                    className="w-full bg-[#3d7066] hover:bg-[#2f5951] text-white py-3 rounded-full font-semibold transition shadow-md"
+                  >
+                    Änderungen speichern
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setIsEditingProfile(true)}
+                    className="w-full bg-[#141414] hover:bg-black text-white py-3 rounded-full font-semibold transition shadow-md"
+                  >
+                    Profil bearbeiten
+                  </button>
+                )}
+              </div>
+
+            </div>
+          </div>
+        )}
 
         {chatOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30">
