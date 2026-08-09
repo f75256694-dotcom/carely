@@ -1,15 +1,24 @@
 'use client'
 
 import React, { useState } from 'react'
+import { createClient } from '@supabase/supabase-js'
+
+// Supabase Client Initialisierung
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export default function WienPilotPage() {
   const [step, setStep] = useState(1)
   const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+
   const [formData, setFormData] = useState({
     targetGroup: '',
     district: '',
     services: [] as string[],
-    otherService: '', // Neu hinzugefügt
+    otherService: '',
     name: '',
     email: '',
     phone: '',
@@ -25,10 +34,33 @@ export default function WienPilotPage() {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Form Submitted:', formData)
-    setSubmitted(true)
+    setLoading(true)
+    setErrorMessage('')
+
+    try {
+      const { error } = await supabase.from('pilot_requests').insert([
+        {
+          target_group: formData.targetGroup,
+          district: formData.district,
+          services: formData.services,
+          other_service: formData.otherService,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+        },
+      ])
+
+      if (error) throw error
+
+      setSubmitted(true)
+    } catch (err: any) {
+      console.error('Fehler beim Speichern:', err.message)
+      setErrorMessage('Es gab einen Fehler beim Absenden. Bitte versuche es noch einmal.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -53,10 +85,16 @@ export default function WienPilotPage() {
           <div className="text-center py-8 space-y-4">
             <div className="w-16 h-16 bg-emerald-100 text-[#2a524a] rounded-full flex items-center justify-center mx-auto text-3xl">✓</div>
             <h2 className="text-2xl font-bold text-[#112a24]">Vielen Dank für Ihre Anfrage!</h2>
-            <p className="text-slate-600 text-sm leading-relaxed">Wir haben Ihre Angaben erhalten. Unser Wiener Team meldet sich innerhalb von 24 Stunden persönlich bei Ihnen für das weitere Vorgehen.</p>
+            <p className="text-slate-600 text-sm leading-relaxed">Wir haben Ihre Angaben sicher erhalten. Unser Wiener Team meldet sich innerhalb von 24 Stunden persönlich bei Ihnen.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
+            {errorMessage && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl">
+                {errorMessage}
+              </div>
+            )}
+
             {step === 1 && (
               <div className="space-y-6">
                 <div className="space-y-2">
@@ -98,7 +136,6 @@ export default function WienPilotPage() {
                     </button>
                   ))}
                 </div>
-                {/* Das neue Textfeld */}
                 <input type="text" placeholder="Sonstiges (z.B. Pflanzen gießen...)" value={formData.otherService} onChange={(e) => setFormData({ ...formData, otherService: e.target.value })} className="w-full p-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:border-[#2a524a] text-sm" />
                 <div className="flex gap-3 pt-2">
                   <button type="button" onClick={() => setStep(2)} className="w-1/3 py-3.5 rounded-2xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50">Zurück</button>
@@ -116,10 +153,12 @@ export default function WienPilotPage() {
                 <input type="text" required placeholder="Name *" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full p-3.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#2a524a] text-sm" />
                 <input type="email" required placeholder="E-Mail *" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full p-3.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#2a524a] text-sm" />
                 <input type="tel" placeholder="Telefon (optional)" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full p-3.5 rounded-xl border border-slate-200 focus:outline-none focus:border-[#2a524a] text-sm" />
-                <label className="flex items-start gap-2.5 cursor-pointer pt-1"><input type="checkbox" required checked={formData.gdpr} onChange={(e) => setFormData({ ...formData, gdpr: e.target.checked })} className="mt-1 rounded border-slate-300 text-[#2a524a]" /><span className="text-xs text-slate-500">Ich stimme zu.</span></label>
+                <label className="flex items-start gap-2.5 cursor-pointer pt-1"><input type="checkbox" required checked={formData.gdpr} onChange={(e) => setFormData({ ...formData, gdpr: e.target.checked })} className="mt-1 rounded border-slate-300 text-[#2a524a]" /><span className="text-xs text-slate-500">Ich stimme der Datenverarbeitung zu.</span></label>
                 <div className="flex gap-3 pt-2">
                   <button type="button" onClick={() => setStep(3)} className="w-1/3 py-3.5 rounded-2xl border border-slate-200 text-slate-600 font-medium">Zurück</button>
-                  <button type="submit" className="w-2/3 py-3.5 rounded-2xl bg-[#2a524a] text-white font-medium hover:bg-[#112a24]">Kostenlos anfragen</button>
+                  <button type="submit" disabled={loading} className="w-2/3 py-3.5 rounded-2xl bg-[#2a524a] text-white font-medium hover:bg-[#112a24] disabled:opacity-50 transition-all">
+                    {loading ? 'Wird gesendet...' : 'Kostenlos anfragen'}
+                  </button>
                 </div>
               </div>
             )}
