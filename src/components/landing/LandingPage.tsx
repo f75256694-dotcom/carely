@@ -1,388 +1,308 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Heart, Menu, X, ArrowRight, ShieldCheck, Activity, 
-  Calendar, Camera, CheckCircle2, MapPin, Clock, Star, 
-  UserCheck, CreditCard, Sparkles
+  CheckCircle2, UserCheck, Sparkles, Users, Shield, Check,
+  Search, Calendar, Smile
 } from 'lucide-react';
 
 export default function LandingPage() {
+  const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'live' | 'plan' | 'moments'>('live');
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const trustPillars = [
+    {
+      icon: UserCheck,
+      badge: "Geprüfte Qualität",
+      title: "100% Verifizierte Helfer",
+      description: "Jede Alltagsbegleitung durchläuft einen strengen 3-Stufen-Check: Personalausweisprüfung, persönliches Aufnahmegespräch und verpflichtendes erweitertes polizeiliches Führungszeugnis.",
+      feature: "Erweitertes Führungszeugnis"
+    },
+    {
+      icon: Shield,
+      badge: "Inklusive Schutz",
+      title: "Haftpflicht- & Unfallschutz",
+      description: "Kein Risiko im Alltag: Alle gebuchten Einsätze über die Carely-Plattform sind automatisch haftpflicht- und unfallversichert. Volle Absicherung im Schadensfall.",
+      feature: "Automatisch versichert"
+    },
+    {
+      icon: Activity,
+      badge: "Live-Einblick",
+      title: "Digitaler Familien-Hub",
+      description: "Volle Beruhigung für Angehörige — auch aus der Ferne. Erhalten Sie Check-in-Meldungen, erledigte Aufgaben und kurze Foto-Updates direkt auf Ihr Smartphone.",
+      feature: "Echtzeit-Statusupdates"
+    }
+  ];
+
+  const steps = [
+    {
+      number: "01",
+      icon: Search,
+      title: "Profil erstellen & Bedarf definieren",
+      description: "Egal ob Sie Unterstützung für Ihre Familie suchen oder als Helfer aktiv werden möchten — in wenigen Klicks ist Ihr Profil eingerichtet."
+    },
+    {
+      number: "02",
+      icon: Calendar,
+      title: "Kennenlernen & abstimmen",
+      description: "Finden Sie passende Profile in Ihrer direkten Nachbarschaft. Besprechen Sie alle Details ganz unkompliziert persönlich."
+    },
+    {
+      number: "03",
+      icon: Smile,
+      title: "Sicher starten & entspannen",
+      description: "Dank automatischer Absicherung, digitalem Wochenplan und Live-Updates läuft jeder Einsatz absolut transparent und sorgenfrei."
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-[#FBFBF9] text-slate-900 selection:bg-emerald-200 selection:text-emerald-900 font-sans antialiased overflow-x-hidden">
+    <div className="min-h-screen bg-[#F0F6F4] text-slate-900 selection:bg-emerald-200 selection:text-emerald-900 font-sans antialiased overflow-x-hidden pb-20 md:pb-0">
       
-      {/* Dynamic Glass Header */}
-      <header className="sticky top-0 z-50 bg-[#FBFBF9]/80 backdrop-blur-2xl border-b border-slate-200/60 transition-all">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      {/* HEADER */}
+      <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/85 backdrop-blur-xl border-b border-emerald-900/5 py-3 shadow-sm' : 'bg-transparent py-5'}`}>
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+          
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#2d564f] via-[#3d7066] to-[#518f82] text-white flex items-center justify-center shadow-lg shadow-teal-900/15 group-hover:scale-105 group-hover:rotate-3 transition-all duration-300">
+            <div className="w-10 h-10 rounded-xl bg-[#2a524a] text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300">
               <Heart className="w-5 h-5 fill-current" />
             </div>
-            <span className="text-2xl font-black tracking-tight font-display bg-gradient-to-r from-slate-900 via-[#2d564f] to-slate-800 bg-clip-text text-transparent">
+            <span className="text-2xl font-bold tracking-tight text-[#112a24] font-serif">
               Carely
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
-            <a href="#how-it-works" className="hover:text-[#2d564f] transition-colors">So funktioniert's</a>
-            <a href="#trust" className="hover:text-[#2d564f] transition-colors">Sicherheit & Prüfung</a>
-            <a href="#features" className="hover:text-[#2d564f] transition-colors">Vorteile</a>
+          <nav className="hidden md:flex items-center gap-10 text-sm font-medium text-[#2a524a]">
+            <a href="#how-it-works" className="hover:text-[#112a24] hover:underline underline-offset-4 decoration-emerald-300 transition-all">So funktioniert's</a>
+            <a href="#marketplace" className="hover:text-[#112a24] hover:underline underline-offset-4 decoration-emerald-300 transition-all">Für Helfer & Familien</a>
+            <a href="#trust" className="hover:text-[#112a24] hover:underline underline-offset-4 decoration-emerald-300 transition-all">Sicherheit & Prüfung</a>
           </nav>
 
-          <div className="hidden md:flex items-center gap-4">
-            <Link 
-              href="/login" 
-              className="px-5 py-2.5 rounded-full text-sm font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 transition-all hover:scale-105"
-            >
+          <div className="hidden md:flex items-center gap-6">
+            <Link href="/login" className="text-sm font-medium text-[#2a524a] hover:text-[#112a24] transition-colors">
               Anmelden
             </Link>
-            <Link 
-              href="/register" 
-              className="px-6 py-2.5 rounded-full text-sm font-bold bg-gradient-to-r from-[#2d564f] to-[#3d7066] text-white shadow-lg shadow-emerald-900/20 hover:shadow-2xl hover:shadow-emerald-900/35 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2 group"
-            >
-              Registrieren
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+            <Link href="/register?role=family" className="px-6 py-2.5 rounded-full text-sm font-semibold bg-[#2a524a] text-white shadow-lg shadow-emerald-900/10 hover:bg-[#1f4239] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center gap-2 group">
+              Mitmachen
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-slate-700 hover:text-slate-900 focus:outline-none"
-          >
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-[#2a524a]">
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white/95 backdrop-blur-2xl border-b border-slate-200 px-6 py-6 space-y-4 animate-in slide-in-from-top-2 duration-200">
-            <nav className="flex flex-col gap-4 text-base font-bold text-slate-800">
+          <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-emerald-100 p-6 flex flex-col gap-6 shadow-2xl">
+            <nav className="flex flex-col gap-4 text-lg font-medium text-[#2a524a]">
               <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)}>So funktioniert's</a>
+              <a href="#marketplace" onClick={() => setMobileMenuOpen(false)}>Für Helfer & Familien</a>
               <a href="#trust" onClick={() => setMobileMenuOpen(false)}>Sicherheit & Prüfung</a>
-              <a href="#features" onClick={() => setMobileMenuOpen(false)}>Vorteile</a>
             </nav>
-            <div className="pt-4 border-t border-slate-100 flex flex-col gap-3">
-              <Link href="/login" className="w-full py-3 text-center rounded-xl font-bold border border-slate-200 text-slate-800">Anmelden</Link>
-              <Link href="/register" className="w-full py-3 text-center rounded-xl font-bold bg-gradient-to-r from-[#2d564f] to-[#3d7066] text-white">Registrieren</Link>
+            <div className="flex flex-col gap-3 pt-4 border-t border-emerald-50">
+              <Link href="/login" className="w-full py-3 text-center rounded-xl font-medium text-[#2a524a] bg-emerald-50">Anmelden</Link>
+              <Link href="/register" className="w-full py-3 text-center rounded-xl font-semibold bg-[#2a524a] text-white">Mitmachen</Link>
             </div>
           </div>
         )}
       </header>
 
       {/* HERO SECTION */}
-      <section className="relative pt-32 pb-24 px-6 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[550px] bg-gradient-to-tr from-emerald-200/50 via-teal-100/70 to-transparent rounded-full blur-[150px] pointer-events-none" />
-        <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-emerald-300/25 rounded-full blur-[130px] pointer-events-none" />
+      <section className="relative pt-36 pb-20 px-6 overflow-hidden flex flex-col items-center justify-center">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[550px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-200/50 via-teal-100/30 to-transparent blur-[90px] pointer-events-none -z-10" />
 
-        <div className="max-w-7xl mx-auto text-center space-y-8 relative z-10">
-          
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.05] max-w-4xl mx-auto">
-            Nachbarschaftshilfe. <br />
-            <span className="bg-gradient-to-r from-[#2d564f] via-[#3d7066] to-[#518f82] bg-clip-text text-transparent italic font-serif font-normal">
-              Hilfe von Mensch zu Mensch.
-            </span>
-          </h1>
-
-          <p className="text-xl sm:text-2xl text-slate-600 max-w-2xl mx-auto font-light leading-relaxed">
-            Liebevolle Betreuung und verlässliche Unterstützung im Alltag. Finden Sie geprüfte Alltagshelfer in Ihrer Nähe oder verwalten Sie die Betreuung Ihrer Angehörigen transparent an einem Ort.
-          </p>
-
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-5 pt-4">
-            <Link 
-              href="/register?role=family" 
-              className="w-full sm:w-auto px-9 py-4 bg-gradient-to-r from-[#2d564f] via-[#3d7066] to-[#2d564f] text-white font-black rounded-full shadow-xl shadow-teal-900/20 hover:shadow-2xl hover:shadow-teal-900/35 hover:scale-105 active:scale-95 transition-all duration-300 text-center text-lg flex items-center justify-center gap-3 group"
-            >
-              Betreuung finden
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
-            </Link>
-            <Link 
-              href="/register?role=caregiver" 
-              className="w-full sm:w-auto px-9 py-4 bg-white/90 backdrop-blur-md border border-slate-200/90 text-slate-800 font-black rounded-full hover:bg-white hover:border-[#3d7066] hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 text-center text-lg"
-            >
-              Alltagshelfer werden
-            </Link>
+        <div className="max-w-6xl mx-auto w-full text-center space-y-10 relative z-10">
+          <div className="inline-flex items-center gap-2.5 px-5 py-1.5 rounded-full bg-white/70 backdrop-blur-md border border-emerald-200/60 text-[#2a524a] text-xs font-bold uppercase tracking-widest shadow-xs">
+            <Sparkles className="w-4 h-4" /> 100% Alltagshilfe — Ohne medizinische Pflege-Vorkenntnisse
           </div>
 
-          <div className="pt-10 flex flex-wrap justify-center items-center gap-8 text-xs font-extrabold text-slate-500 uppercase tracking-widest">
-            <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> Faire & transparente Konditionen</span>
-            <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> Von uns streng geprüft</span>
-            <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> Ohne Papierkram</span>
+          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-serif font-bold text-[#112a24] tracking-tight leading-[1.1] max-w-5xl mx-auto">
+            Nachbarschaftshilfe <br className="hidden sm:block" />
+            neu gedacht. <br />
+            <span className="text-[#3b7364] italic font-light">Hilfe finden oder Gutes tun.</span>
+          </h1>
+
+          <p className="text-xl sm:text-2xl text-slate-700 max-w-3xl mx-auto font-light leading-relaxed">
+            Carely verbindet Familien auf der Suche nach verlässlicher Unterstützung direkt mit geprüften Alltagshelfern in ihrer Nachbarschaft. Transparent, sicher und unkompliziert.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto pt-8 text-left">
+            <div className="bg-white/95 backdrop-blur-xl p-10 rounded-[2.5rem] border border-emerald-900/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(42,82,74,0.1)] hover:-translate-y-1 transition-all duration-400 group">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-[#2a524a] flex items-center justify-center mb-8">
+                <Users className="w-8 h-8" />
+              </div>
+              <h3 className="text-3xl font-serif font-bold text-[#112a24] mb-4">Ich suche Alltagsbegleitung</h3>
+              <p className="text-slate-600 text-lg mb-10 leading-relaxed min-h-[80px]">
+                Finden Sie liebevolle Unterstützung für Einkäufe, Spaziergänge oder Gesellschaft im Alltag — inklusive Live-Statusupdates.
+              </p>
+              <Link href="/register?role=family" className="inline-flex items-center justify-center w-full py-4 rounded-2xl font-bold bg-[#2a524a] text-white hover:bg-[#1f4239] transition-colors group-hover:shadow-lg gap-3 text-lg">
+                Betreuung finden <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+              </Link>
+            </div>
+
+            <div className="bg-white/95 backdrop-blur-xl p-10 rounded-[2.5rem] border border-emerald-900/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(42,82,74,0.1)] hover:-translate-y-1 transition-all duration-400 group">
+              <div className="w-16 h-16 rounded-2xl bg-teal-100 text-[#2a524a] flex items-center justify-center mb-8">
+                <Heart className="w-8 h-8" />
+              </div>
+              <h3 className="text-3xl font-serif font-bold text-[#112a24] mb-4">Ich möchte Helfer werden</h3>
+              <p className="text-slate-600 text-lg mb-10 leading-relaxed min-h-[80px]">
+                Arbeiten Sie flexibel in Ihrer Nachbarschaft. Perfekt für Studierende, Rentner & Quereinsteiger. Keine Vorkenntnisse nötig!
+              </p>
+              <Link href="/register?role=caregiver" className="inline-flex items-center justify-center w-full py-4 rounded-2xl font-bold bg-[#e8f1ef] text-[#2a524a] hover:bg-[#dce9e6] transition-colors group-hover:shadow-md gap-3 text-lg">
+                Alltagshelfer werden <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* TRUST & VERIFICATION GRID */}
-      <section id="trust" className="py-24 px-6 bg-gradient-to-b from-[#FBFBF9] via-white to-[#FBFBF9] relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(#2d564f_1px,transparent_1px)] [background-size:32px_32px] opacity-[0.03] pointer-events-none" />
-        
-        <div className="max-w-7xl mx-auto space-y-16 relative z-10">
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/80 border border-emerald-200/85 text-[#2d564f] text-xs font-black uppercase tracking-widest shadow-xs">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" /> 100% Geprüfte Sicherheit & Transparenz
+      {/* HOW IT WORKS / PROCESS SECTION */}
+      <section id="how-it-works" className="py-24 px-6 bg-[#E9F0EE] relative overflow-hidden border-t border-emerald-900/5">
+        <div className="max-w-6xl mx-auto space-y-16">
+          <div className="text-center max-w-4xl mx-auto space-y-5">
+            <div className="inline-flex items-center px-4.5 py-1.5 rounded-full bg-emerald-200/60 border border-emerald-300/50 text-[#2a524a] text-xs font-bold uppercase tracking-widest shadow-xs">
+              Einfach & Transparent
             </div>
-            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
-              Warum Familien Carely vertrauen — <span className="bg-gradient-to-r from-[#2d564f] to-[#3d7066] bg-clip-text text-transparent">ohne Kompromisse.</span>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#112a24] leading-[1.15] tracking-tight">
+              In 3 Schritten zur <br className="hidden sm:block" />
+              <span className="text-[#3b7364] italic font-light">passenden Begleitung.</span>
             </h2>
-            <p className="text-slate-600 text-lg font-light leading-relaxed">
-              Wenn es um Ihre Liebsten geht, gibt es keinen Platz für Zweifel. Deshalb gehen wir bei der Auswahl und Prüfung neue Maßstäbe.
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
-            {/* Card 1: Identity & Police Clearance Check */}
-            <div className="bg-white/90 backdrop-blur-xl p-8 rounded-[2.5rem] border border-slate-200/80 shadow-[0_20px_50px_rgba(45,86,79,0.08)] hover:shadow-[0_30px_70px_rgba(45,86,79,0.15)] hover:border-[#3d7066]/50 transition-all duration-300 space-y-5 group relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100/40 rounded-full blur-2xl group-hover:scale-150 transition-transform pointer-events-none" />
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2d564f] to-[#3d7066] text-white flex items-center justify-center shadow-lg shadow-teal-900/20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative z-10">
-                <UserCheck className="w-7 h-7" />
-              </div>
-              <div className="space-y-2 relative z-10">
-                <h3 className="text-xl font-bold text-slate-900">Wir prüfen Identität & Führungszeugnis</h3>
-                <p className="text-slate-600 text-sm leading-relaxed font-light">
-                  Wir überlassen nichts dem Zufall: Jede Alltagshelferin wird von uns persönlich validiert. Wir prüfen den Personalausweis und fordern das erweiterte polizeiliche Führungszeugnis aktiv an.
-                </p>
-              </div>
-              <div className="pt-2 flex items-center gap-2 text-xs font-bold text-[#2d564f] relative z-10">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Aktive Manöver-Prüfung durch Carely
-              </div>
-            </div>
-
-            {/* Card 2: Fair Pricing & Simple Billing */}
-            <div className="bg-white/90 backdrop-blur-xl p-8 rounded-[2.5rem] border border-slate-200/80 shadow-[0_20px_50px_rgba(45,86,79,0.08)] hover:shadow-[0_30px_70px_rgba(45,86,79,0.15)] hover:border-[#3d7066]/50 transition-all duration-300 space-y-5 group relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100/40 rounded-full blur-2xl group-hover:scale-150 transition-transform pointer-events-none" />
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2d564f] to-[#3d7066] text-white flex items-center justify-center shadow-lg shadow-teal-900/20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative z-10">
-                <CreditCard className="w-7 h-7" />
-              </div>
-              <div className="space-y-2 relative z-10">
-                <h3 className="text-xl font-bold text-slate-900">Faire & Transparente Preise</h3>
-                <p className="text-slate-600 text-sm leading-relaxed font-light">
-                  Keine versteckten Kosten oder komplizierten Verträge. Sie vereinbaren faire Stundensätze direkt und flexibel mit Ihren Helfern – mit voller Kostenkontrolle über unsere Plattform.
-                </p>
-              </div>
-              <div className="pt-2 flex items-center gap-2 text-xs font-bold text-[#2d564f] relative z-10">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> 100% transparent & ohne Risiko
-              </div>
-            </div>
-
-            {/* Card 3: Live-Updates & Verbundenheit */}
-            <div className="bg-white/90 backdrop-blur-xl p-8 rounded-[2.5rem] border border-slate-200/80 shadow-[0_20px_50px_rgba(45,86,79,0.08)] hover:shadow-[0_30px_70px_rgba(45,86,79,0.15)] hover:border-[#3d7066]/50 transition-all duration-300 space-y-5 group relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100/40 rounded-full blur-2xl group-hover:scale-150 transition-transform pointer-events-none" />
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2d564f] to-[#3d7066] text-white flex items-center justify-center shadow-lg shadow-teal-900/20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative z-10">
-                <Activity className="w-7 h-7" />
-              </div>
-              <div className="space-y-2 relative z-10">
-                <h3 className="text-xl font-bold text-slate-900">Live-Updates & Verbundenheit</h3>
-                <p className="text-slate-600 text-sm leading-relaxed font-light">
-                  Erleben Sie Live-Statusmeldungen, Spaziergang-Updates und schöne Foto-Momente direkt in Ihrer App. So bleiben Sie eng verbunden, egal wo Sie gerade sind.
-                </p>
-              </div>
-              <div className="pt-2 flex items-center gap-2 text-xs font-bold text-[#2d564f] relative z-10">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Volle Transparenz in Echtzeit
-              </div>
-            </div>
-
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              return (
+                <div key={index} className="bg-white p-10 rounded-[2.2rem] border border-emerald-900/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-between relative group hover:-translate-y-1 transition-all duration-300">
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="w-14 h-14 rounded-2xl bg-[#2a524a] text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <span className="text-3xl font-serif font-bold text-emerald-900/20">
+                        {step.number}
+                      </span>
+                    </div>
+                    <div className="space-y-3">
+                      <h3 className="text-2xl font-serif font-bold text-[#112a24]">
+                        {step.title}
+                      </h3>
+                      <p className="text-slate-600 text-base leading-relaxed">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* SCROLL STORY SECTION WITH GLASSMOURPHISM DASHBOARD SHOWCASE */}
-      <section id="how-it-works" className="relative py-28 px-6 bg-gradient-to-b from-[#FBFBF9] via-[#F2F6F4] to-[#FBFBF9] overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-            
-            <div className="lg:col-span-6 space-y-8 z-10">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/70 border border-emerald-200 shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-ping" />
-                <span className="text-xs font-black uppercase tracking-widest text-[#2d564f]">Der Carely Familien-Hub</span>
-              </div>
+      {/* TRUST SECTION (Optimiert: Features integriert) */}
+      <section id="trust" className="py-28 px-6 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto space-y-16">
+          <div className="text-center max-w-3xl mx-auto space-y-5">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#112a24] leading-[1.15] tracking-tight">
+              Sicherheit & Transparenz — <br className="hidden sm:block" />
+              <span className="text-[#3b7364] italic font-light">von Grund auf eingebaut.</span>
+            </h2>
+          </div>
 
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[1.08]">
-                Ein beruhigendes Gefühl <br />
-                <span className="bg-gradient-to-r from-[#2d564f] via-[#3d7066] to-[#518f82] bg-clip-text text-transparent font-serif italic font-normal">
-                  für die ganze Familie
-                </span>
-              </h2>
-
-              <p className="text-lg sm:text-xl text-slate-600 font-light leading-relaxed max-w-xl">
-                Erleben Sie Live-Updates, wenn Ihre Helferin unterstützt. Foto-Momente, Termine und Ihr Betreuungsplan — alles in einer modernen, leicht bedienbaren Ansicht.
-              </p>
-
-              <div className="space-y-4 pt-2">
-                {[
-                  { id: 'live', title: 'Live-Aktivitäten & Status', sub: 'Echtzeit-Updates bei Einkäufen, Terminen oder Spaziergängen.', icon: Activity },
-                  { id: 'plan', title: 'Strukturierte Wochenplanung', sub: 'Termine mit Betreuer:innen transparent koordinieren.', icon: Calendar },
-                  { id: 'moments', title: 'Geteilte Herzensmomente', sub: 'Fotos und liebevolle Nachrichten direkt auf Ihr Smartphone.', icon: Camera },
-                ].map((tab) => {
-                  const Icon = tab.icon;
-                  const isActive = activeTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id as any)}
-                      className={`w-full p-5 rounded-2xl text-left transition-all duration-300 flex items-start gap-4 border group hover:-translate-y-1 ${
-                        isActive
-                          ? 'bg-white border-[#3d7066] shadow-xl shadow-teal-950/10 translate-x-2'
-                          : 'bg-white/60 border-slate-200/80 hover:bg-white hover:border-slate-300 hover:shadow-md'
-                      }`}
-                    >
-                      <div className={`p-3.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-br from-[#2d564f] to-[#3d7066] text-white shadow-md scale-105' : 'bg-slate-100 text-slate-600 group-hover:scale-105 group-hover:bg-emerald-50 group-hover:text-[#2d564f]'}`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-slate-900 text-base">{tab.title}</h4>
-                        <p className="text-xs text-slate-500 mt-1">{tab.sub}</p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* FLOATING GLASS HUB MOCKUP */}
-            <div className="lg:col-span-6 flex justify-center z-10">
-              <div className="relative w-full max-w-[460px]">
-                
-                <div className="absolute inset-0 bg-gradient-to-tr from-emerald-400/35 via-teal-300/30 to-emerald-200/40 rounded-[3rem] blur-3xl transform rotate-3 scale-110 pointer-events-none" />
-
-                <div className="relative bg-white/85 backdrop-blur-3xl rounded-[2.5rem] p-7 shadow-[0_40px_100px_-20px_rgba(45,86,79,0.25)] border border-white space-y-6">
-                  
-                  <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-                    <div className="flex items-center gap-3">
-                      <img 
-                        src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80" 
-                        className="w-12 h-12 rounded-2xl object-cover ring-2 ring-[#3d7066]" 
-                        alt="Helga Müller" 
-                      />
-                      <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Betreuung von</p>
-                        <h3 className="text-sm font-bold text-slate-900">Helga Müller</h3>
-                      </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {trustPillars.map((pillar, index) => {
+              const Icon = pillar.icon;
+              return (
+                <div key={index} className="group relative bg-white p-9 rounded-[2.2rem] border border-emerald-900/10 shadow-[0_10px_30px_rgba(42,82,74,0.06)] flex flex-col justify-between hover:-translate-y-1 transition-all duration-300">
+                  <div className="space-y-6">
+                    <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-[#2a524a] flex items-center justify-center">
+                      <Icon className="w-7 h-7" />
                     </div>
-                    <span className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-xs">
-                      Aktiv & Verbunden
+                    <div className="space-y-3">
+                      <h3 className="text-2xl font-serif font-bold text-[#112a24]">
+                        {pillar.title}
+                      </h3>
+                      <p className="text-slate-600 leading-relaxed">
+                        {pillar.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 pt-6 border-t border-emerald-50 flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-emerald-100 text-[#2a524a] flex items-center justify-center flex-shrink-0">
+                      <Check className="w-4 h-4 stroke-[3]" />
+                    </div>
+                    <span className="text-sm font-bold text-[#2a524a] tracking-tight">
+                      {pillar.feature}
                     </span>
                   </div>
-
-                  <div className="bg-gradient-to-br from-[#2d564f] via-[#3d7066] to-[#254841] rounded-2xl p-4 text-white shadow-xl shadow-teal-900/20 relative overflow-hidden space-y-2 hover:scale-[1.02] transition-transform duration-300">
-                    <div className="flex justify-between items-center">
-                      <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full backdrop-blur-md">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" /> Live Status
-                      </span>
-                      <span className="text-[10px] opacity-80 font-mono">14:20 Uhr</span>
-                    </div>
-                    <p className="text-sm font-bold">Begleitung durch Maria S.</p>
-                    <p className="text-xs text-emerald-100/90 flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-emerald-300" /> REWE Supermarkt, Schwabing
-                    </p>
-                  </div>
-
-                  <div className="bg-slate-50/90 rounded-2xl p-4 border border-slate-100 space-y-2.5">
-                    <div className="flex justify-between items-center text-xs font-black text-slate-900">
-                      <span>Tagesplan Heute</span>
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
-                    </div>
-
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-white shadow-xs border border-slate-100 hover:border-slate-300 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                        <div>
-                          <p className="text-xs font-bold text-slate-800">Spaziergang & Tee</p>
-                          <p className="text-[10px] text-slate-400">10:00 - 11:30 Uhr</p>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md">Erledigt</span>
-                    </div>
-
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-50/90 border border-emerald-200/80 shadow-xs">
-                      <div className="flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-                        <div>
-                          <p className="text-xs font-bold text-slate-900">Gemeinsamer Einkauf</p>
-                          <p className="text-[10px] text-emerald-800">14:00 - 15:30 Uhr</p>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-extrabold text-[#2d564f] bg-white px-2.5 py-1 rounded-md shadow-xs">Aktiv</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50/90 rounded-2xl p-4 border border-slate-100 space-y-2.5">
-                    <p className="text-xs font-black text-slate-900">Heutige Momente</p>
-                    <div className="grid grid-cols-3 gap-2">
-                      <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=200&q=80" className="w-full h-16 rounded-xl object-cover shadow-xs hover:scale-105 transition-transform duration-300" alt="Kochen" />
-                      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=200&q=80" className="w-full h-16 rounded-xl object-cover shadow-xs hover:scale-105 transition-transform duration-300" alt="Park" />
-                      <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=200&q=80" className="w-full h-16 rounded-xl object-cover shadow-xs hover:scale-105 transition-transform duration-300" alt="Tee" />
-                    </div>
-                  </div>
-
                 </div>
-
-                <div className="absolute -bottom-6 -left-6 bg-white/95 backdrop-blur-xl rounded-2xl p-4 shadow-2xl border border-slate-100 flex items-center gap-3 z-30 hover:scale-105 transition-transform duration-300">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold shadow-md">
-                    <Star className="w-5 h-5 fill-current" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-black text-slate-900">4,9 / 5 Sterne</p>
-                    <p className="text-[10px] font-medium text-slate-500">Über 1.200 glückliche Familien</p>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* HIGH CONVERSION BOTTOM BANNER */}
-      <section className="py-24 px-6 bg-gradient-to-br from-[#2d564f] via-[#3d7066] to-[#1e3c37] text-white relative overflow-hidden">
-        <div className="max-w-4xl mx-auto text-center space-y-8 relative z-10">
-          <span className="inline-flex items-center gap-2 bg-white/10 text-emerald-100 px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest backdrop-blur-md border border-white/10 shadow-lg">
-            <ShieldCheck className="w-4 h-4 text-emerald-300" /> Geprüfte Sicherheit & Direkte Vermittlung
-          </span>
-          <h2 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight">
-            Entlastung in Ihrem Alltag. <br />
-            <span className="text-emerald-300 italic font-serif font-normal">Ab heute.</span>
+      {/* BOTTOM CTA SECTION */}
+      <section className="bg-[#2a524a] text-white py-32 px-6">
+        <div className="max-w-4xl mx-auto text-center space-y-10">
+          <div className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-white/10 text-white text-xs font-bold uppercase tracking-widest border border-white/20">
+            <ShieldCheck className="w-4 h-4" /> Starten Sie in unter 2 Minuten
+          </div>
+          
+          <h2 className="text-5xl sm:text-7xl font-serif font-bold text-white leading-tight">
+            Werden auch Sie Teil von Carely. <br />
+            <span className="text-[#a8dac9] italic font-light">Als Helfer oder Suchender.</span>
           </h2>
-          <p className="text-emerald-100 text-lg sm:text-xl max-w-2xl mx-auto font-light leading-relaxed">
-            Finden Sie qualifizierte und überprüfte Alltagshilfe in Ihrer Nachbarschaft — unkompliziert, sicher und passgenau.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
-            <Link 
-              href="/register?role=family" 
-              className="w-full sm:w-auto px-9 py-4 bg-white text-[#2d564f] font-black rounded-full hover:bg-emerald-50 transition-all shadow-xl text-center text-lg hover:scale-105 active:scale-95 duration-300"
-            >
+          
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-6 pt-4">
+            <Link href="/register?role=family" className="w-full sm:w-auto px-10 py-4 bg-white text-[#2a524a] font-bold rounded-full hover:bg-slate-50 transition-all shadow-xl text-lg hover:scale-105 active:scale-95 duration-300">
               Hilfe für Angehörige finden
             </Link>
-            <Link 
-              href="/register?role=caregiver" 
-              className="w-full sm:w-auto px-9 py-4 bg-white/10 text-white border border-white/20 font-black rounded-full hover:bg-white/20 hover:border-white/40 transition-all text-center text-lg backdrop-blur-md hover:scale-105 active:scale-95 duration-300"
-            >
+            <Link href="/register?role=caregiver" className="w-full sm:w-auto px-10 py-4 bg-transparent text-white border border-white/40 font-bold rounded-full hover:bg-white/10 transition-all text-lg hover:scale-105 active:scale-95 duration-300">
               Alltagshelfer werden
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Clean Footer */}
-      <footer className="bg-slate-950 text-slate-400 py-12 px-6 border-t border-slate-900 text-sm">
+      {/* FOOTER */}
+      <footer className="bg-[#0f1715] text-slate-400 py-12 px-6 text-sm">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#2d564f] to-[#3d7066] text-white flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center">
               <Heart className="w-4 h-4 fill-current" />
             </div>
-            <span className="text-lg font-black text-white">Carely</span>
+            <span className="text-xl font-serif font-bold text-white">Carely</span>
           </div>
-          <div className="flex gap-6 font-semibold">
+          
+          <div className="flex gap-8 font-medium">
             <Link href="/terms" className="hover:text-white transition-colors">AGB</Link>
             <Link href="/privacy" className="hover:text-white transition-colors">Datenschutz</Link>
             <Link href="/imprint" className="hover:text-white transition-colors">Impressum</Link>
           </div>
+          
           <p>© {new Date().getFullYear()} Carely GmbH. Alle Rechte vorbehalten.</p>
         </div>
       </footer>
+
+      {/* MOBILE FIXED ACTION BAR */}
+      <div className="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md p-4 border-t border-emerald-900/10 z-40 flex items-center justify-between gap-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <Link href="/register?role=family" className="flex-1 py-3 px-3 rounded-xl font-bold text-xs bg-[#2a524a] text-white text-center shadow-md">
+          Hilfe finden
+        </Link>
+        <Link href="/register?role=caregiver" className="flex-1 py-3 px-3 rounded-xl font-bold text-xs bg-[#e8f1ef] text-[#2a524a] text-center">
+          Helfer werden
+        </Link>
+      </div>
 
     </div>
   );
