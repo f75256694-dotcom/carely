@@ -1,21 +1,20 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // Prüft, ob ein Supabase Auth-Cookie/Token existiert
   const hasAuthToken = request.cookies.getAll().some(cookie => cookie.name.includes('sb-'));
   const { pathname } = request.nextUrl;
 
-  // Ausnahme: Öffentliche Unterseiten im Caregiver-Bereich
-  const publicCaregiverRoutes = ['/caregiver/onboarding'];
+  // Öffentliche Bewerbungs- und Anfrageseiten
+  const publicRoutes = ['/caregiver/apply', '/care-seeker/apply'];
+  if (publicRoutes.includes(pathname)) {
+    return NextResponse.next();
+  }
 
-  // Geschützte Seiten, die nur eingeloggte Nutzer sehen dürfen
+  // Geschützte Seiten
   const protectedRoutes = ['/family', '/requests', '/chat', '/caregiver', '/kyc', '/finances'];
-
-  const isPublicRoute = publicCaregiverRoutes.includes(pathname);
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
-  // Wenn es eine geschützte Route ist, KEIN Auth-Token da ist UND es KEINE öffentliche Ausnahme ist -> Redirect zu /login
-  if (isProtectedRoute && !hasAuthToken && !isPublicRoute) {
+  if (isProtectedRoute && !hasAuthToken) {
     const loginUrl = new URL('/login', request.url);
     return NextResponse.redirect(loginUrl);
   }
