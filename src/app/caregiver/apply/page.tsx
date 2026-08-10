@@ -85,11 +85,11 @@ export default function CaregiverApplyPage() {
   if (submitted) {
     return (
       <main className="min-h-screen bg-[#0F172A] flex items-center justify-center p-4 selection:bg-emerald-500 selection:text-white">
-        <div className="max-w-lg w-full bg-white/15 backdrop-blur-xl border border-white/20 rounded-3xl p-10 text-center shadow-2xl relative overflow-hidden">
+        <div className="max-w-lg w-full bg-white/15 backdrop-blur-xl border border-white/20 rounded-3xl p-8 sm:p-10 text-center shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
-          <div className="w-24 h-24 bg-gradient-to-br from-emerald-400 to-teal-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-[0_0_40px_rgba(16,185,129,0.4)]">🚀</div>
-          <h1 className="text-4xl font-extrabold text-white mb-4 tracking-tight">Vielen Dank!</h1>
-          <p className="text-slate-300 text-lg mb-8 leading-relaxed">Deine Bewerbung als Alltagsheld ist sicher eingegangen. Wir melden uns in Kürze bei dir!</p>
+          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-emerald-400 to-teal-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 text-4xl sm:text-5xl shadow-[0_0_40px_rgba(16,185,129,0.4)]">🚀</div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Vielen Dank!</h1>
+          <p className="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed">Deine Bewerbung als Alltagsheld ist sicher eingegangen. Wir melden uns in Kürze bei dir!</p>
           <div className="inline-block px-6 py-3 rounded-2xl bg-white/10 text-emerald-400 font-semibold text-sm border border-white/10">Du kannst dieses Fenster jetzt schließen.</div>
         </div>
       </main>
@@ -99,129 +99,143 @@ export default function CaregiverApplyPage() {
   const isOtherSelected = formData.tasks.includes('Sonstiges');
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-50 via-slate-50 to-white py-12 px-4 flex flex-col items-center selection:bg-emerald-200">
-      <div className="max-w-2xl w-full text-center mb-10">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-sm mb-6 border border-emerald-200 shadow-sm">
-          <span className="relative flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span></span>
+    <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-50 via-slate-50 to-white py-6 sm:py-12 px-4 flex flex-col items-center selection:bg-emerald-200">
+      
+      {/* Header Bereich - Kompakt auf Mobile */}
+      <div className="max-w-xl w-full text-center mb-6 sm:mb-10">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-xs sm:text-sm mb-4 border border-emerald-200 shadow-sm">
+          <span className="relative flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span></span>
           Exklusiver Pilotbetrieb für Alltagshelden
         </div>
-        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
-          Sinn stiften. Gut verdienen. <br className="hidden md:block"/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">Dein flexibler Nebenjob in Wien.</span>
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-3">
+          Sinn stiften. Gut verdienen. <br className="hidden sm:block"/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">Dein flexibler Nebenjob in Wien.</span>
         </h1>
-        <p className="text-slate-600 text-lg md:text-xl">Unterstütze ältere Menschen in deiner Nachbarschaft. Bei uns behältst du garantiert <strong>100% deines Verdienstes</strong> ohne versteckte Abzüge und teilst dir deine Arbeitszeiten komplett nach deinem Alltag ein.</p>
+        <p className="text-slate-600 text-base sm:text-xl">Unterstütze ältere Menschen in deiner Nachbarschaft. <strong>100% deines Verdienstes</strong> gehören komplett dir.</p>
       </div>
 
-      <div className="max-w-2xl w-full bg-white rounded-3xl p-6 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 relative overflow-hidden">
+      {/* Formular Box */}
+      <div className="max-w-xl w-full bg-white rounded-3xl p-5 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-100">
           <div className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-500 ease-out" style={{ width: `${(step / 3) * 100}%` }}></div>
         </div>
 
-        <div className="flex justify-between items-center mb-8 mt-2">
-          <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Schritt {step} von 3</span>
-          <div className="w-8 h-8 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-sm">C</div>
+        <div className="flex justify-between items-center mb-6 sm:mb-8 mt-2">
+          <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-wider">Schritt {step} von 3</span>
+          <div className="w-7 h-7 sm:w-8 sm:h-8 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs sm:text-sm">C</div>
         </div>
 
+        {/* SCHRITT 1 */}
         {step === 1 && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-              <h2 className="text-2xl font-bold text-slate-900">Wie möchtest du im Alltag helfen?</h2>
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 w-fit">✨ Mehrfachauswahl möglich</span>
+            <div className="flex flex-col gap-1 mb-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Wie möchtest du helfen?</h2>
+              <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 w-fit">✨ Mehrfachauswahl möglich</span>
             </div>
-            <p className="text-slate-500 mb-8">Wähle alle Tätigkeiten aus, die zu dir passen.</p>
+            <p className="text-slate-500 text-sm sm:text-base mb-6">Wähle alle Tätigkeiten aus, die zu dir passen.</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 gap-3.5 mb-6">
               {taskOptions.map(t => {
                 const isSelected = formData.tasks.includes(t.id);
                 return (
-                  <button key={t.id} type="button" onClick={() => toggleTask(t.id)} className={`relative flex flex-col items-start p-5 rounded-2xl border-2 text-left transition-all duration-200 group ${isSelected ? 'border-emerald-500 bg-emerald-50/50 shadow-md shadow-emerald-100' : 'border-slate-100 hover:border-emerald-200 hover:bg-slate-50'}`}>
-                    <span className="text-3xl mb-3 bg-white w-12 h-12 rounded-xl flex items-center justify-center shadow-sm border border-slate-100 group-hover:scale-110 transition-transform">{t.icon}</span>
-                    <span className={`font-bold text-lg mb-1 ${isSelected ? 'text-emerald-900' : 'text-slate-700'}`}>{t.title}</span>
-                    <span className="text-sm text-slate-500">{t.desc}</span>
-                    <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-200 text-slate-400 bg-white'}`}>
-                      {isSelected ? <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> : <span className="text-xs font-bold leading-none">+</span>}
+                  <button key={t.id} type="button" onClick={() => toggleTask(t.id)} className={`relative flex items-center p-4 rounded-2xl border-2 text-left transition-all duration-200 group ${isSelected ? 'border-emerald-500 bg-emerald-50/50 shadow-md shadow-emerald-100' : 'border-slate-100 hover:border-emerald-200 bg-white'}`}>
+                    <span className="text-2xl sm:text-3xl mr-4 bg-slate-50 w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-slate-100">{t.icon}</span>
+                    <div className="flex-1 pr-6">
+                      <span className={`block font-bold text-base sm:text-lg mb-0.5 ${isSelected ? 'text-emerald-900' : 'text-slate-800'}`}>{t.title}</span>
+                      <span className="block text-xs sm:text-sm text-slate-500 leading-snug">{t.desc}</span>
+                    </div>
+                    <div className={`absolute top-4 right-4 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-200 text-transparent'}`}>
+                      {isSelected && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                     </div>
                   </button>
                 );
               })}
 
               {/* Sonstiges Option */}
-              <button type="button" onClick={() => toggleTask('Sonstiges')} className={`relative flex flex-col items-start p-5 rounded-2xl border-2 text-left transition-all duration-200 group ${isOtherSelected ? 'border-emerald-500 bg-emerald-50/50 shadow-md shadow-emerald-100' : 'border-slate-100 hover:border-emerald-200 hover:bg-slate-50'}`}>
-                <span className="text-3xl mb-3 bg-white w-12 h-12 rounded-xl flex items-center justify-center shadow-sm border border-slate-100 group-hover:scale-110 transition-transform">💡</span>
-                <span className={`font-bold text-lg mb-1 ${isOtherSelected ? 'text-emerald-900' : 'text-slate-700'}`}>Sonstiges</span>
-                <span className="text-sm text-slate-500">Eigene Fähigkeiten oder Wünsche angeben</span>
-                <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${isOtherSelected ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-200 text-slate-400 bg-white'}`}>
-                  {isOtherSelected ? <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> : <span className="text-xs font-bold leading-none">+</span>}
+              <button type="button" onClick={() => toggleTask('Sonstiges')} className={`relative flex items-center p-4 rounded-2xl border-2 text-left transition-all duration-200 group ${isOtherSelected ? 'border-emerald-500 bg-emerald-50/50 shadow-md shadow-emerald-100' : 'border-slate-100 hover:border-emerald-200 bg-white'}`}>
+                <span className="text-2xl sm:text-3xl mr-4 bg-slate-50 w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-slate-100">💡</span>
+                <div className="flex-1 pr-6">
+                  <span className={`block font-bold text-base sm:text-lg mb-0.5 ${isOtherSelected ? 'text-emerald-900' : 'text-slate-800'}`}>Sonstiges</span>
+                  <span className="block text-xs sm:text-sm text-slate-500 leading-snug">Eigene Fähigkeiten oder Wünsche angeben</span>
+                </div>
+                <div className={`absolute top-4 right-4 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isOtherSelected ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-200 text-transparent'}`}>
+                  {isOtherSelected && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                 </div>
               </button>
             </div>
 
-            {/* Textfeld, falls Sonstiges aktiv ist */}
             {isOtherSelected && (
-              <div className="mb-8 animate-in fade-in duration-300">
-                <label className="block text-sm font-bold text-slate-700 mb-1.5 ml-1">Was möchtest du noch anbieten?</label>
-                <input type="text" placeholder="z. B. Gartenarbeit, Technik-Hilfe..." value={formData.otherTaskText} onChange={e => setFormData({...formData, otherTaskText: e.target.value})} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl text-slate-900 font-medium outline-none transition-all" />
+              <div className="mb-6 animate-in fade-in duration-300">
+                <label className="block text-sm font-bold text-slate-700 mb-1.5">Was möchtest du noch anbieten?</label>
+                <input type="text" placeholder="z. B. Gartenarbeit, Technik-Hilfe..." value={formData.otherTaskText} onChange={e => setFormData({...formData, otherTaskText: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl text-slate-900 font-medium outline-none text-base" />
               </div>
             )}
 
-            <button disabled={formData.tasks.length === 0} onClick={() => setStep(2)} className="w-full bg-slate-900 text-white font-bold text-lg py-4 rounded-2xl hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-200 hover:-translate-y-0.5 transition-all disabled:opacity-40 disabled:hover:transform-none disabled:hover:shadow-none disabled:hover:bg-slate-900 mt-4">Weiter zum Einsatzgebiet →</button>
+            <button disabled={formData.tasks.length === 0} onClick={() => setStep(2)} className="w-full bg-slate-900 text-white font-bold text-base sm:text-lg py-4 rounded-2xl hover:bg-emerald-600 transition-all disabled:opacity-40 shadow-md">Weiter zum Einsatzgebiet →</button>
           </div>
         )}
 
+        {/* SCHRITT 2 */}
         {step === 2 && (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">In welchen Bezirken möchtest du aktiv sein?</h2>
-            <p className="text-slate-500 mb-8">Wähle deine bevorzugten Wiener Bezirke (Mehrfachauswahl).</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-8 max-h-72 overflow-y-auto pr-1">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">In welchen Bezirken?</h2>
+            <p className="text-slate-500 text-sm sm:text-base mb-6">Wähle deine bevorzugten Wiener Bezirke aus.</p>
+            
+            <div className="grid grid-cols-2 gap-2.5 mb-6 max-h-[350px] overflow-y-auto pr-1">
               {districtOptions.map(d => {
                 const isSelected = formData.districts.includes(d.label);
                 return (
-                  <button key={d.id} type="button" onClick={() => toggleDistrict(d.label)} className={`p-3 rounded-xl border-2 text-left transition-all text-xs font-bold ${isSelected ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm' : 'border-slate-100 hover:border-slate-200 text-slate-700 bg-white'}`}>
+                  <button key={d.id} type="button" onClick={() => toggleDistrict(d.label)} className={`p-3.5 rounded-xl border-2 text-left transition-all text-xs sm:text-sm font-bold ${isSelected ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm' : 'border-slate-100 text-slate-700 bg-white'}`}>
                     {d.label}
                   </button>
                 );
               })}
             </div>
+
             <div className="flex gap-3">
-              <button type="button" onClick={() => setStep(1)} className="w-1/4 border-2 border-slate-100 text-slate-500 hover:bg-slate-50 font-bold py-4 rounded-2xl transition-colors">Zurück</button>
-              <button disabled={formData.districts.length === 0} onClick={() => setStep(3)} className="w-3/4 bg-slate-900 text-white font-bold text-lg py-4 rounded-2xl hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-200 hover:-translate-y-0.5 transition-all disabled:opacity-40 disabled:hover:transform-none disabled:hover:shadow-none disabled:hover:bg-slate-900">Zeitrahmen festlegen →</button>
+              <button type="button" onClick={() => setStep(1)} className="w-1/3 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-4 rounded-2xl text-sm sm:text-base transition-colors">Zurück</button>
+              <button disabled={formData.districts.length === 0} onClick={() => setStep(3)} className="w-2/3 bg-slate-900 text-white font-bold text-sm sm:text-base py-4 rounded-2xl hover:bg-emerald-600 transition-all disabled:opacity-40 shadow-md">Zeitrahmen →</button>
             </div>
           </div>
         )}
 
+        {/* SCHRITT 3 */}
         {step === 3 && (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
             <form onSubmit={handleSubmit}>
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-slate-900 mb-2">Wie viel Zeit möchtest du investieren?</h2>
-                <p className="text-slate-500 mb-4">Du kannst deine Verfügbarkeit jederzeit flexibel anpassen.</p>
-                <div className="grid grid-cols-2 gap-3">
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">Zeitinvestment</h2>
+                <p className="text-slate-500 text-sm sm:text-base mb-4">Wie viel Zeit möchtest du investieren?</p>
+                <div className="grid grid-cols-2 gap-2.5">
                   {hoursOptions.map(opt => (
-                    <button key={opt} type="button" onClick={() => setFormData({...formData, hoursPerWeek: opt})} className={`p-3.5 rounded-xl border-2 font-semibold text-sm transition-all text-center ${formData.hoursPerWeek === opt ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm' : 'border-slate-100 text-slate-600 hover:border-slate-200'}`}>{opt}</button>
+                    <button key={opt} type="button" onClick={() => setFormData({...formData, hoursPerWeek: opt})} className={`p-3.5 rounded-xl border-2 font-semibold text-xs sm:text-sm transition-all text-center ${formData.hoursPerWeek === opt ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm' : 'border-slate-100 text-slate-600 bg-white'}`}>{opt}</button>
                   ))}
                 </div>
               </div>
 
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">Fast geschafft!</h2>
-              <p className="text-slate-500 mb-6">Wohin dürfen wir dir Informationen senden?</p>
-              <div className="space-y-4 mb-8">
-                <div><label className="block text-sm font-bold text-slate-700 mb-1.5 ml-1">Vollständiger Name</label><input required type="text" placeholder="Maria Musterfrau" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl text-slate-900 font-medium outline-none transition-all" /></div>
-                <div><label className="block text-sm font-bold text-slate-700 mb-1.5 ml-1">E-Mail-Adresse</label><input required type="email" placeholder="maria@beispiel.at" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl text-slate-900 font-medium outline-none transition-all" /></div>
-                <div><label className="block text-sm font-bold text-slate-700 mb-1.5 ml-1">Handynummer (für Rückfragen)</label><input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl text-slate-900 font-medium outline-none transition-all" /></div>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">Fast geschafft!</h2>
+              <p className="text-slate-500 text-sm sm:text-base mb-4">Wohin dürfen wir dir Infos senden?</p>
+              
+              <div className="space-y-4 mb-6">
+                <div><label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Vollständiger Name</label><input required type="text" placeholder="Maria Musterfrau" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" /></div>
+                <div><label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">E-Mail-Adresse</label><input required type="email" placeholder="maria@beispiel.at" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" /></div>
+                <div><label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Handynummer</label><input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" /></div>
               </div>
+
               <div className="flex gap-3">
-                <button type="button" onClick={() => setStep(2)} className="w-1/4 border-2 border-slate-100 text-slate-500 hover:bg-slate-50 font-bold py-4 rounded-2xl transition-colors">Zurück</button>
-                <button disabled={loading} type="submit" className="w-3/4 bg-emerald-600 text-white font-bold text-lg py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:bg-emerald-500 hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:transform-none flex items-center justify-center gap-2">
-                  {loading ? 'Wird gesendet...' : 'Unverbindlich bewerben 🚀'}
+                <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-4 rounded-2xl text-sm sm:text-base transition-colors">Zurück</button>
+                <button disabled={loading} type="submit" className="w-2/3 bg-emerald-600 text-white font-bold text-sm sm:text-base py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:bg-emerald-500 transition-all disabled:opacity-70 flex items-center justify-center gap-2">
+                  {loading ? 'Wird gesendet...' : 'Abschicken 🚀'}
                 </button>
               </div>
             </form>
           </div>
         )}
       </div>
-      <div className="max-w-2xl w-full flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 mt-10 text-slate-500 text-sm font-medium">
-        <span className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full border border-slate-200 shadow-sm">🛡️ 100% eigener Verdienst</span>
-        <span className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full border border-slate-200 shadow-sm">⚡ Flexible Zeiteinteilung</span>
-        <span className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full border border-slate-200 shadow-sm">📍 Einsätze direkt im Grätzel</span>
+
+      {/* Footer Badges */}
+      <div className="max-w-xl w-full flex flex-wrap justify-center items-center gap-3 mt-8 text-slate-500 text-xs sm:text-sm font-medium">
+        <span className="flex items-center gap-1.5 bg-white/70 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">🛡️ 100% eigener Verdienst</span>
+        <span className="flex items-center gap-1.5 bg-white/70 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">⚡ Flexible Zeiten</span>
       </div>
     </main>
   );
