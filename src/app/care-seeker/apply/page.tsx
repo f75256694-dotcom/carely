@@ -99,16 +99,16 @@ export default function CareSeekerApplyPage() {
   return (
     <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-50 via-slate-50 to-white py-6 sm:py-12 px-4 flex flex-col items-center selection:bg-emerald-200">
       
-      {/* Header Bereich - Kompakt auf Mobile */}
+      {/* Header Bereich */}
       <div className="max-w-xl w-full text-center mb-6 sm:mb-10">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-xs sm:text-sm mb-4 border border-emerald-200 shadow-sm">
           <span className="relative flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span></span>
-          Nachbarschafts-Pilot · Wien
+          Exklusiver Pioneer-Kreis · Wien
         </div>
         <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-3">
-          Liebevolle Alltagsilfe <br className="hidden sm:block"/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">für deine Eltern in Wien.</span>
+          Liebevolle Alltagshilfe <br className="hidden sm:block"/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">für Ihre Eltern in Wien.</span>
         </h1>
-        <p className="text-slate-600 text-base sm:text-xl">Persönlich interviewte & überprüfte Alltagsbegleiter aus der Nachbarschaft – für echte Entlastung im Alltag.</p>
+        <p className="text-slate-600 text-base sm:text-xl">Persönlich interviewte & überprüfte Alltagsbegleiter aus der Nachbarschaft – für echte Entlastung, die ankommt.</p>
       </div>
 
       {/* Formular Box */}
@@ -119,7 +119,15 @@ export default function CareSeekerApplyPage() {
 
         <div className="flex justify-between items-center mb-6 sm:mb-8 mt-2">
           <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-wider">Schritt {step} von 3</span>
-          <div className="w-7 h-7 sm:w-8 sm:h-8 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs sm:text-sm">C</div>
+          {/* Helpify Logo Icon */}
+          <div className="w-9 h-9 rounded-xl bg-[#2a524a] text-white flex items-center justify-center shadow-md p-1.5">
+            <svg className="w-full h-full text-emerald-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
+              <path d="m18 15-2-2"/>
+              <path d="m15 18-2-2"/>
+            </svg>
+          </div>
         </div>
 
         {/* SCHRITT 1 */}
@@ -213,15 +221,24 @@ export default function CareSeekerApplyPage() {
               <p className="text-slate-500 text-sm sm:text-base mb-4">Wohin dürfen wir dir passende Profile senden?</p>
               
               <div className="space-y-4 mb-6">
-                <div><label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Dein vollständiger Name</label><input required type="text" placeholder="Anna Huber" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" /></div>
-                <div><label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">E-Mail-Adresse</label><input required type="email" placeholder="anna@beispiel.at" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" /></div>
-                <div><label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Handynummer</label><input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" /></div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Dein vollständiger Name</label>
+                  <input required type="text" placeholder="Anna Huber" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">E-Mail-Adresse</label>
+                  <input required type="email" placeholder="anna@beispiel.at" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Handynummer</label>
+                  <input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
+                </div>
               </div>
 
               <div className="flex gap-3">
                 <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-4 rounded-2xl text-sm sm:text-base transition-colors">Zurück</button>
                 <button disabled={loading} type="submit" className="w-2/3 bg-emerald-600 text-white font-bold text-sm sm:text-base py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:bg-emerald-500 transition-all disabled:opacity-70 flex items-center justify-center gap-2">
-                  {loading ? 'Wird gesendet...' : 'Anfrage abschicken 🚀'}
+                  {loading ? 'Wird gesendet...' : 'Profile anfordern 🚀'}
                 </button>
               </div>
             </form>
@@ -232,7 +249,7 @@ export default function CareSeekerApplyPage() {
       {/* Footer Badges */}
       <div className="max-w-xl w-full flex flex-wrap justify-center items-center gap-3 mt-8 text-slate-500 text-xs sm:text-sm font-medium">
         <span className="flex items-center gap-1.5 bg-white/70 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">🛡️ 3-Stufen-Sicherheits-Check</span>
-        <span className="flex items-center gap-1.5 bg-white/70 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">⚡ Geprüfte Helfer</span>
+        <span className="flex items-center gap-1.5 bg-white/70 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">⚡ Kostenfreie Pilot-Phase</span>
       </div>
     </main>
   );

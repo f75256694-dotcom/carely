@@ -121,7 +121,15 @@ export default function CaregiverApplyPage() {
 
         <div className="flex justify-between items-center mb-6 sm:mb-8 mt-2">
           <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-wider">Schritt {step} von 3</span>
-          <div className="w-7 h-7 sm:w-8 sm:h-8 bg-slate-900 text-white rounded-xl flex items-center justify-center font-bold text-xs sm:text-sm">C</div>
+          {/* Helpify Logo Icon */}
+          <div className="w-9 h-9 rounded-xl bg-[#2a524a] text-white flex items-center justify-center shadow-md p-1.5">
+            <svg className="w-full h-full text-emerald-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
+              <path d="m18 15-2-2"/>
+              <path d="m15 18-2-2"/>
+            </svg>
+          </div>
         </div>
 
         {/* SCHRITT 1 */}
