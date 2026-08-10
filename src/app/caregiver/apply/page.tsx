@@ -175,7 +175,13 @@ export default function CaregiverApplyPage() {
               </div>
             )}
 
-            <button disabled={formData.tasks.length === 0} onClick={() => setStep(2)} className="w-full bg-slate-900 text-white font-bold text-base sm:text-lg py-4 rounded-2xl hover:bg-emerald-600 transition-all disabled:opacity-40 shadow-md">Weiter zum Einsatzgebiet →</button>
+            <button 
+              type="button" 
+              onClick={() => { if (formData.tasks.length > 0) setStep(2); }} 
+              className={`w-full font-bold text-base sm:text-lg py-4 rounded-2xl transition-all shadow-md ${formData.tasks.length > 0 ? 'bg-slate-900 text-white hover:bg-emerald-600 cursor-pointer' : 'bg-slate-300 text-slate-500 opacity-60 cursor-not-allowed'}`}
+            >
+              Weiter zum Einsatzgebiet →
+            </button>
           </div>
         )}
 
@@ -197,7 +203,7 @@ export default function CaregiverApplyPage() {
 
             <div className="flex gap-3">
               <button type="button" onClick={() => setStep(1)} className="w-1/3 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-4 rounded-2xl text-sm sm:text-base transition-colors">Zurück</button>
-              <button disabled={formData.districts.length === 0} onClick={() => setStep(3)} className="w-2/3 bg-slate-900 text-white font-bold text-sm sm:text-base py-4 rounded-2xl hover:bg-emerald-600 transition-all disabled:opacity-40 shadow-md">Zeitrahmen →</button>
+              <button type="button" onClick={() => { if (formData.districts.length > 0) setStep(3); }} className={`w-2/3 font-bold text-sm sm:text-base py-4 rounded-2xl transition-all shadow-md ${formData.districts.length > 0 ? 'bg-slate-900 text-white hover:bg-emerald-600 cursor-pointer' : 'bg-slate-300 text-slate-500 opacity-60 cursor-not-allowed'}`}>Zeitrahmen →</button>
             </div>
           </div>
         )}
