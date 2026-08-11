@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -20,7 +20,17 @@ export default function CareSeekerApplyPage() {
     fullName: '',
     email: '',
     phone: '',
+    privacyAccepted: false,
+    source: 'direkt',
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sourceParam = params.get('source') || params.get('ref');
+    if (sourceParam) {
+      setFormData(prev => ({ ...prev, source: sourceParam }));
+    }
+  }, []);
 
   const serviceOptions = [
     { id: 'Einkäufe & Besorgungen', icon: '🛒', title: 'Einkäufe & Besorgungen', desc: 'Wöchentliche Erledigungen & frische Lebensmittel' },
@@ -54,6 +64,7 @@ export default function CareSeekerApplyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.privacyAccepted) return;
     setLoading(true);
     try {
       const finalServices = [...formData.services];
@@ -61,17 +72,7 @@ export default function CareSeekerApplyPage() {
         finalServices.push(`Sonstiges: ${formData.otherServiceText.trim()}`);
       }
 
-      await supabase.from('pilot_requests').insert([{
-        role: 'care_seeker',
-        name: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        services: finalServices,
-        district: formData.district,
-        hours_per_week: null,
-        target_group: formData.targetGroup,
-        created_at: new Date().toISOString()
-      }]);
+      await supabase.from('pilot_requests').insert([{ role: 'care_seeker', name: formData.fullName, email: formData.email, phone: formData.phone, services: finalServices, district: formData.district, hours_per_week: null, target_group: formData.targetGroup, source: formData.source, created_at: new Date().toISOString() }]);
       setSubmitted(true);
     } catch (err) {
       console.error(err);
@@ -233,11 +234,19 @@ export default function CareSeekerApplyPage() {
                   <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Handynummer</label>
                   <input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
                 </div>
+
+                {/* Datenschutz Checkbox */}
+                <div className="flex items-start gap-3 pt-2">
+                  <input required type="checkbox" id="privacy" checked={formData.privacyAccepted} onChange={e => setFormData({...formData, privacyAccepted: e.target.checked})} className="mt-1 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                  <label htmlFor="privacy" className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    Ich stimme zu, dass meine Angaben zur Vermittlung von Alltagshilfe gemäß der <a href="/datenschutz" target="_blank" className="text-emerald-700 underline font-semibold">Datenschutzerklärung</a> verarbeitet werden.
+                  </label>
+                </div>
               </div>
 
               <div className="flex gap-3">
                 <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-4 rounded-2xl text-sm sm:text-base transition-colors">Zurück</button>
-                <button disabled={loading} type="submit" className="w-2/3 bg-emerald-600 text-white font-bold text-sm sm:text-base py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:bg-emerald-500 transition-all disabled:opacity-70 flex items-center justify-center gap-2">
+                <button disabled={loading || !formData.privacyAccepted} type="submit" className="w-2/3 bg-emerald-600 text-white font-bold text-sm sm:text-base py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:bg-emerald-500 transition-all disabled:opacity-70 flex items-center justify-center gap-2">
                   {loading ? 'Wird gesendet...' : 'Profile anfordern 🚀'}
                 </button>
               </div>

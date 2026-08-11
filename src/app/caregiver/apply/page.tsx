@@ -65,6 +65,10 @@ export default function CaregiverApplyPage() {
         finalTasks.push(`Sonstiges: ${formData.otherTaskText.trim()}`);
       }
 
+      // Herkunft aus der URL auslesen
+      const searchParams = new URLSearchParams(window.location.search);
+      const sourceVal = searchParams.get('source') || 'direct';
+
       await supabase.from('pilot_requests').insert([{
         role: 'caregiver',
         name: formData.fullName,
@@ -74,6 +78,7 @@ export default function CaregiverApplyPage() {
         district: formData.districts.join(', '),
         hours_per_week: formData.hoursPerWeek,
         target_group: null,
+        source: sourceVal,
         created_at: new Date().toISOString()
       }]);
       setSubmitted(true);
