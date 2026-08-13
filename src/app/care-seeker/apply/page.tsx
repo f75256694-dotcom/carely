@@ -11,6 +11,7 @@ export default function CareSeekerApplyPage() {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false); // Neu: Merkt sich, ob das Feld verlassen wurde
 
   const [formData, setFormData] = useState({
     services: [] as string[],
@@ -55,6 +56,10 @@ export default function CareSeekerApplyPage() {
     'Sonstiges'
   ];
 
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  };
+
   const toggleService = (serviceId: string) => {
     setFormData(prev => ({ 
       ...prev, 
@@ -64,7 +69,8 @@ export default function CareSeekerApplyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.privacyAccepted) return;
+    setEmailTouched(true);
+    if (!formData.privacyAccepted || !isValidEmail(formData.email)) return;
     setLoading(true);
     try {
       const finalServices = [...formData.services];
@@ -96,6 +102,9 @@ export default function CareSeekerApplyPage() {
   }
 
   const isOtherSelected = formData.services.includes('Sonstiges');
+  
+  // Der Fehler wird erst angezeigt, wenn das Feld verlassen (touched) oder abgeschickt wurde UND die E-Mail ungültig ist
+  const isEmailInvalid = emailTouched && formData.email.length > 0 && !isValidEmail(formData.email);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-50 via-slate-50 to-white py-6 sm:py-12 px-4 flex flex-col items-center selection:bg-emerald-200">
@@ -226,10 +235,30 @@ export default function CareSeekerApplyPage() {
                   <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Dein vollständiger Name</label>
                   <input required type="text" placeholder="Anna Huber" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
                 </div>
+                
+                {/* E-Mail-Feld mit OnBlur-Validierung */}
                 <div>
                   <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">E-Mail-Adresse</label>
-                  <input required type="email" placeholder="anna@beispiel.at" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
+                  <input 
+                    required 
+                    type="email" 
+                    placeholder="anna@beispiel.at" 
+                    value={formData.email} 
+                    onChange={e => setFormData({...formData, email: e.target.value})} 
+                    onBlur={() => setEmailTouched(true)} // Prüft erst, wenn das Feld verlassen wird!
+                    className={`w-full px-4 py-3.5 bg-slate-50 border rounded-2xl text-slate-900 font-medium outline-none text-base focus:bg-white transition-colors ${
+                      isEmailInvalid 
+                        ? 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10' 
+                        : 'border-slate-200 focus:border-emerald-500'
+                    }`} 
+                  />
+                  {isEmailInvalid && (
+                    <p className="text-red-500 text-xs mt-1.5 font-medium animate-in fade-in duration-200">
+                      Bitte gib eine gültige E-Mail-Adresse ein (z. B. name@domain.at).
+                    </p>
+                  )}
                 </div>
+
                 <div>
                   <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Handynummer</label>
                   <input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
@@ -246,7 +275,11 @@ export default function CareSeekerApplyPage() {
 
               <div className="flex gap-3">
                 <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-4 rounded-2xl text-sm sm:text-base transition-colors">Zurück</button>
-                <button disabled={loading || !formData.privacyAccepted} type="submit" className="w-2/3 bg-emerald-600 text-white font-bold text-sm sm:text-base py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:bg-emerald-500 transition-all disabled:opacity-70 flex items-center justify-center gap-2">
+                <button 
+                  disabled={loading || !formData.privacyAccepted || !isValidEmail(formData.email)} 
+                  type="submit" 
+                  className="w-2/3 bg-emerald-600 text-white font-bold text-sm sm:text-base py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:bg-emerald-500 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                >
                   {loading ? 'Wird gesendet...' : 'Profile anfordern 🚀'}
                 </button>
               </div>

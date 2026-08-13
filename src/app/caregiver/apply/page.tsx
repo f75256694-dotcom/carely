@@ -11,6 +11,7 @@ export default function CaregiverApplyPage() {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false); // Neu: Merkt sich, ob das Feld verlassen wurde
 
   const [formData, setFormData] = useState({
     tasks: [] as string[],
@@ -42,6 +43,10 @@ export default function CaregiverApplyPage() {
 
   const hoursOptions = ['2-5 Std./Woche', '5-10 Std./Woche', '10-20 Std./Woche', 'Vollzeit / Flexibel'];
 
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  };
+
   const toggleTask = (taskId: string) => {
     setFormData(prev => ({ 
       ...prev, 
@@ -58,6 +63,8 @@ export default function CaregiverApplyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setEmailTouched(true);
+    if (!isValidEmail(formData.email)) return;
     setLoading(true);
     try {
       const finalTasks = [...formData.tasks];
@@ -104,6 +111,9 @@ export default function CaregiverApplyPage() {
   }
 
   const isOtherSelected = formData.tasks.includes('Sonstiges');
+  
+  // Der Fehler wird erst angezeigt, wenn das Feld verlassen oder abgeschickt wurde UND die E-Mail ungültig ist
+  const isEmailInvalid = emailTouched && formData.email.length > 0 && !isValidEmail(formData.email);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-50 via-slate-50 to-white py-6 sm:py-12 px-4 flex flex-col items-center selection:bg-emerald-200">
@@ -231,13 +241,40 @@ export default function CaregiverApplyPage() {
               
               <div className="space-y-4 mb-6">
                 <div><label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Vollständiger Name</label><input required type="text" placeholder="Maria Musterfrau" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" /></div>
-                <div><label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">E-Mail-Adresse</label><input required type="email" placeholder="maria@beispiel.at" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" /></div>
+                
+                {/* E-Mail-Feld mit OnBlur-Validierung */}
+                <div>
+                  <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">E-Mail-Adresse</label>
+                  <input 
+                    required 
+                    type="email" 
+                    placeholder="maria@beispiel.at" 
+                    value={formData.email} 
+                    onChange={e => setFormData({...formData, email: e.target.value})} 
+                    onBlur={() => setEmailTouched(true)}
+                    className={`w-full px-4 py-3.5 bg-slate-50 border rounded-2xl text-slate-900 font-medium outline-none text-base focus:bg-white transition-colors ${
+                      isEmailInvalid 
+                        ? 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10' 
+                        : 'border-slate-200 focus:border-emerald-500'
+                    }`} 
+                  />
+                  {isEmailInvalid && (
+                    <p className="text-red-500 text-xs mt-1.5 font-medium animate-in fade-in duration-200">
+                      Bitte gib eine gültige E-Mail-Adresse ein (z. B. name@domain.at).
+                    </p>
+                  )}
+                </div>
+
                 <div><label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Handynummer</label><input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" /></div>
               </div>
 
               <div className="flex gap-3">
                 <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-4 rounded-2xl text-sm sm:text-base transition-colors">Zurück</button>
-                <button disabled={loading} type="submit" className="w-2/3 bg-emerald-600 text-white font-bold text-sm sm:text-base py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:bg-emerald-500 transition-all disabled:opacity-70 flex items-center justify-center gap-2">
+                <button 
+                  disabled={loading || !isValidEmail(formData.email)} 
+                  type="submit" 
+                  className="w-2/3 bg-emerald-600 text-white font-bold text-sm sm:text-base py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:bg-emerald-500 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                >
                   {loading ? 'Wird gesendet...' : 'Abschicken 🚀'}
                 </button>
               </div>
