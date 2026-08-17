@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Vertragsdokumente – Alltagshilfe</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        @page { size: A4; margin: 0; }
+        
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            color: #1e293b;
+            line-height: 1.5;
+            font-size: 9.5pt;
+            background-color: #e2e8f0;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .contract-page {
+            background: #ffffff;
+            width: 210mm;
+            height: 297mm;
+            padding: 12mm 15mm 10mm 15mm;
+            margin: 0 auto 10px auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-body {
+            flex: 1; 
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .logo-placeholder {
+            width: 130px;
+            height: 38px;
+            background-color: #eff6ff;
+            border: 1px dashed #2563eb;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 8pt;
+            border-radius: 4px;
+        }
+
+        .company-info { text-align: right; font-size: 8pt; color: #64748b; line-height: 1.3; }
+
+        h1 { font-size: 14pt; color: #0f172a; margin: 0 0 10px 0; text-transform: uppercase; }
+        h2 { font-size: 10pt; color: #2563eb; margin: 10px 0 6px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; }
+
+        .party-box { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 8px 12px; margin-bottom: 10px; }
+        .party-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .field-label { font-size: 7pt; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 2px; }
+        .field-value { font-weight: 600; color: #0f172a; font-size: 9.5pt; line-height: 1.3; }
+
+        p, ol { margin: 4px 0; }
+        ol { padding-left: 16px; }
+        li { margin-bottom: 4px; }
+
+        .package-table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+        .package-table th, .package-table td { border: 1px solid #cbd5e1; padding: 6px 8px; font-size: 9pt; }
+        .package-table th { background-color: #f1f5f9; text-align: left; }
+
+        .fagg-box { background-color: #fffbe8; border: 1px solid #ffe58f; border-radius: 4px; padding: 8px; margin: 8px 0; font-size: 8.5pt; color: #714500; }
+        
+        .signatures { margin-top: auto; display: flex; justify-content: space-between; padding-top: 15px; }
+        .sig-box { width: 45%; border-top: 1px solid #0f172a; padding-top: 6px; text-align: center; font-size: 8.5pt; color: #475569; }
+
+        .footer { text-align: center; font-size: 7.5pt; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 6px; margin-top: 6px; }
+
+        @media print {
+            body { background: none; padding: 0; }
+            .contract-page { box-shadow: none; margin: 0; page-break-after: always; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- VERTRAG 1: KUNDEN-SERVICEVERTRAG -->
+    <div class="contract-page">
+        <div class="header">
+            <div class="logo-placeholder">[ DEIN LOGO HIER ]</div>
+            <div class="company-info">
+                <strong>[Dein Firmenname GmbH / e.U.]</strong><br>
+                Musterstraße 123, 1010 Wien | Tel: +43 1 234567
+            </div>
+        </div>
+
+        <div class="content-body">
+            <h1>Servicevertrag für stundenweise Alltagshilfe</h1>
+            <div class="party-box">
+                <div class="party-grid">
+                    <div><div class="field-label">Dienstleister / Agentur</div><div class="field-value">[Dein Firmenname]<br>Musterstraße 123, 1010 Wien</div></div>
+                    <div><div class="field-label">Auftraggeber / Klient(in)</div><div class="field-value">[Name des Kunden / Angehörigen]<br>[Adresse] | Tel: [Telefon]</div></div>
+                </div>
+            </div>
+
+            <h2>§ 1 Leistungsgegenstand & Personaleinsatz</h2>
+            <ol>
+                <li>Die Agentur erbringt stundenweise Alltagshilfe (Haushaltsführung, Einkäufe, Botengänge, Begleitung, Gesellschaft).</li>
+                <li><strong>Haftungsausschluss / Keine Pflege:</strong> Die Agentur erbringt keinerlei medizinische oder pflegerische Leistungen gemäß GuKG.</li>
+                <li><strong>Vertretung:</strong> Die Agentur ist berechtigt, bei Verhinderung des Stammhabers gleichwertiges Ersatzpersonal einzusetzen. Ein Anspruch auf die Betreuung durch eine bestimmte Person besteht nicht.</li>
+            </ol>
+
+            <h2>§ 2 Leistungspaket, Vergütung & Haftung</h2>
+            <table class="package-table">
+                <thead><tr><th>Wahl</th><th>Paket</th><th>Enthaltene Stunden</th><th>Monatlicher Festpreis</th></tr></thead>
+                <tbody>
+                    <tr><td>[ ]</td><td>Paket S</td><td>4 Stunden / Monat</td><td>EUR [XX,-] / Monat</td></tr>
+                    <tr><td>[ ]</td><td>Paket M</td><td>8 Stunden / Monat</td><td>EUR [XX,-] / Monat</td></tr>
+                    <tr><td>[ ]</td><td>Paket L</td><td>16 Stunden / Monat</td><td>EUR [XX,-] / Monat</td></tr>
+                </tbody>
+            </table>
+            <ol start="2">
+                <li>Abrechnung erfolgt im Voraus per Rechnung/SEPA. Nicht genutzte Stunden verfallen am Ende des Folgemonats. Fahrtkosten für gemeinsame Fahrten betragen <strong>EUR 0,42 / km</strong>.</li>
+                <li><strong>Haftung:</strong> Die Agentur haftet nur für vorsätzlich oder grob fahrlässig verursachte Schäden (ausgenommen Personenschäden). Für leichte Fahrlässigkeit bei Sachschäden wird die Haftung ausgeschlossen.</li>
+            </ol>
+
+            <h2>§ 3 Absageregelung, Kündigung & FAGG</h2>
+            <ol>
+                <li>Termine müssen mind. <strong>24 Std. vorher</strong> abgesagt werden, andernfalls wird die Zeit voll berechnet.</li>
+                <li>Der Vertrag ist unbefristet und mit einer Frist von <strong>14 Tagen zum Monatsende</strong> in Textform kündbar.</li>
+            </ol>
+            <div class="fagg-box">
+                <strong>[ ] Zustimmung zum vorzeitigen Leistungsbeginn (FAGG):</strong> Ich fordere ausdrücklich an, dass die Agentur vor Ablauf der 14-tägigen Rücktrittsfrist mit den Leistungen beginnt, und nehme zur Kenntnis, dass ich bei vollständiger Vertragserfüllung mein Rücktrittsrecht verliere.
+            </div>
+
+            <div class="signatures">
+                <div class="sig-box">Ort, Datum / Unterschrift Agentur</div>
+                <div class="sig-box">Ort, Datum / Unterschrift Auftraggeber</div>
+            </div>
+        </div>
+        <div class="footer">[Dein Firmenname] | Servicevertrag für Alltagshilfe | Seite 1 von 1</div>
+    </div>
+
+    <!-- VERTRAG 2: DIENSTVERTRAG -->
+    <div class="contract-page">
+        <div class="header">
+            <div class="logo-placeholder">[ DEIN LOGO HIER ]</div>
+            <div class="company-info"><strong>[Dein Firmenname GmbH]</strong><br>Musterstraße 123, 1010 Wien</div>
+        </div>
+
+        <div class="content-body">
+            <h1>Dienstvertrag (Geringfügig)</h1>
+            <div class="party-box">
+                <div class="party-grid">
+                    <div><div class="field-label">Dienstgeber</div><div class="field-value">[Dein Firmenname]</div></div>
+                    <div><div class="field-label">Dienstnehmer</div><div class="field-value">[Name]</div></div>
+                </div>
+            </div>
+
+            <h2>§ 1 Beginn, Probemonat & Tätigkeit</h2>
+            <ol>
+                <li>Beginn des Dienstverhältnisses: [Datum]. Der Probemonat vereinbart sich gemäß § 1159 ABGB.</li>
+                <li>Tätigkeit: Alltagshelfer / Alltagsbegleiter.</li>
+            </ol>
+
+            <h2>§ 2 Arbeitszeit & Entlohnung</h2>
+            <ol>
+                <li>Die Beschäftigung erfolgt im Rahmen der Geringfügigkeit gemäß § 5 Abs 2 ASVG.</li>
+                <li>Der Stundensatz beträgt <strong>EUR [XX,-]</strong> (inkl. aliquoter Sonderzahlungen).</li>
+                <li>Arbeitsaufzeichnungspflicht (genaue Dokumentation von Beginn, Ende und Pausen).</li>
+            </ol>
+
+            <h2>§ 3 Kundenschutz & Umgehungsverbot</h2>
+            <ol>
+                <li>Private Betreuungsverhältnisse mit Agentur-Klienten sind während und bis zu 6 Monate nach Ende des Vertrages untersagt.</li>
+                <li>Pönale bei schuldhaftem Verstoß: <strong>EUR 500,-</strong>.</li>
+            </ol>
+
+            <h2>§ 4 Verschwiegenheit</h2>
+            <ol>
+                <li>Absolute Verschwiegenheit über alle betrieblichen Interna und Klientendaten.</li>
+            </ol>
+
+            <div class="signatures">
+                <div class="sig-box">Ort, Datum / Unterschrift Dienstgeber</div>
+                <div class="sig-box">Ort, Datum / Unterschrift Dienstnehmer</div>
+            </div>
+        </div>
+        <div class="footer">[Dein Firmenname] | Geringfügiger Dienstvertrag | Seite 1 von 1</div>
+    </div>
+</body>
+</html>

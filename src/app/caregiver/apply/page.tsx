@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -11,7 +11,7 @@ export default function CaregiverApplyPage() {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [emailTouched, setEmailTouched] = useState(false); // Neu: Merkt sich, ob das Feld verlassen wurde
+  const [emailTouched, setEmailTouched] = useState(false);
 
   const [formData, setFormData] = useState({
     tasks: [] as string[],
@@ -21,7 +21,17 @@ export default function CaregiverApplyPage() {
     fullName: '',
     email: '',
     phone: '',
+    privacyAccepted: false,
+    source: 'direct',
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sourceParam = params.get('source') || params.get('ref');
+    if (sourceParam) {
+      setFormData(prev => ({ ...prev, source: sourceParam }));
+    }
+  }, []);
 
   const taskOptions = [
     { id: 'Einkäufe & Besorgungen', icon: '🛒', title: 'Einkäufe & Besorgungen', desc: 'Unterstützung beim wöchentlichen Einkauf' },
@@ -64,17 +74,13 @@ export default function CaregiverApplyPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmailTouched(true);
-    if (!isValidEmail(formData.email)) return;
+    if (!formData.privacyAccepted || !isValidEmail(formData.email)) return;
     setLoading(true);
     try {
       const finalTasks = [...formData.tasks];
       if (formData.otherTaskText.trim()) {
         finalTasks.push(`Sonstiges: ${formData.otherTaskText.trim()}`);
       }
-
-      // Herkunft aus der URL auslesen
-      const searchParams = new URLSearchParams(window.location.search);
-      const sourceVal = searchParams.get('source') || 'direct';
 
       await supabase.from('pilot_requests').insert([{
         role: 'caregiver',
@@ -85,7 +91,7 @@ export default function CaregiverApplyPage() {
         district: formData.districts.join(', '),
         hours_per_week: formData.hoursPerWeek,
         target_group: null,
-        source: sourceVal,
+        source: formData.source,
         created_at: new Date().toISOString()
       }]);
       setSubmitted(true);
@@ -101,7 +107,12 @@ export default function CaregiverApplyPage() {
       <main className="min-h-screen bg-[#0F172A] flex items-center justify-center p-4 selection:bg-emerald-500 selection:text-white">
         <div className="max-w-lg w-full bg-white/15 backdrop-blur-xl border border-white/20 rounded-3xl p-8 sm:p-10 text-center shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
-          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-emerald-400 to-teal-500 text-white rounded-full flex items-center justify-center mx-auto mb-6 text-4xl sm:text-5xl shadow-[0_0_40px_rgba(16,185,129,0.4)]">🚀</div>
+          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#1B4D3E] text-[#86EFAC] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_0_40px_rgba(27,77,62,0.4)]">
+            <svg className="w-10 h-10 sm:w-12 sm:h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
+            </svg>
+          </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Vielen Dank!</h1>
           <p className="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed">Deine Bewerbung als Alltagsheld ist sicher eingegangen. Wir melden uns in Kürze bei dir!</p>
           <div className="inline-block px-6 py-3 rounded-2xl bg-white/10 text-emerald-400 font-semibold text-sm border border-white/10">Du kannst dieses Fenster jetzt schließen.</div>
@@ -111,14 +122,23 @@ export default function CaregiverApplyPage() {
   }
 
   const isOtherSelected = formData.tasks.includes('Sonstiges');
-  
-  // Der Fehler wird erst angezeigt, wenn das Feld verlassen oder abgeschickt wurde UND die E-Mail ungültig ist
   const isEmailInvalid = emailTouched && formData.email.length > 0 && !isValidEmail(formData.email);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-50 via-slate-50 to-white py-6 sm:py-12 px-4 flex flex-col items-center selection:bg-emerald-200">
       
+      {/* Header Bereich mit Helpify Logo */}
       <div className="max-w-xl w-full text-center mb-6 sm:mb-10">
+        <div className="flex items-center justify-center gap-2.5 mb-6">
+          <div className="w-10 h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-sm shrink-0">
+            <svg className="w-5 h-5 text-[#86EFAC]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
+            </svg>
+          </div>
+          <span className="text-3xl font-bold tracking-tight text-[#0A2E23] font-serif">Helpify</span>
+        </div>
+
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-xs sm:text-sm mb-4 border border-emerald-200 shadow-sm">
           <span className="relative flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span></span>
           Exklusiver Pilotbetrieb für Alltagshelden
@@ -129,6 +149,7 @@ export default function CaregiverApplyPage() {
         <p className="text-slate-600 text-base sm:text-xl">Unterstütze ältere Menschen in deiner Nachbarschaft. <strong>100% deines Verdienstes</strong> gehören komplett dir.</p>
       </div>
 
+      {/* Formular Box */}
       <div className="max-w-xl w-full bg-white rounded-3xl p-5 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-100">
           <div className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-500 ease-out" style={{ width: `${(step / 3) * 100}%` }}></div>
@@ -136,16 +157,15 @@ export default function CaregiverApplyPage() {
 
         <div className="flex justify-between items-center mb-6 sm:mb-8 mt-2">
           <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-wider">Schritt {step} von 3</span>
-          <div className="w-9 h-9 rounded-xl bg-[#2a524a] text-white flex items-center justify-center shadow-md p-1.5">
-            <svg className="w-full h-full text-emerald-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-9 h-9 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-sm shrink-0">
+            <svg className="w-5 h-5 text-[#86EFAC]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
               <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
-              <path d="m18 15-2-2"/>
-              <path d="m15 18-2-2"/>
             </svg>
           </div>
         </div>
 
+        {/* SCHRITT 1 */}
         {step === 1 && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex flex-col gap-1 mb-2">
@@ -193,19 +213,21 @@ export default function CaregiverApplyPage() {
             <button 
               type="button" 
               onClick={() => { if (formData.tasks.length > 0) setStep(2); }} 
-              className={`w-full font-bold text-base sm:text-lg py-4 rounded-2xl transition-all shadow-md ${formData.tasks.length > 0 ? 'bg-slate-900 text-white hover:bg-emerald-600 cursor-pointer' : 'bg-slate-300 text-slate-500 opacity-60 cursor-not-allowed'}`}
+              disabled={formData.tasks.length === 0}
+              className="w-full bg-slate-900 text-white font-bold text-base sm:text-lg py-4 rounded-2xl hover:bg-emerald-600 transition-all disabled:opacity-40 shadow-md"
             >
               Weiter zum Einsatzgebiet →
             </button>
           </div>
         )}
 
+        {/* SCHRITT 2 */}
         {step === 2 && (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">In welchen Bezirken?</h2>
             <p className="text-slate-500 text-sm sm:text-base mb-6">Wähle deine bevorzugten Wiener Bezirke aus.</p>
             
-            <div className="grid grid-cols-2 gap-2.5 mb-6 max-h-[350px] overflow-y-auto pr-1">
+            <div className="grid grid-cols-2 gap-2.5 mb-6 max-h-[300px] overflow-y-auto pr-1">
               {districtOptions.map(d => {
                 const isSelected = formData.districts.includes(d.label);
                 return (
@@ -218,11 +240,12 @@ export default function CaregiverApplyPage() {
 
             <div className="flex gap-3">
               <button type="button" onClick={() => setStep(1)} className="w-1/3 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-4 rounded-2xl text-sm sm:text-base transition-colors">Zurück</button>
-              <button type="button" onClick={() => { if (formData.districts.length > 0) setStep(3); }} className={`w-2/3 font-bold text-sm sm:text-base py-4 rounded-2xl transition-all shadow-md ${formData.districts.length > 0 ? 'bg-slate-900 text-white hover:bg-emerald-600 cursor-pointer' : 'bg-slate-300 text-slate-500 opacity-60 cursor-not-allowed'}`}>Zeitrahmen →</button>
+              <button type="button" disabled={formData.districts.length === 0} onClick={() => setStep(3)} className="w-2/3 bg-slate-900 text-white font-bold text-sm sm:text-base py-4 rounded-2xl hover:bg-emerald-600 transition-all disabled:opacity-40 shadow-md">Zeitrahmen →</button>
             </div>
           </div>
         )}
 
+        {/* SCHRITT 3 */}
         {step === 3 && (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
             <form onSubmit={handleSubmit}>
@@ -240,9 +263,11 @@ export default function CaregiverApplyPage() {
               <p className="text-slate-500 text-sm sm:text-base mb-4">Wohin dürfen wir dir Infos senden?</p>
               
               <div className="space-y-4 mb-6">
-                <div><label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Vollständiger Name</label><input required type="text" placeholder="Maria Musterfrau" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" /></div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Vollständiger Name</label>
+                  <input required type="text" placeholder="Maria Musterfrau" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
+                </div>
                 
-                {/* E-Mail-Feld mit OnBlur-Validierung */}
                 <div>
                   <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">E-Mail-Adresse</label>
                   <input 
@@ -265,13 +290,23 @@ export default function CaregiverApplyPage() {
                   )}
                 </div>
 
-                <div><label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Handynummer</label><input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" /></div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Handynummer</label>
+                  <input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
+                </div>
+
+                <div className="flex items-start gap-3 pt-2">
+                  <input required type="checkbox" id="privacy" checked={formData.privacyAccepted} onChange={e => setFormData({...formData, privacyAccepted: e.target.checked})} className="mt-1 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                  <label htmlFor="privacy" className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    Ich stimme zu, dass meine Angaben zur Vermittlung gemäß der <a href="/datenschutz" target="_blank" className="text-emerald-700 underline font-semibold">Datenschutzerklärung</a> verarbeitet werden.
+                  </label>
+                </div>
               </div>
 
               <div className="flex gap-3">
                 <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-4 rounded-2xl text-sm sm:text-base transition-colors">Zurück</button>
                 <button 
-                  disabled={loading || !isValidEmail(formData.email)} 
+                  disabled={loading || !formData.privacyAccepted || !isValidEmail(formData.email)} 
                   type="submit" 
                   className="w-2/3 bg-emerald-600 text-white font-bold text-sm sm:text-base py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:bg-emerald-500 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
                 >
@@ -283,6 +318,7 @@ export default function CaregiverApplyPage() {
         )}
       </div>
 
+      {/* Footer Badges */}
       <div className="max-w-xl w-full flex flex-wrap justify-center items-center gap-3 mt-8 text-slate-500 text-xs sm:text-sm font-medium">
         <span className="flex items-center gap-1.5 bg-white/70 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">🛡️ 100% eigener Verdienst</span>
         <span className="flex items-center gap-1.5 bg-white/70 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">⚡ Flexible Zeiten</span>

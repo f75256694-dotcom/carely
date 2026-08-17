@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Helpify - DIN A5 Premium Flyer (Hilfesuchende - Wohnhaus)</title>
+  <title>Helpify - DIN A5 Flyer (Hilfesuchende - Wohnhaus)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -11,16 +11,16 @@
     body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     .font-serif { font-family: 'Playfair Display', serif; }
     @page { size: A5 portrait; margin: 0; }
-    @media print {
-      html, body { background: none !important; padding: 0 !important; margin: 0 !important; width: 148mm; height: 210mm; }
-      #flyer { width: 148mm !important; height: 210mm !important; border-radius: 0 !important; box-shadow: none !important; border: none !important; margin: 0 !important; }
+    @media print { 
+      html, body { background: none !important; padding: 0 !important; margin: 0 !important; width: 148mm; height: 210mm; } 
+      #flyer { width: 148mm !important; height: 210mm !important; border-radius: 0 !important; box-shadow: none !important; border: none !important; margin: 0 !important; } 
     }
   </style>
 </head>
 <body class="bg-slate-300 min-h-screen flex items-center justify-center p-4">
-
   <div id="flyer" class="w-[148mm] h-[210mm] bg-[#F2F6F4] text-[#0A2E23] p-[26px] rounded-[2.5rem] shadow-2xl border border-emerald-950/5 relative overflow-hidden flex flex-col justify-between shrink-0 select-none">
     
+    <!-- HEADER & HEADLINE -->
     <div class="shrink-0">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
@@ -32,130 +32,104 @@
           </div>
           <span class="text-2xl font-bold tracking-tight text-[#0A2E23] font-serif">Helpify</span>
         </div>
-        <span class="px-4 py-1.5 rounded-full bg-emerald-50/70 backdrop-blur-md border border-emerald-500/40 text-[#1B4D3E] text-[9px] font-extrabold uppercase tracking-widest shadow-xs">
-          DIREKT AUS DEM GRÄTZEL
-        </span>
+        <span class="px-3.5 py-1.5 rounded-full bg-emerald-100/80 border border-emerald-600/25 text-[#1B4D3E] text-[9px] font-extrabold uppercase tracking-widest shadow-xs">WIENER ALLTAGSHILFE</span>
       </div>
 
       <div class="mt-5 space-y-2">
-        <h1 class="text-[36px] font-serif font-bold text-[#0A2E23] leading-[1.05] tracking-tight">
-          Liebevolle Alltagshilfe<br>
-          <span class="text-[#155D47] italic font-normal text-[32px]">für Ihre Eltern in Wien.</span>
+        <h1 class="text-[35px] font-serif font-bold text-[#0A2E23] leading-[1.08] tracking-tight">
+          Entlastung im Alltag –<br>
+          <span class="text-[#155D47] italic font-normal text-[30px]">direkt aus Ihrem Wiener Grätzel.</span>
         </h1>
-        <p class="text-[14px] text-slate-600 font-normal leading-relaxed pr-2 mt-3">
-          <strong class="font-semibold text-[#0A2E23]">Einkäufe</strong>, <strong class="font-semibold text-[#0A2E23]">Spaziergänge</strong>, <strong class="font-semibold text-[#0A2E23]">Gesellschaft</strong> oder <strong class="font-semibold text-[#0A2E23]">kleine Handgriffe</strong>: Helpify bringt persönlich geprüfte Alltagsbegleiter direkt aus der Nachbarschaft zu Ihren Eltern.
+        <p class="text-[13.5px] text-slate-600 font-normal leading-relaxed pr-2 mt-2.5">
+          Ob Haushalt, Besorgungen oder Begleitung im Alltag: Helpify vermittelt <strong class="font-semibold text-[#0A2E23]">überprüfte Alltagsbegleiter aus der Nachbarschaft</strong> direkt an Sie oder Ihre Angehörigen.
         </p>
       </div>
     </div>
 
+    <!-- VALUE CARDS -->
     <div class="my-auto">
-      <div class="flex items-center justify-between mb-3 px-1">
-        <span class="px-3.5 py-1.5 rounded-full bg-emerald-200/60 border border-emerald-600/30 text-[#1B4D3E] text-[10px] font-extrabold uppercase tracking-widest shadow-xs">
-          Ihre Vorteile
-        </span>
+      <div class="flex items-center justify-between mb-2.5 px-1">
+        <span class="text-[#1B4D3E] text-[10px] font-extrabold uppercase tracking-widest">Warum Familien Helpify vertrauen</span>
         <div class="h-[1px] flex-1 ml-3 bg-emerald-900/10"></div>
       </div>
-      <div class="space-y-3">
-        
-        <!-- Vorteil 1 -->
-        <div class="bg-white/90 backdrop-blur-md px-4 py-3.5 rounded-2xl border border-emerald-900/5 shadow-[0_4px_20px_rgba(10,46,35,0.02)] flex items-center gap-4">
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 border border-emerald-200/50 flex items-center justify-center shrink-0 shadow-xs">
-            <svg class="w-5 h-5 text-[#0A2E23] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+      <div class="space-y-2.5">
+        <div class="bg-white/90 backdrop-blur-md px-4 py-3 rounded-2xl border border-emerald-900/5 shadow-[0_4px_20px_rgba(10,46,35,0.02)] flex items-center gap-4">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100/70 border border-emerald-200/60 flex items-center justify-center shrink-0 shadow-xs">
+            <svg class="w-5 h-5 text-[#1B4D3E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
             </svg>
           </div>
-          <div class="space-y-0.5">
-            <h3 class="font-extrabold text-[#0A2E23] text-[13.5px] leading-tight tracking-tight">Endlich durchatmen & beruhigt sein</h3>
-            <p class="text-[10.5px] text-slate-500 font-normal leading-relaxed">Schenken Sie Ihren Eltern liebevolle Begleitung – und sich selbst die Gewissheit, dass sich bestens um sie gekümmert wird.</p>
+          <div>
+            <h3 class="font-extrabold text-[#0A2E23] text-[13px] leading-tight tracking-tight">Haushalt, Einkäufe &amp; Besorgungen</h3>
+            <p class="text-[10.5px] text-slate-500 font-normal leading-relaxed">Unterstützung bei Reinigung, Wäsche, Müllentsorgung &amp; Apotheken-Gängen.</p>
           </div>
         </div>
 
-        <!-- Vorteil 2 -->
-        <div class="bg-white/90 backdrop-blur-md px-4 py-3.5 rounded-2xl border border-emerald-900/5 shadow-[0_4px_20px_rgba(10,46,35,0.02)] flex items-center gap-4">
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 border border-emerald-200/50 flex items-center justify-center shrink-0 shadow-xs">
-            <svg class="w-5 h-5 text-[#0A2E23] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        <div class="bg-white/90 backdrop-blur-md px-4 py-3 rounded-2xl border border-emerald-900/5 shadow-[0_4px_20px_rgba(10,46,35,0.02)] flex items-center gap-4">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100/70 border border-emerald-200/60 flex items-center justify-center shrink-0 shadow-xs">
+            <svg class="w-5 h-5 text-[#1B4D3E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="m9 12 2 2 4-4"/>
             </svg>
           </div>
-          <div class="space-y-0.5">
-            <h3 class="font-extrabold text-[#0A2E23] text-[13.5px] leading-tight tracking-tight">Handverlesene Nachbarn</h3>
-            <p class="text-[10.5px] text-slate-500 font-normal leading-relaxed">Persönlich interviewte und geprüfte Begleitpersonen aus unmittelbarer Nähe.</p>
+          <div>
+            <h3 class="font-extrabold text-[#0A2E23] text-[13px] leading-tight tracking-tight">100% Geprüfte Alltagsbegleiter</h3>
+            <p class="text-[10.5px] text-slate-500 font-normal leading-relaxed">Strenge Identitätsprüfung, persönliches Interview &amp; integrierte Haftpflichtversicherung.</p>
           </div>
         </div>
 
-        <!-- Vorteil 3 (Faires Honorar) -->
-        <div class="bg-white/90 backdrop-blur-md px-4 py-3.5 rounded-2xl border border-emerald-900/5 shadow-[0_4px_20px_rgba(10,46,35,0.02)] flex items-center gap-4">
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 border border-emerald-200/50 flex items-center justify-center shrink-0 shadow-xs">
-            <svg class="w-5 h-5 text-[#0A2E23]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 10h12"/>
-              <path d="M4 14h9"/>
-              <path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12a7.9 7.9 0 0 0 7.8 8 7.7 7.7 0 0 0 5.2-2"/>
+        <div class="bg-white/90 backdrop-blur-md px-4 py-3 rounded-2xl border border-emerald-900/5 shadow-[0_4px_20px_rgba(10,46,35,0.02)] flex items-center gap-4">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100/70 border border-emerald-200/60 flex items-center justify-center shrink-0 shadow-xs">
+            <svg class="w-5 h-5 text-[#1B4D3E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="14" x="2" y="5" rx="2"/>
+              <line x1="2" x2="22" y1="10" y2="10"/>
             </svg>
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h3 class="font-extrabold text-[#0A2E23] text-[13.5px] leading-tight tracking-tight">Faires Honorar</h3>
-              <span class="bg-emerald-100 text-[#1B4D3E] text-[9px] font-bold px-2 py-0.5 rounded-md border border-emerald-200">15 € / Std.</span>
+              <h3 class="font-extrabold text-[#0A2E23] text-[13px] leading-tight tracking-tight">Alles-Inklusive-Tarif</h3>
+              <span class="bg-emerald-100 text-[#1B4D3E] text-[9px] font-bold px-2 py-0.5 rounded-md border border-emerald-300/60">Faire Stundensätze</span>
             </div>
-            <p class="text-[10.5px] text-slate-500 font-normal leading-relaxed">100% Direktzahlung vor Ort (mind. 15 € / Einsatz). Keine versteckten Kosten.</p>
+            <p class="text-[10.5px] text-slate-500 font-normal leading-relaxed">Transparente Abrechnung. Keine Bindung, Abo-Fallen oder versteckte Gebühren.</p>
           </div>
         </div>
-
       </div>
     </div>
 
-    <!-- Conversion-Optimierter CTA & QR-Code Bereich -->
-    <div class="bg-[#1B4D3E] text-white px-6 pt-7 pb-5 rounded-2xl flex items-center justify-between gap-4 shadow-xl shrink-0 border border-emerald-800/40 relative overflow-visible">
-      
-      <!-- Bogen verläuft sauber oberhalb der Schrift -->
+    <!-- CTA & QR CODE SECTION -->
+    <div class="bg-[#1B4D3E] text-white px-6 pt-6 pb-5 rounded-2xl flex items-center justify-between gap-4 shadow-xl shrink-0 border border-emerald-800/40 relative overflow-visible">
       <svg class="absolute -top-3 left-0 w-full h-[calc(100%+24px)] pointer-events-none z-30 overflow-visible" viewBox="0 0 420 120" fill="none">
         <defs>
           <filter id="mint-glow" x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#86EFAC" flood-opacity="0.6"/>
           </filter>
         </defs>
-        
-        <path d="M 242 35 Q 270 18, 296 36" 
-              stroke="#86EFAC" 
-              stroke-width="2.6" 
-              stroke-linecap="round" 
-              stroke-dasharray="5 4"
-              filter="url(#mint-glow)"/>
-        
+        <path d="M 242 35 Q 270 18, 296 36" stroke="#86EFAC" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="5 4" filter="url(#mint-glow)"/>
         <g transform="translate(296, 36) rotate(32)" filter="url(#mint-glow)">
           <path d="M -10 -5 L 1 0 L -10 5 L -7 0 Z" fill="#86EFAC" stroke="#86EFAC" stroke-width="1" stroke-linejoin="round"/>
         </g>
       </svg>
 
-      <div class="space-y-2 flex-1 min-w-0 relative z-10">
+      <div class="space-y-1.5 flex-1 min-w-0 relative z-10">
         <div class="flex items-center gap-1.5 flex-wrap">
-          <span class="inline-block text-[9px] font-extrabold text-emerald-300 bg-emerald-950/70 px-2.5 py-0.5 rounded-full border border-emerald-500/40">
-            100% Gebührenfrei
-          </span>
-          <span class="inline-block text-[9px] font-extrabold text-emerald-200 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">
-            Unverbindlich
-          </span>
+          <span class="inline-block text-[8.5px] font-extrabold text-emerald-300 bg-emerald-950/70 px-2.5 py-0.5 rounded-full border border-emerald-500/40">Keine Grundgebühr</span>
+          <span class="inline-block text-[8.5px] font-extrabold text-emerald-200 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/10">Unverbindlich</span>
         </div>
-        
-        <h2 class="text-[20px] font-serif font-bold text-white leading-tight">
-          Jetzt Gratis-Vermittlung testen!
-        </h2>
-        
-        <p class="text-[11px] text-emerald-50 font-bold leading-relaxed tracking-wide bg-white/10 px-3 py-1.5 rounded-xl border border-white/15 backdrop-blur-xs block pr-2">
-          Scannen Sie mit Ihrer Handykamera den QR-Code &amp; erstellen Sie in nur 2 Min. Ihr Profil.
-        </p>
+        <h2 class="text-[19px] font-serif font-bold text-white leading-tight">Jetzt Hilfe im Grätzel finden!</h2>
+        <p class="text-[10.5px] text-emerald-50 font-medium leading-relaxed bg-white/10 px-3 py-1.5 rounded-xl border border-white/15 block pr-2">Kamera öffnen, QR-Code scannen &amp; in 2 Min. Wunschelfer anfragen.</p>
       </div>
       
-      <!-- QR-Code Card -->
       <div class="flex flex-col items-center shrink-0 relative z-10 ml-1">
-        <div class="bg-white p-2.5 rounded-2xl shadow-2xl shrink-0 flex items-center justify-center border-2 border-[#86EFAC] ring-4 ring-[#86EFAC]/25 relative">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://helpify-platform.vercel.app/care-seeker/apply?source=wohnhaus_qr" alt="QR Code Wohnhaus" class="w-[82px] h-[82px] rounded-xl block">
+        <div class="bg-white p-2 rounded-2xl shadow-2xl shrink-0 flex items-center justify-center border-2 border-[#86EFAC] ring-4 ring-[#86EFAC]/25 relative">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://helpify-platform.vercel.app/care-seeker/apply?source=wohnhaus_qr" alt="QR Code Wohnhaus" class="w-[80px] h-[80px] rounded-xl block">
         </div>
       </div>
+    </div>
 
+    <!-- FOOTER -->
+    <div class="text-center text-[7px] text-slate-400 mt-1.5">
+      Helpify | Medieninhaber: Florian Saubiez, Wien
     </div>
 
   </div>
