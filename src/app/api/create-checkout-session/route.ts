@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
-
 export async function POST(req: Request) {
   try {
+    // Stripe erst hier initialisieren, damit es beim Build nicht crasht
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+      apiVersion: '2026-07-29.dahlia',
+    });
+
     const { packageName, email, name } = await req.json();
 
-    // Mapping deiner Paket-Namen auf die Stripe Price-IDs
     let priceId = '';
-    
     if (packageName.includes('Starter')) {
       priceId = 'price_1U68B5V05eYd2qm8Rh0ftoAI';
     } else if (packageName.includes('Flex')) {
@@ -21,7 +22,6 @@ export async function POST(req: Request) {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       customer_email: email,
-      // WICHTIG: Metadata hinzugefügt, damit der Webhook den User und das Paket zuordnen kann!
       metadata: {
         email: email,
         packageName: packageName,
