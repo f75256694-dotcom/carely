@@ -28,56 +28,88 @@ export default function DashboardPage() {
   const [selectedPackage, setSelectedPackage] = useState<'starter' | 'flex'>('starter');
 
   // Stripe Links
-  const STRIPE_STARTER_URL = 'https://buy.stripe.com/test_5kQdRcb2aeMd5ibaAm0gw01 ';
-  const STRIPE_FLEX_URL = 'https://buy.stripe.com/test_3cIfZk3zIdI9h0TfUG0gw02'; // Sobald erstellt, den 2. Link hier einsetzen
+  const STRIPE_STARTER_URL = 'https://buy.stripe.com/test_5kQdRcb2aeMd5ibaAm0gw01';
+  const STRIPE_FLEX_URL = 'https://buy.stripe.com/test_3cIfZk3zIdI9h0TfUG0gw02';
 
   const supabase = createClient();
 
   useEffect(() => {
-    async function loadDashboard() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('hours_balance')
-        .eq('id', user.id)
-        .single();
-      if (profile) setHoursBalance(profile.hours_balance || 0);
-
-      const { data: req } = await supabase
-        .from('care_requests')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (req) {
-        setRequest(req);
-
-        const { data: matchedHelpers } = await supabase
-          .from('profiles')
-          .select('id, first_name, zip_code, hourly_rate, experience_years')
-          .eq('role', 'caregiver')
-          .eq('zip_code', req.zip_code)
-          .limit(4);
-
-        if (matchedHelpers) setHelpers(matchedHelpers);
-      }
-      setLoading(false);
+    // 1. Stripe Checkout Erfolgs-Check
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment') === 'success') {
+      alert('Vielen Dank! Deine Zahlung war erfolgreich und dein Guthaben wurde aufgeladen.');
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
 
     loadDashboard();
   }, []);
 
-  const handleBookHelper = (helper: CaregiverProfile) => {
+  async function loadDashboard() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('hours_balance')
+      .eq('id', user.id)
+      .single();
+    if (profile) setHoursBalance(profile.hours_balance || 0);
+
+    const { data: req } = await supabase
+      .from('care_requests')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (req) {
+      setRequest(req);
+
+      const { data: matchedHelpers } = await supabase
+        .from('profiles')
+        .select('id, first_name, zip_code, hourly_rate, experience_years')
+        .eq('role', 'caregiver')
+        .eq('zip_code', req.zip_code)
+        .limit(4);
+
+      if (matchedHelpers) setHelpers(matchedHelpers);
+    }
+    setLoading(false);
+  }
+
+  const handleBookHelper = async (helper: CaregiverProfile) => {
     setSelectedHelper(helper);
+
     if (hoursBalance <= 0) {
       setShowPaywall(true);
-    } else {
-      alert(`Anfrage für ${helper.first_name} wurde erfolgreich übermittelt!`);
+      return;
     }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // 1. Guthaben in Supabase um 1 Stunde reduzieren
+    const newBalance = hoursBalance - 1;
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ hours_balance: newBalance })
+      .eq('id', user.id);
+
+    if (updateError) {
+      alert('Fehler beim Buchen. Bitte versuche es erneut.');
+      return;
+    }
+
+    // 2. Buchungseintrag in Datenbank schreiben
+    await supabase.from('bookings').insert({
+      family_id: user.id,
+      caregiver_id: helper.id,
+      status: 'pending',
+    });
+
+    setHoursBalance(newBalance);
+    alert(`Anfrage für ${helper.first_name} wurde erfolgreich übermittelt! 1 Stunde wurde von deinem Guthaben abgezogen.`);
   };
 
   const handleBuy = () => {

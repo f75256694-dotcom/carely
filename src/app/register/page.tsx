@@ -80,43 +80,50 @@ function RegisterForm() {
 
         if (profileError) throw profileError;
 
-        // 3. Entwurf aus localStorage in care_requests übertragen
-        const draftData = localStorage.getItem('care_request_draft');
-        let requestPayload = {
-          user_id: userId,
-          zip_code: zipCode,
-          services: [],
-          status: 'matching',
-        };
-
-        if (draftData) {
-          try {
-            const parsedDraft = JSON.parse(draftData);
-            requestPayload = {
-              ...requestPayload,
-              ...parsedDraft,
-              user_id: userId, // ID überschreiben für Sicherheit
+        // 3. Entwurf aus localStorage in care_requests übertragen (nur für Suchende)
+        if (role !== 'caregiver') {
+            const draftData = localStorage.getItem('care_request_draft');
+            let requestPayload = {
+            user_id: userId,
+            zip_code: zipCode,
+            services: [],
+            status: 'matching',
             };
-          } catch (e) {
-            console.error('Fehler beim Verarbeiten des Entwurfs:', e);
-          }
-        }
 
-        // Automatischen Care Request in DB schreiben
-        const { error: requestError } = await supabase
-          .from('care_requests')
-          .insert([requestPayload]);
+            if (draftData) {
+            try {
+                const parsedDraft = JSON.parse(draftData);
+                requestPayload = {
+                ...requestPayload,
+                ...parsedDraft,
+                user_id: userId, // ID überschreiben für Sicherheit
+                };
+            } catch (e) {
+                console.error('Fehler beim Verarbeiten des Entwurfs:', e);
+            }
+            }
 
-        if (requestError) {
-          console.error('Fehler beim Erstellen der Pflegeanfrage:', requestError);
-        } else {
-          // Entwurf löschen nach erfolgreicher Erstellung
-          localStorage.removeItem('care_request_draft');
+            // Automatischen Care Request in DB schreiben
+            const { error: requestError } = await supabase
+            .from('care_requests')
+            .insert([requestPayload]);
+
+            if (requestError) {
+            console.error('Fehler beim Erstellen der Pflegeanfrage:', requestError);
+            } else {
+            // Entwurf löschen nach erfolgreicher Erstellung
+            localStorage.removeItem('care_request_draft');
+            }
         }
       }
 
-      // 4. Weiterleitung ins Dashboard
-      router.replace('/dashboard');
+      // 4. Weiterleitung nach Rolle
+      if (role === 'caregiver') {
+        router.replace('/caregiver/profile');
+      } else {
+        router.replace('/dashboard');
+      }
+      
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Ein unbekannter Fehler ist aufgetreten.';
       setErrorMessage(msg);
