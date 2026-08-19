@@ -3,12 +3,11 @@ import Stripe from 'stripe';
 
 export async function POST(req: Request) {
   try {
-    // Stripe erst hier initialisieren, damit es beim Build nicht crasht
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
       apiVersion: '2026-07-29.dahlia',
     });
 
-    const { packageName, email, name } = await req.json();
+    const { packageName, email, name, userId } = await req.json();
 
     let priceId = '';
     if (packageName.includes('Starter')) {
@@ -23,6 +22,7 @@ export async function POST(req: Request) {
       payment_method_types: ['card'],
       customer_email: email,
       metadata: {
+        userId: userId || '',
         email: email,
         packageName: packageName,
       },
@@ -33,8 +33,8 @@ export async function POST(req: Request) {
         },
       ],
       mode: 'payment',
-      success_url: `${req.headers.get('origin')}/dashboard/mvppage?success=true`,
-      cancel_url: `${req.headers.get('origin')}?canceled=true`,
+      success_url: `${req.headers.get('origin')}/dashboard?success=true`,
+      cancel_url: `${req.headers.get('origin')}/dashboard?canceled=true`,
     });
 
     return NextResponse.json({ url: session.url });
