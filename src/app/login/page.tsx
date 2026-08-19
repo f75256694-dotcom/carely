@@ -47,9 +47,9 @@ export default function LoginPage() {
           .eq('id', authData.user.id)
           .maybeSingle();
 
-        // 3. Falls die Profilzeile in der Datenbank fehlt, automatisch nacherstellen
+        // 3. Falls die Profilzeile in der Datenbank fehlt, exakt die bei der Registrierung gewählte Rolle übernehmen
         if (!profile) {
-          const metaRole = authData.user.user_metadata?.role || 'helper';
+          const metaRole = authData.user.user_metadata?.role;
           const metaName = authData.user.user_metadata?.full_name || authData.user.email;
 
           await supabase.from('profiles').upsert([
@@ -61,8 +61,8 @@ export default function LoginPage() {
           ]);
         }
 
-        // 4. Weiterleitung zur Hauptseite mit funktionierendem Cockpit
-        window.location.href = '/';
+        // 4. Weiterleitung direkt auf das neue Dashboard
+        window.location.href = '/dashboard';
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Ein unerwarteter Fehler ist aufgetreten.');
@@ -164,7 +164,6 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
-
     </div>
   );
 }
