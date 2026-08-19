@@ -13,7 +13,7 @@ export default function CarelyDashboard() {
     const bypass = localStorage.getItem('carely_bypass'); 
     if (bypass) {
       setHasBypass(true);
-      window.location.href = '/dashboard/mvppage';
+      window.location.href = '/dashboard';
       return;
     }
     
@@ -21,14 +21,14 @@ export default function CarelyDashboard() {
       setSession(session); 
       setLoading(false); 
       if (session) {
-        window.location.href = '/dashboard/mvppage';
+        window.location.href = '/dashboard';
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => { 
       setSession(session); 
       if (session) {
-        window.location.href = '/dashboard/mvppage';
+        window.location.href = '/dashboard';
       }
     });
 
