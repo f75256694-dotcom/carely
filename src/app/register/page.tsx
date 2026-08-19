@@ -1,21 +1,27 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Heart, Shield, Search, ArrowRight, Lock, Mail, User as UserIcon, Users } from 'lucide-react';
+import { Heart, Shield, Search, ArrowRight, Lock, Mail, User as UserIcon, Users, MapPin } from 'lucide-react';
+
+type UserRole = 'care_seeker' | 'family' | 'caregiver';
 
 function RegisterForm() {
   const searchParams = useSearchParams();
-  const urlRole = searchParams.get('role') as 'care_seeker' | 'family' | 'caregiver';
+  const rawRole = searchParams.get('role');
+  
+  const initialRole: UserRole = 
+    rawRole === 'family' || rawRole === 'caregiver' || rawRole === 'care_seeker' 
+      ? rawRole 
+      : 'care_seeker';
 
-  const [role, setRole] = useState<'care_seeker' | 'family' | 'caregiver'>(
-    urlRole && ['care_seeker', 'family', 'caregiver'].includes(urlRole) ? urlRole : 'care_seeker'
-  );
+  const [role, setRole] = useState<UserRole>(initialRole);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [zipCode, setZipCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
@@ -28,28 +34,24 @@ function RegisterForm() {
     try {
       const supabase = createClient();
       
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
             role: role,
+            zip_code: zipCode,
           },
         },
       });
 
       if (error) throw error;
 
-      if (role === 'caregiver') {
-        router.replace('/requests');
-      } else if (role === 'family') {
-        router.replace('/family');
-      } else {
-        router.replace('/care-seeker');
-      }
-    } catch (error: any) {
-      const msg = error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      // Direkte Weiterleitung auf das MVP-Dashboard für die Pilotenphase
+      router.replace('/dashboard/mvppage');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Ein unbekannter Fehler ist aufgetreten.';
       setErrorMessage(msg);
       setLoading(false);
     }
@@ -140,6 +142,21 @@ function RegisterForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="maria@beispiel.de"
+                  className="w-full bg-gray-50/80 border border-gray-200/90 rounded-2xl py-4 pl-12 pr-4 text-gray-900 text-sm font-medium focus:outline-none focus:border-teal-600 focus:bg-white transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-extrabold uppercase tracking-wider text-gray-500 px-1">Postleitzahl</label>
+              <div className="relative">
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  required
+                  value={zipCode}
+                  onChange={(e) => setZipCode(e.target.value)}
+                  placeholder="10115"
                   className="w-full bg-gray-50/80 border border-gray-200/90 rounded-2xl py-4 pl-12 pr-4 text-gray-900 text-sm font-medium focus:outline-none focus:border-teal-600 focus:bg-white transition-all"
                 />
               </div>

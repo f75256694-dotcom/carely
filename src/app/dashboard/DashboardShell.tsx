@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import PendingVerificationBanner from "@/components/dashboard/PendingVerificationBanner";
+import PendingVerificationBanner from "@/app/dashboard/PendingVerificationBanner";
 
 interface DashboardShellProps {
   role: "care-seeker" | "family" | "caregiver";

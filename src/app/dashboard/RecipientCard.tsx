@@ -1,5 +1,5 @@
 import { TrendingUp, ChevronRight } from 'lucide-react';
-import MoodBadge from '../shared/MoodBadge';
+import MoodBadge from '../../components/shared/MoodBadge';
 
 export default function RecipientCard({ person }: { person: any }) {
   return (

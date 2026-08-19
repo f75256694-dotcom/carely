@@ -16,14 +16,14 @@ export default function CareSeekerApplyPage() {
   const [formData, setFormData] = useState({
     services: [] as string[],
     otherServiceText: '',
-    district: '',
-    selectedPackage: 'Flex-Paket (10 Std. / 239 €)',
-    targetGroup: 'Für meine Eltern',
+    district: '1. Innere Stadt',
+    selectedPackage: 'Basis (2-5 Std./Woche)',
+    targetGroup: 'Für mich selbst',
     fullName: '',
     email: '',
     phone: '',
     privacyAccepted: false,
-    source: 'direkt',
+    source: 'direct',
   });
 
   useEffect(() => {
@@ -35,43 +35,29 @@ export default function CareSeekerApplyPage() {
   }, []);
 
   const serviceOptions = [
-    { id: 'Einkäufe & Besorgungen', icon: '🛒', title: 'Einkäufe & Besorgungen', desc: 'Wöchentliche Erledigungen & frische Lebensmittel' },
-    { id: 'Spaziergänge & Begleitung', icon: '☀️', title: 'Spaziergänge & Begleitung', desc: 'Gemeinsam an der frischen Luft & zum Arzt' },
-    { id: 'Gesellschaft & Alltag', icon: '🤝', title: 'Gesellschaft & Alltag', desc: 'Jemanden zum Reden, Vorlesen & Zuhören' },
-    { id: 'Leichte Haushaltshilfe', icon: '✨', title: 'Leichte Haushaltshilfe', desc: 'Ordnung halten & kleine Handgriffe im Haushalt' }
+    { id: 'Einkäufe & Besorgungen', icon: '🛒', title: 'Einkäufe & Besorgungen', desc: 'Unterstützung beim wöchentlichen Einkauf' },
+    { id: 'Gesellschaft & Spaziergänge', icon: '☀️', title: 'Gesellschaft & Spaziergänge', desc: 'Gemeinsame Zeit & frische Luft' },
+    { id: 'Leichte Haushaltshilfe', icon: '✨', title: 'Leichte Haushaltshilfe', desc: 'Hilfe im Haushalt & Ordnung halten' },
+    { id: 'Terminbegleitung', icon: '🤝', title: 'Terminbegleitung', desc: 'Sicherer Begleitschutz zum Arzt oder Ämtern' }
   ];
 
   const districtOptions = [
-    { id: '1', label: '1. Innere Stadt' }, { id: '2', label: '2. Leopoldstadt' }, { id: '3', label: '3. Landstraße' },
-    { id: '4', label: '4. Wieden' }, { id: '5', label: '5. Margareten' }, { id: '6', label: '6. Mariahilf' },
-    { id: '7', label: '7. Neubau' }, { id: '8', label: '8. Josefstadt' }, { id: '9', label: '9. Alsergrund' },
-    { id: '10', label: '10. Favoriten' }, { id: '11', label: '11. Simmering' }, { id: '12', label: '12. Meidling' },
-    { id: '13', label: '13. Hietzing' }, { id: '14', label: '14. Penzing' }, { id: '15', label: '15. Rudolfsheim-Fünfhaus' },
-    { id: '16', label: '16. Ottakring' }, { id: '17', label: '17. Hernals' }, { id: '18', label: '18. Währing' },
-    { id: '19', label: '19. Döbling' }, { id: '20', label: '20. Brigittenau' }, { id: '21', label: '21. Floridsdorf' },
-    { id: '22', label: '22. Donaustadt' }, { id: '23', label: '23. Liesing' }
+    '1.', '2. ', '3. ', '4. ', '5. ',
+    '6. ', '7. ', '8. ', '9. ', '10. ',
+    '11. ', '12. ', '13. ', '14. ', '15. ',
+    '16. ', '17. ', '18. ', '19. ', '20. ',
+    '21. ', '22. ', '23. '
   ];
 
-  const packageOptions = [
-    { id: 'Starter-Paket (4 Std. / 99 €)', title: 'Starter-Paket (4 Std.)', price: '99 €', unit: '~24,75 € / Std.', badge: 'Zum Testen' },
-    { id: 'Flex-Paket (10 Std. / 239 €)', title: 'Flex-Paket (10 Std.)', price: '239 €', unit: '~23,90 € / Std.', badge: 'Beliebtest' }
-  ];
+  const packageOptions = ['Basis (2-5 Std./Woche)', 'Komfort (5-10 Std./Woche)', 'Intensiv (10+ Std./Woche)'];
+  const targetGroupOptions = ['Für mich selbst', 'Für meine Eltern / Angehörigen', 'Für Bekannte'];
 
-  const targetGroupOptions = [
-    'Für meine Eltern',
-    'Für mich selbst',
-    'Für einen Angehörigen / Verwandten',
-    'Sonstiges'
-  ];
-
-  const isValidEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
-  };
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 
   const toggleService = (serviceId: string) => {
-    setFormData(prev => ({ 
-      ...prev, 
-      services: prev.services.includes(serviceId) ? prev.services.filter(s => s !== serviceId) : [...prev.services, serviceId] 
+    setFormData(prev => ({
+      ...prev,
+      services: prev.services.includes(serviceId) ? prev.services.filter(s => s !== serviceId) : [...prev.services, serviceId]
     }));
   };
 
@@ -86,22 +72,41 @@ export default function CareSeekerApplyPage() {
         finalServices.push(`Sonstiges: ${formData.otherServiceText.trim()}`);
       }
 
-      await supabase.from('pilot_requests').insert([{ 
-        role: 'care_seeker', 
-        name: formData.fullName, 
-        email: formData.email, 
-        phone: formData.phone, 
-        services: finalServices, 
-        district: formData.district, 
-        selected_package: formData.selectedPackage,
-        hours_per_week: null, 
-        target_group: formData.targetGroup, 
-        source: formData.source, 
-        created_at: new Date().toISOString() 
+      const { error } = await supabase.from('care_requests').insert([{
+        role: 'care_seeker',
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        services: finalServices,
+        district: formData.district,
+        package: formData.selectedPackage,
+        target_group: formData.targetGroup,
+        source: formData.source,
+        status: 'submitted'
       }]);
+
+      if (error) throw error;
+
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          role: 'care_seeker',
+          name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          district: formData.district,
+          services: finalServices,
+          package: formData.selectedPackage,
+          target_group: formData.targetGroup,
+          source: formData.source,
+        }),
+      });
+
       setSubmitted(true);
     } catch (err) {
-      console.error(err);
+      console.error('Fehler beim Speichern der Pflege-Anfrage:', err);
+      alert('Es gab ein Problem beim Absenden. Bitte versuche es erneut.');
     } finally {
       setLoading(false);
     }
@@ -115,11 +120,10 @@ export default function CareSeekerApplyPage() {
           <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#1B4D3E] text-[#86EFAC] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_0_40px_rgba(27,77,62,0.4)]">
             <svg className="w-10 h-10 sm:w-12 sm:h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-              <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
             </svg>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Anfrage erhalten!</h1>
-          <p className="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed">Wir prüfen passende, persönlich geprüfte Alltagsbegleiter in deinem Wiener Grätzel und melden uns in Kürze bei dir.</p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Vielen Dank!</h1>
+          <p className="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed">Deine Anfrage ist bei uns eingegangen. Wir melden uns schnellstmöglich bei dir!</p>
           <div className="inline-block px-6 py-3 rounded-2xl bg-white/10 text-emerald-400 font-semibold text-sm border border-white/10">Du kannst dieses Fenster jetzt schließen.</div>
         </div>
       </main>
@@ -131,30 +135,19 @@ export default function CareSeekerApplyPage() {
 
   return (
     <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-50 via-slate-50 to-white py-6 sm:py-12 px-4 flex flex-col items-center selection:bg-emerald-200">
-      
-      {/* Header Bereich mit Original Helpify Logo */}
       <div className="max-w-xl w-full text-center mb-6 sm:mb-10">
         <div className="flex items-center justify-center gap-2.5 mb-6">
           <div className="w-10 h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-sm shrink-0">
             <svg className="w-5 h-5 text-[#86EFAC]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-              <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
             </svg>
           </div>
           <span className="text-3xl font-bold tracking-tight text-[#0A2E23] font-serif">Helpify</span>
         </div>
-
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-xs sm:text-sm mb-4 border border-emerald-200 shadow-sm">
-          <span className="relative flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span></span>
-          Exklusiver Pioneer-Kreis · Wien
-        </div>
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-3">
-          Liebevolle Alltagshilfe <br className="hidden sm:block"/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">für Ihre Eltern in Wien.</span>
-        </h1>
-        <p className="text-slate-600 text-base sm:text-xl">Persönlich interviewte & überprüfte Alltagsbegleiter aus der Nachbarschaft – für echte Entlastung, die ankommt.</p>
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-3">Unterstützung im Alltag finden</h1>
+        <p className="text-slate-600 text-base sm:text-xl">Erhalte persönliche Unterstützung für dich oder deine Angehörigen.</p>
       </div>
 
-      {/* Formular Box */}
       <div className="max-w-xl w-full bg-white rounded-3xl p-5 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-100">
           <div className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-500 ease-out" style={{ width: `${(step / 3) * 100}%` }}></div>
@@ -162,190 +155,105 @@ export default function CareSeekerApplyPage() {
 
         <div className="flex justify-between items-center mb-6 sm:mb-8 mt-2">
           <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-wider">Schritt {step} von 3</span>
-          <div className="w-9 h-9 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-sm shrink-0">
-            <svg className="w-5 h-5 text-[#86EFAC]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-              <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
-            </svg>
-          </div>
         </div>
 
-        {/* SCHRITT 1 */}
         {step === 1 && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex flex-col gap-1 mb-2">
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Welche Unterstützung wird gesucht?</h2>
-              <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 w-fit">✨ Mehrfachauswahl möglich</span>
-            </div>
-            <p className="text-slate-500 text-sm sm:text-base mb-6">Wähle aus, was deine Eltern oder du im Alltag brauchen.</p>
-            
+          <div className="animate-in fade-in duration-500">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">Wo benötigst du Hilfe?</h2>
             <div className="grid grid-cols-1 gap-3.5 mb-6">
               {serviceOptions.map(s => {
                 const isSelected = formData.services.includes(s.id);
                 return (
-                  <button key={s.id} type="button" onClick={() => toggleService(s.id)} className={`relative flex items-center p-4 rounded-2xl border-2 text-left transition-all duration-200 group ${isSelected ? 'border-emerald-500 bg-emerald-50/50 shadow-md shadow-emerald-100' : 'border-slate-100 hover:border-emerald-200 bg-white'}`}>
-                    <span className="text-2xl sm:text-3xl mr-4 bg-slate-50 w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-slate-100">{s.icon}</span>
-                    <div className="flex-1 pr-6">
-                      <span className={`block font-bold text-base sm:text-lg mb-0.5 ${isSelected ? 'text-emerald-900' : 'text-slate-800'}`}>{s.title}</span>
-                      <span className="block text-xs sm:text-sm text-slate-500 leading-snug">{s.desc}</span>
-                    </div>
-                    <div className={`absolute top-4 right-4 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-200 text-transparent'}`}>
-                      {isSelected && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                  <button key={s.id} type="button" onClick={() => toggleService(s.id)} className={`flex items-center p-4 rounded-2xl border-2 text-left transition-all ${isSelected ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-100 bg-white'}`}>
+                    <span className="text-2xl mr-4">{s.icon}</span>
+                    <div>
+                      <span className="block font-bold text-slate-800">{s.title}</span>
+                      <span className="block text-xs text-slate-500">{s.desc}</span>
                     </div>
                   </button>
                 );
               })}
-
-              <button type="button" onClick={() => toggleService('Sonstiges')} className={`relative flex items-center p-4 rounded-2xl border-2 text-left transition-all duration-200 group ${isOtherSelected ? 'border-emerald-500 bg-emerald-50/50 shadow-md shadow-emerald-100' : 'border-slate-100 hover:border-emerald-200 bg-white'}`}>
-                <span className="text-2xl sm:text-3xl mr-4 bg-slate-50 w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-slate-100">💡</span>
-                <div className="flex-1 pr-6">
-                  <span className={`block font-bold text-base sm:text-lg mb-0.5 ${isOtherSelected ? 'text-emerald-900' : 'text-slate-800'}`}>Sonstiges</span>
-                  <span className="block text-xs sm:text-sm text-slate-500 leading-snug">Individuelle Wünsche oder Anforderungen</span>
-                </div>
-                <div className={`absolute top-4 right-4 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isOtherSelected ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-200 text-transparent'}`}>
-                  {isOtherSelected && <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+              <button type="button" onClick={() => toggleService('Sonstiges')} className={`flex items-center p-4 rounded-2xl border-2 text-left transition-all ${isOtherSelected ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-100 bg-white'}`}>
+                <span className="text-2xl mr-4">💡</span>
+                <div>
+                  <span className="block font-bold text-slate-800">Sonstiges</span>
+                  <span className="block text-xs text-slate-500">Individuelle Wünsche</span>
                 </div>
               </button>
             </div>
 
             {isOtherSelected && (
-              <div className="mb-6 animate-in fade-in duration-300">
-                <label className="block text-sm font-bold text-slate-700 mb-1.5">Was wird konkret benötigt?</label>
-                <input type="text" placeholder="z. B. Begleitung zum Hobby, Kochen..." value={formData.otherServiceText} onChange={e => setFormData({...formData, otherServiceText: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl text-slate-900 font-medium outline-none text-base" />
+              <div className="mb-6">
+                <input type="text" placeholder="Beschreibe kurz deine Wünsche..." value={formData.otherServiceText} onChange={e => setFormData({...formData, otherServiceText: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900" />
               </div>
             )}
 
-            <button disabled={formData.services.length === 0} onClick={() => setStep(2)} className="w-full bg-slate-900 text-white font-bold text-base sm:text-lg py-4 rounded-2xl hover:bg-emerald-600 transition-all disabled:opacity-40 shadow-md">Weiter zum Ort & Umfang →</button>
+            <button type="button" onClick={() => setStep(2)} disabled={formData.services.length === 0} className="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-emerald-600 disabled:opacity-40">Weiter →</button>
           </div>
         )}
 
-        {/* SCHRITT 2 */}
         {step === 2 && (
-          <div className="animate-in fade-in slide-in-from-right-8 duration-500">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">In welchem Wiener Bezirk?</h2>
-            <p className="text-slate-500 text-sm sm:text-base mb-4">Wähle den Einsatzort aus.</p>
-            
-            <div className="grid grid-cols-2 gap-2.5 mb-6 max-h-[220px] overflow-y-auto pr-1">
-              {districtOptions.map(d => {
-                const isSelected = formData.district === d.label;
-                return (
-                  <button key={d.id} type="button" onClick={() => setFormData({...formData, district: d.label})} className={`p-3.5 rounded-xl border-2 text-left transition-all text-xs sm:text-sm font-bold ${isSelected ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm' : 'border-slate-100 text-slate-700 bg-white'}`}>
-                    {d.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Paketauswahl */}
-            <div className="pt-2 border-t border-slate-100 mb-6">
-              <label className="block text-sm font-bold text-slate-900 mb-1">Gewünschtes Stunden-Guthaben</label>
-              <p className="text-xs text-slate-500 mb-3">Kein Abo. Guthaben verfällt nicht & ist flexibel einteilbar.</p>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {packageOptions.map(pkg => {
-                  const isSelected = formData.selectedPackage === pkg.id;
-                  return (
-                    <button 
-                      key={pkg.id} 
-                      type="button" 
-                      onClick={() => setFormData({...formData, selectedPackage: pkg.id})}
-                      className={`relative p-3.5 rounded-2xl border-2 text-left transition-all ${isSelected ? 'border-emerald-500 bg-emerald-50/60 shadow-sm' : 'border-slate-100 bg-white hover:border-slate-200'}`}
-                    >
-                      <span className="inline-block px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase mb-1">{pkg.badge}</span>
-                      <span className="block font-bold text-slate-900 text-sm">{pkg.title}</span>
-                      <div className="flex items-baseline gap-1 mt-0.5">
-                        <span className="text-lg font-black text-slate-900">{pkg.price}</span>
-                        <span className="text-[11px] text-slate-500">{pkg.unit}</span>
-                      </div>
-                    </button>
-                  );
-                })}
+          <div className="animate-in fade-in duration-500">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">Details & Ort</h2>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Für wen suchst du?</label>
+                <select value={formData.targetGroup} onChange={e => setFormData({...formData, targetGroup: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium">
+                  {targetGroupOptions.map(tg => <option key={tg} value={tg}>{tg}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">In welchem Bezirk?</label>
+                <select value={formData.district} onChange={e => setFormData({...formData, district: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium">
+                  {districtOptions.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
               </div>
             </div>
-
             <div className="flex gap-3">
-              <button type="button" onClick={() => setStep(1)} className="w-1/3 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-4 rounded-2xl text-sm sm:text-base transition-colors">Zurück</button>
-              <button disabled={!formData.district} onClick={() => setStep(3)} className="w-2/3 bg-slate-900 text-white font-bold text-sm sm:text-base py-4 rounded-2xl hover:bg-emerald-600 transition-all disabled:opacity-40 shadow-md">Kontaktdaten →</button>
+              <button type="button" onClick={() => setStep(1)} className="w-1/3 border-2 border-slate-200 text-slate-600 font-bold py-4 rounded-2xl">Zurück</button>
+              <button type="button" onClick={() => setStep(3)} className="w-2/3 bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-emerald-600">Weiter →</button>
             </div>
           </div>
         )}
 
-        {/* SCHRITT 3 */}
         {step === 3 && (
-          <div className="animate-in fade-in slide-in-from-right-8 duration-500">
+          <div className="animate-in fade-in duration-500">
             <form onSubmit={handleSubmit}>
               <div className="mb-6">
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">Für wen wird gesucht?</h2>
-                <div className="grid grid-cols-2 gap-2.5 mt-3">
-                  {targetGroupOptions.map(opt => (
-                    <button key={opt} type="button" onClick={() => setFormData({...formData, targetGroup: opt})} className={`p-3.5 rounded-xl border-2 font-semibold text-xs sm:text-sm transition-all text-center ${formData.targetGroup === opt ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm' : 'border-slate-100 text-slate-600 bg-white'}`}>{opt}</button>
+                <label className="block text-xs font-bold text-slate-700 mb-2">Gewünschter Umfang</label>
+                <div className="grid grid-cols-1 gap-2">
+                  {packageOptions.map(pkg => (
+                    <button key={pkg} type="button" onClick={() => setFormData({...formData, selectedPackage: pkg})} className={`p-3 rounded-xl border-2 font-semibold text-xs text-left ${formData.selectedPackage === pkg ? 'border-emerald-500 bg-emerald-50 text-emerald-900' : 'border-slate-100 text-slate-600'}`}>{pkg}</button>
                   ))}
                 </div>
               </div>
 
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">Fast geschafft!</h2>
-              <p className="text-slate-500 text-sm sm:text-base mb-4">Wohin dürfen wir dir passende Profile senden?</p>
-              
               <div className="space-y-4 mb-6">
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Dein vollständiger Name</label>
-                  <input required type="text" placeholder="Anna Huber" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Name</label>
+                  <input required type="text" placeholder="Vor- & Nachname" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900" />
                 </div>
-                
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">E-Mail-Adresse</label>
-                  <input 
-                    required 
-                    type="email" 
-                    placeholder="anna@beispiel.at" 
-                    value={formData.email} 
-                    onChange={e => setFormData({...formData, email: e.target.value})} 
-                    onBlur={() => setEmailTouched(true)}
-                    className={`w-full px-4 py-3.5 bg-slate-50 border rounded-2xl text-slate-900 font-medium outline-none text-base focus:bg-white transition-colors ${
-                      isEmailInvalid 
-                        ? 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-500/10' 
-                        : 'border-slate-200 focus:border-emerald-500'
-                    }`} 
-                  />
-                  {isEmailInvalid && (
-                    <p className="text-red-500 text-xs mt-1.5 font-medium animate-in fade-in duration-200">
-                      Bitte gib eine gültige E-Mail-Adresse ein (z. B. name@domain.at).
-                    </p>
-                  )}
+                  <label className="block text-xs font-bold text-slate-700 mb-1">E-Mail</label>
+                  <input required type="email" placeholder="name@beispiel.at" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} onBlur={() => setEmailTouched(true)} className={`w-full px-4 py-3.5 bg-slate-50 border rounded-2xl text-slate-900 ${isEmailInvalid ? 'border-red-400' : 'border-slate-200'}`} />
                 </div>
-
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Handynummer</label>
-                  <input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Telefonnummer</label>
+                  <input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900" />
                 </div>
-
                 <div className="flex items-start gap-3 pt-2">
-                  <input required type="checkbox" id="privacy" checked={formData.privacyAccepted} onChange={e => setFormData({...formData, privacyAccepted: e.target.checked})} className="mt-1 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-                  <label htmlFor="privacy" className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    Ich stimme zu, dass meine Angaben zur Vermittlung von Alltagshilfe gemäß der <a href="/datenschutz" target="_blank" className="text-emerald-700 underline font-semibold">Datenschutzerklärung</a> verarbeitet werden.
-                  </label>
+                  <input required type="checkbox" id="privacy" checked={formData.privacyAccepted} onChange={e => setFormData({...formData, privacyAccepted: e.target.checked})} className="mt-1 w-4 h-4 rounded border-slate-300 text-emerald-600" />
+                  <label htmlFor="privacy" className="text-xs text-slate-600">Ich stimme den Datenschutzbestimmungen zu.</label>
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-4 rounded-2xl text-sm sm:text-base transition-colors">Zurück</button>
-                <button 
-                  disabled={loading || !formData.privacyAccepted || !isValidEmail(formData.email)} 
-                  type="submit" 
-                  className="w-2/3 bg-emerald-600 text-white font-bold text-sm sm:text-base py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:bg-emerald-500 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
-                >
-                  {loading ? 'Wird gesendet...' : 'Profile anfordern 🚀'}
-                </button>
+                <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 font-bold py-4 rounded-2xl">Zurück</button>
+                <button disabled={loading || !formData.privacyAccepted || !isValidEmail(formData.email)} type="submit" className="w-2/3 bg-emerald-600 text-white font-bold py-4 rounded-2xl hover:bg-emerald-500 disabled:opacity-70">{loading ? 'Wird gesendet...' : 'Abschicken 🚀'}</button>
               </div>
             </form>
           </div>
         )}
-      </div>
-
-      {/* Footer Badges */}
-      <div className="max-w-xl w-full flex flex-wrap justify-center items-center gap-3 mt-8 text-slate-500 text-xs sm:text-sm font-medium">
-        <span className="flex items-center gap-1.5 bg-white/70 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">🛡️ 3-Stufen-Sicherheits-Check</span>
-        <span className="flex items-center gap-1.5 bg-white/70 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">⚡ Matching 100% kostenfrei · Kein Abo</span>
       </div>
     </main>
   );

@@ -71,36 +71,55 @@ export default function CaregiverApplyPage() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setEmailTouched(true);
-    if (!formData.privacyAccepted || !isValidEmail(formData.email)) return;
-    setLoading(true);
-    try {
-      const finalTasks = [...formData.tasks];
-      if (formData.otherTaskText.trim()) {
-        finalTasks.push(`Sonstiges: ${formData.otherTaskText.trim()}`);
-      }
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setEmailTouched(true);
+  if (!formData.privacyAccepted || !isValidEmail(formData.email)) return;
+  setLoading(true);
+  try {
+    const finalTasks = [...formData.tasks];
+    if (formData.otherTaskText.trim()) {
+      finalTasks.push(`Sonstiges: ${formData.otherTaskText.trim()}`);
+    }
 
-      await supabase.from('pilot_requests').insert([{
+    const { error } = await supabase.from('care_requests').insert([{
+      role: 'caregiver',
+      name: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      services: finalTasks,
+      district: formData.districts.join(', '),
+      hours_per_week: formData.hoursPerWeek,
+      source: formData.source,
+      status: 'submitted'
+    }]);
+
+    if (error) throw error;
+
+    // 📩 E-Mail-Benachrichtigung senden
+    await fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         role: 'caregiver',
         name: formData.fullName,
         email: formData.email,
         phone: formData.phone,
-        services: finalTasks,
         district: formData.districts.join(', '),
+        services: finalTasks,
         hours_per_week: formData.hoursPerWeek,
-        target_group: null,
         source: formData.source,
-        created_at: new Date().toISOString()
-      }]);
-      setSubmitted(true);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      }),
+    });
+
+    setSubmitted(true);
+  } catch (err) {
+    console.error('Fehler beim Speichern der Helfer-Bewerbung:', err);
+    alert('Es gab ein Problem beim Absenden. Bitte versuche es erneut.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (submitted) {
     return (

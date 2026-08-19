@@ -4,13 +4,17 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Heart, Menu, X, ArrowRight, ShieldCheck, Activity, 
-  CheckCircle2, UserCheck, Sparkles, Users, Shield, Check,
+  UserCheck, Sparkles, Users, Shield, Check,
   Search, Calendar, Smile
 } from 'lucide-react';
+import RegisterWizard from '@/components/auth/RegisterWizard';
+import LoginModal from '@/components/auth/LoginModal';
 
 export default function LandingPage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [registerRole, setRegisterRole] = useState<'care_seeker' | 'helper' | 'select' | null>(null);
+  const [loginOpen, setLoginOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -30,7 +34,7 @@ export default function LandingPage() {
       icon: Shield,
       badge: "Inklusive Schutz",
       title: "Haftpflicht- & Unfallschutz",
-      description: "Kein Risiko im Alltag: Alle gebuchten Einsätze über die Carely-Plattform sind automatisch haftpflicht- und unfallversichert. Volle Absicherung im Schadensfall.",
+      description: "Kein Risiko im Alltag: Alle gebuchten Einsätze über die Helpify-Plattform sind automatisch haftpflicht- und unfallversichert. Volle Absicherung im Schadensfall.",
       feature: "Automatisch versichert"
     },
     {
@@ -70,12 +74,15 @@ export default function LandingPage() {
       <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/85 backdrop-blur-xl border-b border-emerald-900/5 py-3 shadow-sm' : 'bg-transparent py-5'}`}>
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-[#2a524a] text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300">
-              <Heart className="w-5 h-5 fill-current" />
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-10 h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-sm shrink-0 group-hover:scale-105 transition-transform duration-300">
+              <svg className="w-6 h-6 text-[#86EFAC]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
+              </svg>
             </div>
-            <span className="text-2xl font-bold tracking-tight text-[#112a24] font-serif">
-              Carely
+            <span className="text-2xl font-bold tracking-tight text-[#0A2E23] font-serif">
+              Helpify
             </span>
           </Link>
 
@@ -86,13 +93,13 @@ export default function LandingPage() {
           </nav>
 
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/login" className="text-sm font-medium text-[#2a524a] hover:text-[#112a24] transition-colors">
+            <button onClick={() => setLoginOpen(true)} className="text-sm font-medium text-[#2a524a] hover:text-[#112a24] transition-colors">
               Anmelden
-            </Link>
-            <Link href="/register?role=family" className="px-6 py-2.5 rounded-full text-sm font-semibold bg-[#2a524a] text-white shadow-lg shadow-emerald-900/10 hover:bg-[#1f4239] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center gap-2 group">
+            </button>
+            <button onClick={() => setRegisterRole('select')} className="px-6 py-2.5 rounded-full text-sm font-semibold bg-[#2a524a] text-white shadow-lg shadow-emerald-900/10 hover:bg-[#1f4239] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center gap-2 group">
               Mitmachen
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            </button>
           </div>
 
           <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-[#2a524a]">
@@ -108,8 +115,8 @@ export default function LandingPage() {
               <a href="#trust" onClick={() => setMobileMenuOpen(false)}>Sicherheit & Prüfung</a>
             </nav>
             <div className="flex flex-col gap-3 pt-4 border-t border-emerald-50">
-              <Link href="/login" className="w-full py-3 text-center rounded-xl font-medium text-[#2a524a] bg-emerald-50">Anmelden</Link>
-              <Link href="/register" className="w-full py-3 text-center rounded-xl font-semibold bg-[#2a524a] text-white">Mitmachen</Link>
+              <button onClick={() => { setMobileMenuOpen(false); setLoginOpen(true); }} className="w-full py-3 text-center rounded-xl font-medium text-[#2a524a] bg-emerald-50">Anmelden</button>
+              <button onClick={() => { setMobileMenuOpen(false); setRegisterRole('select'); }} className="w-full py-3 text-center rounded-xl font-semibold bg-[#2a524a] text-white">Mitmachen</button>
             </div>
           </div>
         )}
@@ -134,7 +141,7 @@ export default function LandingPage() {
           </div>
 
           <p className="text-xl sm:text-2xl text-slate-700 max-w-3xl mx-auto font-light leading-relaxed">
-            Carely verbindet Familien auf der Suche nach verlässlicher Unterstützung direkt mit geprüften Alltagshelfern in ihrer Nachbarschaft. Transparent, sicher und unkompliziert.
+            Helpify verbindet Familien auf der Suche nach verlässlicher Unterstützung direkt mit geprüften Alltagshelfern in ihrer Nachbarschaft. Transparent, sicher und unkompliziert.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto pt-8 text-left">
@@ -146,9 +153,9 @@ export default function LandingPage() {
               <p className="text-slate-600 text-lg mb-10 leading-relaxed min-h-[80px]">
                 Finden Sie liebevolle Unterstützung für Einkäufe, Spaziergänge oder Gesellschaft im Alltag — inklusive Live-Statusupdates.
               </p>
-              <Link href="/register?role=family" className="inline-flex items-center justify-center w-full py-4 rounded-2xl font-bold bg-[#2a524a] text-white hover:bg-[#1f4239] transition-colors group-hover:shadow-lg gap-3 text-lg">
+              <button onClick={() => setRegisterRole('care_seeker')} className="inline-flex items-center justify-center w-full py-4 rounded-2xl font-bold bg-[#2a524a] text-white hover:bg-[#1f4239] transition-colors group-hover:shadow-lg gap-3 text-lg">
                 Betreuung finden <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
-              </Link>
+              </button>
             </div>
 
             <div className="bg-white/95 backdrop-blur-xl p-10 rounded-[2.5rem] border border-emerald-900/5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(42,82,74,0.1)] hover:-translate-y-1 transition-all duration-400 group">
@@ -159,9 +166,9 @@ export default function LandingPage() {
               <p className="text-slate-600 text-lg mb-10 leading-relaxed min-h-[80px]">
                 Arbeiten Sie flexibel in Ihrer Nachbarschaft. Perfekt für Studierende, Rentner & Quereinsteiger. Keine Vorkenntnisse nötig!
               </p>
-              <Link href="/register?role=caregiver" className="inline-flex items-center justify-center w-full py-4 rounded-2xl font-bold bg-[#e8f1ef] text-[#2a524a] hover:bg-[#dce9e6] transition-colors group-hover:shadow-md gap-3 text-lg">
+              <button onClick={() => setRegisterRole('helper')} className="inline-flex items-center justify-center w-full py-4 rounded-2xl font-bold bg-[#e8f1ef] text-[#2a524a] hover:bg-[#dce9e6] transition-colors group-hover:shadow-md gap-3 text-lg">
                 Alltagshelfer werden <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -269,17 +276,17 @@ export default function LandingPage() {
           </div>
           
           <h2 className="text-5xl sm:text-7xl font-serif font-bold text-white leading-tight">
-            Werden auch Sie Teil von Carely. <br />
+            Werden auch Sie Teil von Helpify. <br />
             <span className="text-[#a8dac9] italic font-light">Als Helfer oder Suchender.</span>
           </h2>
           
           <div className="flex flex-col sm:flex-row justify-center items-center gap-6 pt-4">
-            <Link href="/register?role=family" className="w-full sm:w-auto px-10 py-4 bg-white text-[#2a524a] font-bold rounded-full hover:bg-slate-50 transition-all shadow-xl text-lg hover:scale-105 active:scale-95 duration-300">
+            <button onClick={() => setRegisterRole('care_seeker')} className="w-full sm:w-auto px-10 py-4 bg-white text-[#2a524a] font-bold rounded-full hover:bg-slate-50 transition-all shadow-xl text-lg hover:scale-105 active:scale-95 duration-300">
               Hilfe für Angehörige finden
-            </Link>
-            <Link href="/register?role=caregiver" className="w-full sm:w-auto px-10 py-4 bg-transparent text-white border border-white/40 font-bold rounded-full hover:bg-white/10 transition-all text-lg hover:scale-105 active:scale-95 duration-300">
+            </button>
+            <button onClick={() => setRegisterRole('helper')} className="w-full sm:w-auto px-10 py-4 bg-transparent text-white border border-white/40 font-bold rounded-full hover:bg-white/10 transition-all text-lg hover:scale-105 active:scale-95 duration-300">
               Alltagshelfer werden
-            </Link>
+            </button>
           </div>
         </div>
       </section>
@@ -287,32 +294,46 @@ export default function LandingPage() {
       {/* FOOTER */}
       <footer className="bg-[#0f1715] text-slate-400 py-12 px-6 text-sm">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center">
-              <Heart className="w-4 h-4 fill-current" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-sm shrink-0">
+              <svg className="w-5 h-5 text-[#86EFAC]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
+              </svg>
             </div>
-            <span className="text-xl font-serif font-bold text-white">Carely</span>
+            <span className="text-xl font-serif font-bold text-white">Helpify</span>
           </div>
           
           <div className="flex gap-8 font-medium">
             <Link href="/terms" className="hover:text-white transition-colors">AGB</Link>
-            <Link href="/privacy" className="hover:text-white transition-colors">Datenschutz</Link>
+            <Link href="/datenschutz" className="hover:text-white transition-colors">Datenschutz</Link>
             <Link href="/imprint" className="hover:text-white transition-colors">Impressum</Link>
           </div>
           
-          <p>© {new Date().getFullYear()} Carely GmbH. Alle Rechte vorbehalten.</p>
+          <p>© {new Date().getFullYear()} Helpify GmbH. Alle Rechte vorbehalten.</p>
         </div>
       </footer>
 
       {/* MOBILE FIXED ACTION BAR */}
       <div className="md:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md p-4 border-t border-emerald-900/10 z-40 flex items-center justify-between gap-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-        <Link href="/register?role=family" className="flex-1 py-3 px-3 rounded-xl font-bold text-xs bg-[#2a524a] text-white text-center shadow-md">
+        <button onClick={() => setRegisterRole('care_seeker')} className="flex-1 py-3 px-3 rounded-xl font-bold text-xs bg-[#2a524a] text-[#ffffff] text-center shadow-md">
           Hilfe finden
-        </Link>
-        <Link href="/register?role=caregiver" className="flex-1 py-3 px-3 rounded-xl font-bold text-xs bg-[#e8f1ef] text-[#2a524a] text-center">
+        </button>
+        <button onClick={() => setRegisterRole('helper')} className="flex-1 py-3 px-3 rounded-xl font-bold text-xs bg-[#e8f1ef] text-[#2a524a] text-center">
           Helfer werden
-        </Link>
+        </button>
       </div>
+
+      {/* MODALS */}
+      <LoginModal 
+        isOpen={loginOpen} 
+        onClose={() => setLoginOpen(false)} 
+      />
+
+      <RegisterWizard 
+        role={registerRole} 
+        onClose={() => setRegisterRole(null)} 
+      />
 
     </div>
   );
