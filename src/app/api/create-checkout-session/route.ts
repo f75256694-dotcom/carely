@@ -33,7 +33,7 @@ export async function POST(req: Request) {
         },
       ],
       mode: 'payment',
-      success_url: `${req.headers.get('origin')}/dashboard?success=true`,
+success_url: `${req.headers.get('origin')}/dashboard?success=true`,
       cancel_url: `${req.headers.get('origin')}/dashboard?canceled=true`,
     });
 
