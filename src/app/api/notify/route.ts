@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(req: Request) {
   try {
+    // Resend erst hier initialisieren, damit der Build nicht crasht
+    const resend = new Resend(process.env.RESEND_API_KEY || '');
+
     const data = await req.json();
     const isCaregiver = data.role === 'caregiver';
 
@@ -13,8 +14,8 @@ export async function POST(req: Request) {
       : `📩 Neue Pflege-Anfrage: ${data.name}`;
 
     await resend.emails.send({
-      from: 'Helpify <onboarding@resend.dev>', // Nach Domain-Verifizierung durch deine eigene E-Mail ersetzen
-      to: ['deine-admin-email@domain.at'], // Hier deine Ziel-E-Mail eintragen
+      from: 'Helpify <onboarding@resend.dev>', 
+      to: ['deine-admin-email@domain.at'], 
       subject: subject,
       html: `
         <div style="font-family: sans-serif; padding: 20px;">
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Fehler beim E-Mail-Versand:', error);
     return NextResponse.json({ error: 'E-Mail konnte nicht gesendet werden.' }, { status: 500 });
   }
