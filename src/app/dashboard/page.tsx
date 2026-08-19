@@ -1,62 +1,241 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import ClientDashboard from './components/ClientDashboard';
-import CaregiverDashboard from './components/CaregiverDashboard';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { Heart, Clock, ShieldCheck, Lock, Sparkles, UserCheck } from 'lucide-react';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
+type CareRequest = {
+  id: string;
+  zip_code: string;
+  services: string[];
+};
 
-export default function DashboardRouter() {
+type CaregiverProfile = {
+  id: string;
+  first_name: string;
+  zip_code: string;
+  hourly_rate?: number;
+  experience_years?: number;
+};
+
+export default function DashboardPage() {
+  const [request, setRequest] = useState<CareRequest | null>(null);
+  const [helpers, setHelpers] = useState<CaregiverProfile[]>([]);
+  const [hoursBalance, setHoursBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [userData, setUserData] = useState<any>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [selectedHelper, setSelectedHelper] = useState<CaregiverProfile | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<'starter' | 'flex'>('starter');
+
+  // Stripe Links
+  const STRIPE_STARTER_URL = 'https://buy.stripe.com/test_5kQdRcb2aeMd5ibaAm0gw01 ';
+  const STRIPE_FLEX_URL = 'https://buy.stripe.com/test_3cIfZk3zIdI9h0TfUG0gw02'; // Sobald erstellt, den 2. Link hier einsetzen
+
+  const supabase = createClient();
 
   useEffect(() => {
-    async function checkUserRole() {
-      // 1. Session holen
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        window.location.href = '/login';
-        return;
-      }
+    async function loadDashboard() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-      // 2. Profil und Rolle aus der DB abfragen
       const { data: profile } = await supabase
         .from('profiles')
+        .select('hours_balance')
+        .eq('id', user.id)
+        .single();
+      if (profile) setHoursBalance(profile.hours_balance || 0);
+
+      const { data: req } = await supabase
+        .from('care_requests')
         .select('*')
-        .eq('id', session.user.id)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .single();
 
-      setUserRole(profile?.role || 'care_seeker');
-      setUserData({
-        id: session.user.id,
-        name: profile?.full_name || session.user.email,
-        email: session.user.email,
-        phone: profile?.phone || '',
-      });
+      if (req) {
+        setRequest(req);
+
+        const { data: matchedHelpers } = await supabase
+          .from('profiles')
+          .select('id, first_name, zip_code, hourly_rate, experience_years')
+          .eq('role', 'caregiver')
+          .eq('zip_code', req.zip_code)
+          .limit(4);
+
+        if (matchedHelpers) setHelpers(matchedHelpers);
+      }
       setLoading(false);
     }
 
-    checkUserRole();
+    loadDashboard();
   }, []);
 
+  const handleBookHelper = (helper: CaregiverProfile) => {
+    setSelectedHelper(helper);
+    if (hoursBalance <= 0) {
+      setShowPaywall(true);
+    } else {
+      alert(`Anfrage für ${helper.first_name} wurde erfolgreich übermittelt!`);
+    }
+  };
+
+  const handleBuy = () => {
+    const targetUrl = selectedPackage === 'starter' ? STRIPE_STARTER_URL : STRIPE_FLEX_URL;
+    window.location.href = targetUrl;
+  };
+
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <p className="text-slate-500 font-bold">Dashboard wird geladen...</p>
+    return <div className="min-h-screen flex items-center justify-center font-bold text-gray-500">Dashboard wird geladen...</div>;
+  }
+
+  return (
+    <div className="min-h-screen bg-[#FAFAF7] p-6 md:p-12 font-sans text-gray-900">
+      <div className="max-w-4xl mx-auto space-y-8">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#235347] text-white flex items-center justify-center">
+              <Heart className="w-5 h-5 fill-current" />
+            </div>
+            <h1 className="text-2xl font-black font-serif">Mein Pflege-Dashboard</h1>
+          </div>
+          <div className="bg-white border border-gray-200 px-4 py-2 rounded-2xl text-xs font-bold text-gray-700 shadow-sm flex items-center gap-2">
+            <Clock className="w-4 h-4 text-[#235347]" />
+            <span>Guthaben: <strong className="text-[#235347]">{hoursBalance} Std.</strong></span>
+          </div>
+        </div>
+
+        {/* Status-Kachel */}
+        {request && (
+          <div className="bg-white border border-emerald-100 rounded-3xl p-6 shadow-sm space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#235347]">Suchauftrag</span>
+              <span className="bg-amber-100 text-amber-800 text-xs font-extrabold px-3 py-1 rounded-full flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                Matching aktiv
+              </span>
+            </div>
+            <h3 className="text-lg font-bold">Unterstützung in PLZ {request.zip_code}</h3>
+          </div>
+        )}
+
+        {/* Helfer-Ergebnisse */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-black font-serif flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-[#235347]" />
+            Verfügbare Helfer in deiner Nähe
+          </h2>
+
+          {helpers.length > 0 ? (
+            <div className="grid md:grid-cols-2 gap-4">
+              {helpers.map((helper) => (
+                <div key={helper.id} className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-extrabold text-base">{helper.first_name}</h4>
+                      <p className="text-xs text-gray-500">PLZ {helper.zip_code}</p>
+                    </div>
+                    <span className="bg-emerald-50 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-lg">
+                      {helper.hourly_rate ? `${helper.hourly_rate} €/Std.` : 'Verifizierter Helfer'}
+                    </span>
+                  </div>
+
+                  <div className="text-xs text-gray-600 flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#235347]" />
+                    <span>{helper.experience_years ? `${helper.experience_years} Jahre Erfahrung` : 'Geprüftes Profil'}</span>
+                  </div>
+
+                  <button
+                    onClick={() => handleBookHelper(helper)}
+                    className="w-full py-3 rounded-2xl bg-[#235347] hover:bg-[#1b4238] text-white font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  >
+                    <UserCheck className="w-4 h-4" />
+                    <span>Erstgespräch buchen</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white border border-gray-200 rounded-3xl p-8 text-center space-y-3">
+              <div className="w-12 h-12 bg-amber-50 text-amber-700 rounded-2xl flex items-center justify-center mx-auto font-bold">
+                🔎
+              </div>
+              <h3 className="font-extrabold text-base">Dein Concierge sucht gerade</h3>
+              <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                Wir prüfen aktuell manuell weitere Helfer-Aktivierungen für deine PLZ {request?.zip_code}. In Kürze schalten wir dir Vorschläge frei.
+              </p>
+            </div>
+          )}
+        </div>
+
       </div>
-    );
-  }
 
-  // 3. Routing basierend auf der Rolle
-  if (userRole === 'caregiver') {
-    return <CaregiverDashboard user={userData} />;
-  }
+      {/* PAYWALL MODAL */}
+      {showPaywall && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white max-w-md w-full rounded-[2.5rem] p-8 space-y-6 shadow-2xl relative">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-emerald-50 text-[#235347] rounded-2xl flex items-center justify-center mx-auto">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h3 className="text-2xl font-black font-serif">Guthaben aktivieren</h3>
+              <p className="text-xs text-gray-500">
+                Lade Guthaben auf, um {selectedHelper ? selectedHelper.first_name : 'Helfer'} direkt anzufragen.
+              </p>
+            </div>
 
-  return <ClientDashboard user={userData} />;
+            <div className="space-y-3">
+              {/* Starter-Paket */}
+              <div 
+                onClick={() => setSelectedPackage('starter')}
+                className={`border-2 rounded-2xl p-4 transition cursor-pointer flex justify-between items-center ${
+                  selectedPackage === 'starter' ? 'border-[#235347] bg-emerald-50/20' : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <div>
+                  <div className="font-extrabold text-sm text-gray-900">Starter-Paket (4 Std.)</div>
+                  <div className="text-xs text-gray-500">Zum Kennenlernen</div>
+                </div>
+                <div className="font-black text-lg text-[#235347]">99 €</div>
+              </div>
+
+              {/* Flex-Paket */}
+              <div 
+                onClick={() => setSelectedPackage('flex')}
+                className={`border-2 rounded-2xl p-4 transition cursor-pointer flex justify-between items-center relative ${
+                  selectedPackage === 'flex' ? 'border-[#235347] bg-emerald-50/30' : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <span className="absolute -top-2.5 right-4 bg-[#235347] text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
+                  Bestseller
+                </span>
+                <div>
+                  <div className="font-extrabold text-sm text-gray-900">Flex-Paket (10 Std.)</div>
+                  <div className="text-xs text-gray-500">Regelmäßige Betreuung</div>
+                </div>
+                <div className="font-black text-lg text-[#235347]">239 €</div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <button
+                onClick={handleBuy}
+                className="w-full py-4 rounded-2xl bg-[#235347] hover:bg-[#1b4238] text-white font-bold text-sm transition shadow-lg cursor-pointer"
+              >
+                Guthaben kaufen
+              </button>
+              <button
+                onClick={() => setShowPaywall(false)}
+                className="w-full py-2 text-xs text-gray-400 font-bold hover:text-gray-600 transition"
+              >
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

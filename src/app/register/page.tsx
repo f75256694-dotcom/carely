@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -26,6 +26,21 @@ function RegisterForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
+  // PLZ aus dem Fragebogen-Entwurf vorbefüllen (falls vorhanden)
+  useEffect(() => {
+    const draftData = localStorage.getItem('care_request_draft');
+    if (draftData) {
+      try {
+        const parsed = JSON.parse(draftData);
+        if (parsed.zip_code) {
+          setZipCode(parsed.zip_code);
+        }
+      } catch (e) {
+        console.error('Fehler beim Lesen des Entwurfs', e);
+      }
+    }
+  }, []);
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -34,7 +49,7 @@ function RegisterForm() {
     try {
       const supabase = createClient();
       
-      // 1. Account in Supabase Auth anlegen
+      // 1. Auth SignUp
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -49,11 +64,13 @@ function RegisterForm() {
 
       if (signUpError) throw signUpError;
 
-      // 2. Profil-Eintrag direkt in der 'profiles'-Tabelle der Datenbank anlegen
       if (authData.user) {
+        const userId = authData.user.id;
+
+        // 2. Profil anlegen / aktualisieren
         const { error: profileError } = await supabase.from('profiles').upsert([
           {
-            id: authData.user.id,
+            id: userId,
             full_name: fullName,
             role: role,
             zip_code: zipCode,
@@ -61,12 +78,44 @@ function RegisterForm() {
           },
         ]);
 
-        if (profileError) {
-          console.error('Fehler beim Erstellen des Profils:', profileError);
+        if (profileError) throw profileError;
+
+        // 3. Entwurf aus localStorage in care_requests übertragen
+        const draftData = localStorage.getItem('care_request_draft');
+        let requestPayload = {
+          user_id: userId,
+          zip_code: zipCode,
+          services: [],
+          status: 'matching',
+        };
+
+        if (draftData) {
+          try {
+            const parsedDraft = JSON.parse(draftData);
+            requestPayload = {
+              ...requestPayload,
+              ...parsedDraft,
+              user_id: userId, // ID überschreiben für Sicherheit
+            };
+          } catch (e) {
+            console.error('Fehler beim Verarbeiten des Entwurfs:', e);
+          }
+        }
+
+        // Automatischen Care Request in DB schreiben
+        const { error: requestError } = await supabase
+          .from('care_requests')
+          .insert([requestPayload]);
+
+        if (requestError) {
+          console.error('Fehler beim Erstellen der Pflegeanfrage:', requestError);
+        } else {
+          // Entwurf löschen nach erfolgreicher Erstellung
+          localStorage.removeItem('care_request_draft');
         }
       }
 
-      // 3. Sauber auf das Haupt-Dashboard weiterleiten
+      // 4. Weiterleitung ins Dashboard
       router.replace('/dashboard');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Ein unbekannter Fehler ist aufgetreten.';
@@ -87,8 +136,8 @@ function RegisterForm() {
             </div>
             <span className="text-3xl font-black text-gray-900 tracking-tight font-serif">Carely</span>
           </Link>
-          <h2 className="text-2xl font-black font-serif text-gray-900">Account erstellen</h2>
-          <p className="text-gray-500 text-sm">Wähle dein Profil und starte in wenigen Sekunden.</p>
+          <h2 className="text-2xl font-black font-serif text-gray-900">Konto erstellen</h2>
+          <p className="text-gray-500 text-sm">Speichere deine Anfrage & starte das Matching.</p>
         </div>
 
         <div className="bg-white/90 backdrop-blur-3xl border border-white/90 rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_50px_rgba(13,148,136,0.08)] space-y-6">
@@ -201,7 +250,7 @@ function RegisterForm() {
               disabled={loading}
               className="w-full mt-2 py-4 px-6 rounded-2xl bg-teal-700 hover:bg-teal-800 text-white text-base font-black shadow-lg shadow-teal-700/20 transition-all duration-300 hover:-translate-y-0.5 flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50"
             >
-              <span>{loading ? 'Erstelle Account...' : 'Account erstellen & starten'}</span>
+              <span>{loading ? 'Erstelle Account...' : 'Konto erstellen & Anfrage starten'}</span>
               <ArrowRight className="w-5 h-5" />
             </button>
           </form>
