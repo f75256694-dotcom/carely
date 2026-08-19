@@ -34,7 +34,8 @@ function RegisterForm() {
     try {
       const supabase = createClient();
       
-      const { error } = await supabase.auth.signUp({
+      // 1. Account in Supabase Auth anlegen
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -46,10 +47,27 @@ function RegisterForm() {
         },
       });
 
-      if (error) throw error;
+      if (signUpError) throw signUpError;
 
-      // Direkte Weiterleitung auf das MVP-Dashboard für die Pilotenphase
-      router.replace('/dashboard/mvppage');
+      // 2. Profil-Eintrag direkt in der 'profiles'-Tabelle der Datenbank anlegen
+      if (authData.user) {
+        const { error: profileError } = await supabase.from('profiles').upsert([
+          {
+            id: authData.user.id,
+            full_name: fullName,
+            role: role,
+            zip_code: zipCode,
+            updated_at: new Date().toISOString(),
+          },
+        ]);
+
+        if (profileError) {
+          console.error('Fehler beim Erstellen des Profils:', profileError);
+        }
+      }
+
+      // 3. Sauber auf das Haupt-Dashboard weiterleiten
+      router.replace('/dashboard');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Ein unbekannter Fehler ist aufgetreten.';
       setErrorMessage(msg);
