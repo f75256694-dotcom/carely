@@ -17,7 +17,7 @@ export default function CareSeekerApplyPage() {
     services: [] as string[],
     otherServiceText: '',
     district: '1. Innere Stadt',
-    selectedPackage: 'Basis (2-5 Std./Woche)',
+    selectedPackage: 'Starter-Paket (4 Std.) - 99 €',
     targetGroup: 'Für mich selbst',
     fullName: '',
     email: '',
@@ -49,7 +49,11 @@ export default function CareSeekerApplyPage() {
     '21. ', '22. ', '23. '
   ];
 
-  const packageOptions = ['Basis (2-5 Std./Woche)', 'Komfort (5-10 Std./Woche)', 'Intensiv (10+ Std./Woche)'];
+  const packageOptions = [
+    { name: 'Starter-Paket (4 Std.) - 99 €', desc: 'Ideal zum Testen ohne Risiko' },
+    { name: 'Flex-Paket (10 Std.) - 239 €', desc: 'Der Bestseller für regelmäßige Alltagsbegleitung' }
+  ];
+
   const targetGroupOptions = ['Für mich selbst', 'Für meine Eltern / Angehörigen', 'Für Bekannte'];
 
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
@@ -103,11 +107,27 @@ export default function CareSeekerApplyPage() {
         }),
       });
 
-      setSubmitted(true);
+      // Stripe Checkout Session aufrufen und direkt zu Stripe umleiten
+      const stripeRes = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          packageName: formData.selectedPackage,
+          email: formData.email,
+          name: formData.fullName,
+        }),
+      });
+
+      const stripeData = await stripeRes.json();
+      if (stripeData.url) {
+        window.location.href = stripeData.url;
+      } else {
+        throw new Error('Konnte keine Checkout-Session erstellen');
+      }
+
     } catch (err) {
       console.error('Fehler beim Speichern der Pflege-Anfrage:', err);
       alert('Es gab ein Problem beim Absenden. Bitte versuche es erneut.');
-    } finally {
       setLoading(false);
     }
   };
@@ -220,11 +240,22 @@ export default function CareSeekerApplyPage() {
           <div className="animate-in fade-in duration-500">
             <form onSubmit={handleSubmit}>
               <div className="mb-6">
-                <label className="block text-xs font-bold text-slate-700 mb-2">Gewünschter Umfang</label>
-                <div className="grid grid-cols-1 gap-2">
-                  {packageOptions.map(pkg => (
-                    <button key={pkg} type="button" onClick={() => setFormData({...formData, selectedPackage: pkg})} className={`p-3 rounded-xl border-2 font-semibold text-xs text-left ${formData.selectedPackage === pkg ? 'border-emerald-500 bg-emerald-50 text-emerald-900' : 'border-slate-100 text-slate-600'}`}>{pkg}</button>
-                  ))}
+                <label className="block text-xs font-bold text-slate-700 mb-2">Wähle dein Paket</label>
+                <div className="grid grid-cols-1 gap-2.5">
+                  {packageOptions.map(pkg => {
+                    const isSelected = formData.selectedPackage === pkg.name;
+                    return (
+                      <button 
+                        key={pkg.name} 
+                        type="button" 
+                        onClick={() => setFormData({...formData, selectedPackage: pkg.name})} 
+                        className={`p-4 rounded-2xl border-2 text-left transition-all ${isSelected ? 'border-emerald-500 bg-emerald-50/60 text-emerald-900 shadow-sm' : 'border-slate-100 bg-white text-slate-700'}`}
+                      >
+                        <div className="font-bold text-sm">{pkg.name}</div>
+                        <div className="text-xs text-slate-500 mt-0.5">{pkg.desc}</div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -249,7 +280,7 @@ export default function CareSeekerApplyPage() {
 
               <div className="flex gap-3">
                 <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 font-bold py-4 rounded-2xl">Zurück</button>
-                <button disabled={loading || !formData.privacyAccepted || !isValidEmail(formData.email)} type="submit" className="w-2/3 bg-emerald-600 text-white font-bold py-4 rounded-2xl hover:bg-emerald-500 disabled:opacity-70">{loading ? 'Wird gesendet...' : 'Abschicken 🚀'}</button>
+                <button disabled={loading || !formData.privacyAccepted || !isValidEmail(formData.email)} type="submit" className="w-2/3 bg-emerald-600 text-white font-bold py-4 rounded-2xl hover:bg-emerald-500 disabled:opacity-70">{loading ? 'Wird geleitet...' : 'Abschicken 🚀'}</button>
               </div>
             </form>
           </div>

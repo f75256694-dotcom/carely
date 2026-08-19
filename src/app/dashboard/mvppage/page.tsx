@@ -1,237 +1,377 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
-import { 
-  Clock, 
-  ShieldCheck, 
-  Video, 
-  PhoneCall, 
-  Calendar, 
-  CheckCircle2, 
-  Sparkles, 
-  MapPin, 
-  User, 
-  FileCheck, 
-  Heart,
-  MessageSquare
-} from 'lucide-react';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-const STEP_ORDER: Record<string, number> = {
-  submitted: 1,
-  interview_pending: 2,
-  matching_active: 3,
-  completed: 4,
-};
+interface ClientDashboardProps {
+  user?: { id?: string; name: string; email: string; phone?: string };
+}
 
-export default function DashboardPage() {
-  const [userRole, setUserRole] = useState<'family' | 'caregiver'>('family');
-  const [careRequest, setCareRequest] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+export default function ClientDashboard({ user = { name: 'Max Mustermann', email: 'max@beispiel.at', phone: '+43 660 1234567' } }: ClientDashboardProps) {
+  const router = useRouter();
+  const [showWizard, setShowWizard] = useState(false);
+  const [step, setStep] = useState(1);
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [isDistrictOpen, setIsDistrictOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Echtes Guthaben aus der Datenbank
+  const [hoursBalance, setHoursBalance] = useState({ total: 0, used: 0 });
+
+  // Guthaben und Profildaten beim Laden der Komponente abrufen
   useEffect(() => {
-    async function loadData() {
-      // Holt den neuesten Eintrag aus der Datenbank
-      const { data } = await supabase
-        .from('care_requests')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+    async function fetchUserData() {
+      if (!user?.id) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('total_hours, used_hours')
+        .eq('id', user.id)
+        .single();
 
-      if (data) setCareRequest(data);
-      setLoading(false);
+      if (data && !error) {
+        setHoursBalance({
+          total: data.total_hours || 0,
+          used: data.used_hours || 0,
+        });
+      }
     }
 
-    loadData();
+    fetchUserData();
+  }, [user?.id]);
 
-    // Live-Updates aktivieren (WebSocket)
-    const channel = supabase
-      .channel('realtime_care_requests')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'care_requests' },
-        (payload) => {
-          if (payload.new) {
-            setCareRequest(payload.new);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  const currentStatus = careRequest?.status || 'submitted';
-  const currentStepNum = STEP_ORDER[currentStatus] || 1;
-
-  const familySteps = [
-    { key: 'submitted', title: 'Anfrage eingegangen', desc: 'Deine Bedürfnisse wurden strukturiert erfasst' },
-    { key: 'interview_pending', title: 'Persönliches Erstgespräch', desc: 'Kurzer Anruf unseres Teams zur Feinabstimmung' },
-    { key: 'matching_active', title: 'Gezieltes Helfer-Matching', desc: 'Auswahl von 2–3 geprüften Profilen in deiner Nähe' },
-    { key: 'completed', title: 'Ersttreffen & Start', desc: 'Unverbindliches Kennenlernen vor Ort' },
-  ].map((step) => {
-    const num = STEP_ORDER[step.key];
-    let status: 'completed' | 'current' | 'upcoming' = 'upcoming';
-    if (num < currentStepNum) status = 'completed';
-    if (num === currentStepNum) status = 'current';
-    return { ...step, status };
+  const [formData, setFormData] = useState({
+    services: [] as string[],
+    otherServiceText: '',
+    district: '1. Innere Stadt',
+    selectedPackage: 'Starter-Paket (4 Std. • 99 €)',
+    targetGroup: 'Für mich selbst',
+    source: 'dashboard',
   });
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDistrictOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const serviceOptions = [
+    { id: 'Einkäufe & Besorgungen', icon: '🛒', title: 'Einkäufe & Besorgungen', desc: 'Unterstützung beim wöchentlichen Einkauf' },
+    { id: 'Gesellschaft & Spaziergänge', icon: '☀️', title: 'Gesellschaft & Spaziergänge', desc: 'Gemeinsame Zeit & frische Luft' },
+    { id: 'Leichte Haushaltshilfe', icon: '✨', title: 'Leichte Haushaltshilfe', desc: 'Hilfe im Haushalt & Ordnung halten' },
+    { id: 'Terminbegleitung', icon: '🤝', title: 'Terminbegleitung', desc: 'Sicherer Begleitschutz zum Arzt oder Ämtern' }
+  ];
+
+  const districtOptions = [
+    '1. Innere Stadt', '2. Leopoldstadt', '3. Landstraße', '4. Wieden', '5. Margareten',
+    '6. Mariahilf', '7. Neubau', '8. Josefstadt', '9. Alsergrund', '10. Favoriten',
+    '11. Simmering', '12. Meidling', '13. Hietzing', '14. Penzing', '15. Rudolfsheim-Fünfhaus',
+    '16. Ottakring', '17. Hernals', '18. Währing', '19. Döbling', '20. Brigittenau',
+    '21. Floridsdorf', '22. Donaustadt', '23. Liesing'
+  ];
+
+  const packageOptions = [
+    { id: 'Starter', name: 'Starter-Paket', hours: '4 Stunden', price: '99 €', desc: 'Ideal für den Einstieg' },
+    { id: 'Flex', name: 'Flex-Paket', hours: '10 Stunden', price: '239 €', desc: 'Der Bestseller für regelmäßige Hilfe' }
+  ];
+
+  const targetGroupOptions = ['Für mich selbst', 'Für meine Eltern / Angehörigen', 'Für Bekannte'];
+
+  const toggleService = (serviceId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      services: prev.services.includes(serviceId)
+        ? prev.services.filter(s => s !== serviceId)
+        : [...prev.services, serviceId]
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const finalServices = [...formData.services];
+      if (formData.otherServiceText.trim()) {
+        finalServices.push(`Sonstiges: ${formData.otherServiceText.trim()}`);
+      }
+
+      const { error } = await supabase.from('care_requests').insert([{
+        user_id: user.id || null,
+        role: 'care_seeker',
+        name: user.name,
+        email: user.email,
+        phone: user.phone || '',
+        services: finalServices,
+        district: formData.district,
+        package: formData.selectedPackage,
+        target_group: formData.targetGroup,
+        source: formData.source,
+        status: 'submitted'
+      }]);
+
+      if (error) throw error;
+
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          role: 'care_seeker',
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          district: formData.district,
+          services: finalServices,
+          package: formData.selectedPackage,
+          target_group: formData.targetGroup,
+          source: formData.source,
+        }),
+      });
+
+      const stripeRes = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          packageName: formData.selectedPackage,
+          email: user.email,
+          name: user.name,
+        }),
+      });
+
+      const responseText = await stripeRes.text();
+      let stripeData;
+      try {
+        stripeData = JSON.parse(responseText);
+      } catch (parseErr) {
+        throw new Error('Server hat keine gültige JSON-Antwort geliefert.');
+      }
+
+      if (!stripeRes.ok) throw new Error(stripeData.error || 'Fehler beim Erstellen der Checkout-Session');
+
+      if (stripeData.url) {
+        window.location.href = stripeData.url;
+      } else {
+        throw new Error('Konnte keine Checkout-Session erstellen');
+      }
+
+    } catch (err: any) {
+      console.error('Fehler beim Speichern:', err);
+      alert(`Es gab ein Problem: ${err.message || 'Bitte versuche es erneut.'}`);
+      setLoading(false);
+    }
+  };
+
+  const handleClose = () => {
+    setShowWizard(false);
+    setStep(1);
+  };
+
+  const isOtherSelected = formData.services.includes('Sonstiges');
+  const remainingHours = Math.max(0, hoursBalance.total - hoursBalance.used);
+  const percentageRemaining = hoursBalance.total > 0 ? Math.round((remainingHours / hoursBalance.total) * 100) : 0;
+
   return (
-    <div className="min-h-screen bg-[#F4F7F5] text-[#0A2E23] antialiased font-sans pb-24">
-      {/* Top Test-Mode Bar */}
-      <header className="border-b border-[#0A2E23]/10 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#0A2E23] flex items-center justify-center shadow-md">
-              <svg className="w-5 h-5 text-[#86EFAC]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
-              </svg>
+    <main className="min-h-screen bg-slate-50 p-6 sm:p-10 selection:bg-emerald-200">
+      <div className="max-w-4xl mx-auto mb-8">
+        <h1 className="text-3xl font-extrabold text-slate-900 mb-2">Willkommen zurück, {user.name}! 👋</h1>
+        <p className="text-slate-500">Hier behältst du den Überblick über dein verbleibendes Guthaben und deine Anfragen.</p>
+      </div>
+
+      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm col-span-1 flex flex-col justify-between">
+          <div>
+            <h3 className="text-slate-400 font-bold text-xs uppercase tracking-wider mb-2">Dein Guthaben</h3>
+            <div className="flex items-baseline gap-2 mb-3">
+              <span className="text-4xl font-black text-emerald-950">{remainingHours} Std.</span>
+              <span className="text-slate-500 text-xs font-medium">von {hoursBalance.total} Std.</span>
             </div>
-            <span className="text-xl font-bold tracking-tight text-[#0A2E23] font-serif">Helpify</span>
-            <span className="text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded-md bg-[#0A2E23]/5 text-[#0A2E23]/60 font-semibold border border-[#0A2E23]/10">
-              Care OS 1.0 (Live SQL Data)
+            <div className="w-full bg-slate-100 rounded-full h-2 mb-2 overflow-hidden">
+              <div className="bg-gradient-to-r from-emerald-400 to-teal-500 h-full rounded-full transition-all duration-500" style={{ width: `${percentageRemaining}%` }}></div>
+            </div>
+          </div>
+          <p className="text-[11px] text-slate-400 mt-4">Flexibel nutzbar ohne Abonnement.</p>
+        </div>
+
+        <div className="col-span-1 md:col-span-2 bg-[#1B4D3E] p-8 rounded-3xl text-white shadow-xl shadow-emerald-900/10 flex flex-col justify-between">
+          <div>
+            <span className="text-xs font-bold text-emerald-300 uppercase tracking-wider bg-emerald-900/60 px-3 py-1 rounded-full border border-emerald-700/50">
+              Direkt buchen
             </span>
+            <h2 className="text-2xl font-bold mt-3 mb-2">Neue Unterstützung anfordern</h2>
+            <p className="text-emerald-100/90 text-sm mb-6">Wähle einfach deine gewünschten Leistungen und den Zeitraum aus.</p>
           </div>
-
-          <div className="flex items-center gap-2 bg-[#F4F7F5] p-1 rounded-xl border border-[#0A2E23]/10">
-            <button
-              onClick={() => setUserRole('family')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                userRole === 'family' ? 'bg-white text-[#0A2E23] shadow-xs' : 'text-[#0A2E23]/60'
-              }`}
-            >
-              Familie
-            </button>
-            <button
-              onClick={() => setUserRole('caregiver')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                userRole === 'caregiver' ? 'bg-white text-[#0A2E23] shadow-xs' : 'text-[#0A2E23]/60'
-              }`}
-            >
-              Alltagshelfer
-            </button>
-          </div>
+          <button 
+            onClick={() => setShowWizard(true)}
+            className="bg-white text-[#1B4D3E] px-6 py-3.5 rounded-2xl font-bold w-fit hover:bg-emerald-50 transition-colors shadow-md"
+          >
+            Fragebogen starten →
+          </button>
         </div>
-      </header>
+      </div>
 
-      <main className="max-w-6xl mx-auto px-6 pt-10 space-y-8">
-        
-        {/* Banner */}
-        <section className="bg-[#0A2E23] text-white rounded-3xl p-8 sm:p-10 relative overflow-hidden shadow-2xl">
-          <div className="relative z-10 space-y-4 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[#86EFAC] text-xs font-semibold border border-white/10">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{loading ? 'Lade Daten...' : 'Echtzeit-Verbindung aktiv'}</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-serif font-medium tracking-tight text-white leading-tight">
-              {userRole === 'family' ? 'Wir organisieren den perfekten Beistand für deine Familie.' : 'Willkommen im Helpify Experten-Netzwerk.'}
-            </h1>
-            <p className="text-emerald-100/70 text-base leading-relaxed">
-              {userRole === 'family' 
-                ? 'Deine Anfrage für Wien ist bei unserem Care-Team eingegangen.'
-                : 'Deine Angaben wurden erfasst. Wir prüfen deine Unterlagen.'}
-            </p>
-          </div>
-        </section>
+      {showWizard && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto"
+          onClick={handleClose}
+        >
+          <div 
+            className="max-w-xl w-full bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 relative my-8"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={handleClose}
+              type="button"
+              className="absolute top-5 right-5 w-9 h-9 bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 rounded-full flex items-center justify-center transition-colors z-10 font-bold"
+            >
+              ✕
+            </button>
 
-        {/* Dashboard Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* Pipeline */}
-          <section className="lg:col-span-8 bg-white rounded-3xl p-8 border border-[#0A2E23]/10 shadow-sm space-y-8">
-            <div className="flex items-center justify-between border-b border-[#0A2E23]/5 pb-6">
-              <div>
-                <h2 className="text-lg font-serif font-bold text-[#0A2E23]">
-                  Status deiner Care-Anfrage
-                </h2>
-                <p className="text-xs text-[#0A2E23]/60 mt-0.5">DB Status: <code className="bg-slate-100 px-1 rounded text-[#0A2E23] font-bold">{currentStatus}</code></p>
+            {submitted ? (
+              <div className="text-center py-6">
+                <div className="w-20 h-20 bg-[#1B4D3E] text-[#86EFAC] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-900/20">
+                  ✓
+                </div>
+                <h2 className="text-2xl font-extrabold text-slate-900 mb-3">Vielen Dank, {user.name}!</h2>
+                <p className="text-slate-600 text-sm mb-8">Deine Anfrage ist eingegangen. Wir leiten dich zur Buchung weiter...</p>
               </div>
-              <span className="text-xs font-mono font-medium px-2.5 py-1 rounded-full bg-[#86EFAC]/20 text-[#0A2E23] border border-[#86EFAC]/40">
-                Schritt {currentStepNum} von 4
-              </span>
-            </div>
+            ) : (
+              <>
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-slate-100 rounded-t-3xl overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-500" style={{ width: `${(step / 3) * 100}%` }}></div>
+                </div>
 
-            <div className="space-y-6 relative before:absolute before:inset-0 before:left-5 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#0A2E23]/10">
-              {familySteps.map((step, idx) => (
-                <div key={idx} className="relative flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 z-10 transition-all ${
-                    step.status === 'completed' 
-                      ? 'bg-[#0A2E23] text-[#86EFAC]' 
-                      : step.status === 'current'
-                      ? 'bg-[#86EFAC] text-[#0A2E23] ring-4 ring-[#86EFAC]/30 font-bold'
-                      : 'bg-[#F4F7F5] text-[#0A2E23]/40 border border-[#0A2E23]/10'
-                  }`}>
-                    {step.status === 'completed' ? <CheckCircle2 className="w-5 h-5" /> : <span>{idx + 1}</span>}
-                  </div>
+                <div className="flex justify-between items-center mb-6 mt-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Hilfe-Anfrage</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-8">Schritt {step} von 3</span>
+                </div>
 
-                  <div className={`flex-1 p-4 rounded-2xl ${step.status === 'current' ? 'bg-[#F4F7F5] border border-[#0A2E23]/10' : ''}`}>
-                    <div className="flex items-center justify-between">
-                      <h3 className={`text-base font-serif font-bold ${step.status === 'upcoming' ? 'text-[#0A2E23]/50' : 'text-[#0A2E23]'}`}>
-                        {step.title}
-                      </h3>
-                      {step.status === 'current' && (
-                        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#0A2E23] uppercase bg-white px-2.5 py-1 rounded-md border border-[#0A2E23]/10">
-                          <span className="w-2 h-2 rounded-full bg-[#0A2E23] animate-pulse" />
-                          Aktiv
-                        </span>
-                      )}
+                {step === 1 && (
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900 mb-1">Wo benötigst du Hilfe?</h2>
+                    <p className="text-slate-500 text-xs mb-4">Wähle alle passenden Bereiche aus.</p>
+                    
+                    <div className="grid grid-cols-1 gap-2.5 mb-4">
+                      {serviceOptions.map(s => {
+                        const isSelected = formData.services.includes(s.id);
+                        return (
+                          <button key={s.id} type="button" onClick={() => toggleService(s.id)} className={`relative flex items-center p-3 rounded-2xl border-2 text-left transition-all ${isSelected ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-100 bg-white'}`}>
+                            <span className="text-xl mr-3 bg-slate-50 w-9 h-9 rounded-xl flex items-center justify-center shrink-0">{s.icon}</span>
+                            <div className="flex-1 pr-6">
+                              <span className="block font-bold text-sm text-slate-800">{s.title}</span>
+                              <span className="block text-xs text-slate-500">{s.desc}</span>
+                            </div>
+                          </button>
+                        );
+                      })}
+
+                      <button type="button" onClick={() => toggleService('Sonstiges')} className={`relative flex items-center p-3 rounded-2xl border-2 text-left transition-all ${isOtherSelected ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-100 bg-white'}`}>
+                        <span className="text-xl mr-3 bg-slate-50 w-9 h-9 rounded-xl flex items-center justify-center shrink-0">💡</span>
+                        <div className="flex-1 pr-6">
+                          <span className="block font-bold text-sm text-slate-800">Sonstiges</span>
+                          <span className="block text-xs text-slate-500">Individuelle Wünsche & Anliegen</span>
+                        </div>
+                      </button>
                     </div>
-                    <p className={`text-xs mt-1 ${step.status === 'upcoming' ? 'text-[#0A2E23]/40' : 'text-[#0A2E23]/70'}`}>
-                      {step.desc}
-                    </p>
+
+                    {isOtherSelected && (
+                      <div className="mb-4">
+                        <label className="block text-xs font-bold text-slate-700 mb-1">Beschreibe deine Wünsche kurz:</label>
+                        <textarea rows={2} placeholder="z. B. Begleitung zu einem bestimmten Ausflug..." value={formData.otherServiceText} onChange={e => setFormData({...formData, otherServiceText: e.target.value})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-xs outline-none focus:bg-white focus:border-emerald-500 resize-none" />
+                      </div>
+                    )}
+
+                    <button type="button" onClick={() => { if (formData.services.length > 0) setStep(2); }} disabled={formData.services.length === 0} className="w-full bg-[#1B4D3E] text-white font-bold py-3.5 rounded-2xl disabled:opacity-40">
+                      Weiter →
+                    </button>
                   </div>
-                </div>
-              ))}
-            </div>
-          </section>
+                )}
 
-          {/* Echte DB Info-Box */}
-          <aside className="lg:col-span-4 space-y-6">
-            <div className="bg-white rounded-3xl p-6 border border-[#0A2E23]/10 shadow-sm space-y-5">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[#0A2E23]/60 border-b border-[#0A2E23]/5 pb-4">
-                Echte Daten aus Supabase
-              </h3>
-
-              <div className="space-y-4 text-xs">
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-[#0A2E23]/60 shrink-0 mt-0.5" />
+                {step === 2 && (
                   <div>
-                    <p className="font-semibold text-[#0A2E23]">Region</p>
-                    <p className="text-[#0A2E23]/70">{careRequest?.region || 'Keine Region hinterlegt'}</p>
-                  </div>
-                </div>
+                    <h2 className="text-xl font-bold text-slate-900 mb-1">Ort & Zielgruppe</h2>
+                    <div className="space-y-4 mb-6">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-2">Für wen?</label>
+                        <div className="grid grid-cols-1 gap-2">
+                          {targetGroupOptions.map(tg => (
+                            <button key={tg} type="button" onClick={() => setFormData({...formData, targetGroup: tg})} className={`p-3 rounded-xl border-2 text-left text-xs font-semibold ${formData.targetGroup === tg ? 'border-emerald-500 bg-emerald-50' : 'border-slate-100 bg-white'}`}>
+                              {tg}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
 
-                <div className="flex items-start gap-3">
-                  <Heart className="w-4 h-4 text-[#0A2E23]/60 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-[#0A2E23]">Gewünschte Hilfe</p>
-                    <p className="text-[#0A2E23]/70">{careRequest?.service_types?.join(', ') || 'Keine Angaben'}</p>
-                  </div>
-                </div>
+                      <div className="relative" ref={dropdownRef}>
+                        <label className="block text-xs font-bold text-slate-700 mb-2">Bezirk</label>
+                        <button type="button" onClick={() => setIsDistrictOpen(!isDistrictOpen)} className="w-full flex justify-between px-4 py-3 bg-white border-2 border-emerald-500 rounded-xl text-xs font-bold">
+                          <span>{formData.district}</span>
+                          <span>▼</span>
+                        </button>
+                        {isDistrictOpen && (
+                          <div className="absolute z-50 top-full left-0 right-0 mt-2 bg-white border rounded-2xl shadow-xl max-h-40 overflow-y-auto p-1">
+                            {districtOptions.map(d => (
+                              <button key={d} type="button" onClick={() => { setFormData({...formData, district: d}); setIsDistrictOpen(false); }} className="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 rounded-lg">
+                                {d}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-                <div className="flex items-start gap-3">
-                  <Calendar className="w-4 h-4 text-[#0A2E23]/60 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-[#0A2E23]">Zeitplan</p>
-                    <p className="text-[#0A2E23]/70">{careRequest?.schedule_info || 'Keine Angaben'}</p>
+                    <div className="flex gap-3">
+                      <button type="button" onClick={() => setStep(1)} className="w-1/3 border-2 border-slate-200 font-bold py-3.5 rounded-2xl text-sm">Zurück</button>
+                      <button type="button" onClick={() => setStep(3)} className="w-2/3 bg-[#1B4D3E] text-white font-bold py-3.5 rounded-2xl text-sm">Umfang wählen →</button>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </aside>
+                )}
 
+                {step === 3 && (
+                  <form onSubmit={handleSubmit}>
+                    <div className="mb-6">
+                      <h2 className="text-lg font-bold text-slate-900 mb-1">Paket wählen</h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
+                        {packageOptions.map((pkg) => {
+                          const isSelected = formData.selectedPackage.startsWith(pkg.name);
+                          return (
+                            <button key={pkg.id} type="button" onClick={() => setFormData({...formData, selectedPackage: `${pkg.name} (${pkg.hours} • ${pkg.price})`})} className={`p-3 rounded-2xl border-2 text-left ${isSelected ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-100 bg-white'}`}>
+                              <span className="block font-bold text-sm">{pkg.name}</span>
+                              <span className="block text-xs text-emerald-600 font-bold">{pkg.hours}</span>
+                              <span className="block text-xs font-black mt-2">{pkg.price}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-4">
+                        <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Eingeloggt als</span>
+                        <p className="text-xs font-bold text-slate-800">{user.name}</p>
+                        <p className="text-xs text-slate-500">{user.email} {user.phone && `• ${user.phone}`}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 font-bold py-3.5 rounded-2xl text-sm">Zurück</button>
+                      <button disabled={loading} type="submit" className="w-2/3 bg-[#1B4D3E] text-white font-bold py-3.5 rounded-2xl text-sm disabled:opacity-50">
+                        {loading ? 'Wird geladen...' : 'Anfrage abschicken 🚀'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </>
+            )}
+          </div>
         </div>
-      </main>
-    </div>
+      )}
+    </main>
   );
 }

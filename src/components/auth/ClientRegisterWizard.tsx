@@ -9,7 +9,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface ClientRegisterWizardProps {
-  onClose?: () => void; // Optional gemacht, damit es ohne 'onClose' nicht crasht
+  onClose?: () => void;
 }
 
 export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardProps) {
@@ -25,7 +25,7 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
     services: [] as string[],
     otherServiceText: '',
     district: '1. Innere Stadt',
-    selectedPackage: 'Basis (2–5 Std./Woche • 24 €/Std.)',
+    selectedPackage: 'Starter-Paket (4 Std. • 99 €)',
     targetGroup: 'Für mich selbst',
     fullName: '',
     email: '',
@@ -34,7 +34,6 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
     source: 'direct',
   });
 
-  // Wiederherstellung des Formularzustands aus dem sessionStorage
   useEffect(() => {
     const savedState = sessionStorage.getItem('care_seeker_wizard_state');
     if (savedState) {
@@ -48,7 +47,6 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
     }
   }, []);
 
-  // Automatisches Speichern des Formularzustands bei Änderungen
   useEffect(() => {
     sessionStorage.setItem('care_seeker_wizard_state', JSON.stringify({ savedFormData: formData, savedStep: step }));
   }, [formData, step]);
@@ -87,9 +85,8 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
   ];
 
   const packageOptions = [
-    { id: 'Basis', name: 'Basis', hours: '2–5 Std. / Woche', price: '24 € / Std.', desc: 'Verlässliche Alltagshilfe' },
-    { id: 'Komfort', name: 'Komfort', hours: '5–10 Std. / Woche', price: '22 € / Std.', desc: 'Erweiterte Hilfe & Begleitung' },
-    { id: 'Intensiv', name: 'Intensiv', hours: '10+ Std. / Woche', price: '20 € / Std.', desc: 'Umfassende Betreuung' }
+    { id: 'Starter', name: 'Starter-Paket', hours: '4 Stunden', price: '99 €', desc: 'Ideal zum Testen ohne Risiko' },
+    { id: 'Flex', name: 'Flex-Paket', hours: '10 Stunden', price: '239 €', desc: 'Der Bestseller für regelmäßige Alltagsbegleitung' }
   ];
 
   const targetGroupOptions = ['Für mich selbst', 'Für meine Eltern / Angehörigen', 'Für Bekannte'];
@@ -148,17 +145,44 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
       });
 
       sessionStorage.removeItem('care_seeker_wizard_state');
-      setSubmitted(true);
-      router.push('/dashboard/mvppage');
-    } catch (err) {
+
+      // Stripe Checkout Session aufrufen und direkt zu Stripe umleiten
+      const stripeRes = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          packageName: formData.selectedPackage,
+          email: formData.email,
+          name: formData.fullName,
+        }),
+      });
+
+      const responseText = await stripeRes.text();
+      let stripeData;
+      try {
+        stripeData = JSON.parse(responseText);
+      } catch (parseErr) {
+        console.error('Kein gültiges JSON erhalten:', responseText);
+        throw new Error('Server hat keine gültige JSON-Antwort geliefert.');
+      }
+
+      if (!stripeRes.ok) {
+        throw new Error(stripeData.error || 'Fehler beim Erstellen der Checkout-Session');
+      }
+
+      if (stripeData.url) {
+        window.location.href = stripeData.url;
+      } else {
+        throw new Error('Konnte keine Checkout-Session erstellen');
+      }
+
+    } catch (err: any) {
       console.error('Fehler beim Speichern der Pflege-Anfrage:', err);
-      alert('Es gab ein Problem beim Absenden. Bitte versuche es erneut.');
-    } finally {
+      alert(`Es gab ein Problem: ${err.message || 'Bitte versuche es erneut.'}`);
       setLoading(false);
     }
   };
 
-  // ZENTRALE SCHLIESS-FUNKTION (Abgesichert)
   const handleClose = () => {
     sessionStorage.removeItem('care_seeker_wizard_state');
     if (typeof onClose === 'function') {
@@ -178,7 +202,6 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
         className="max-w-xl w-full bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 relative my-8"
         onClick={e => e.stopPropagation()}
       >
-        {/* Schließen Button */}
         <button
           onClick={handleClose}
           type="button"
@@ -197,18 +220,11 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3">Vielen Dank!</h2>
             <p className="text-slate-600 text-sm sm:text-base mb-8 leading-relaxed">
-              Deine Anfrage ist bei uns eingegangen. Wir melden uns schnellstmöglich bei dir!
+              Deine Anfrage ist bei uns eingegangen. Wir leiten dich zur Bezahlung weiter...
             </p>
-            <button
-              onClick={handleClose}
-              className="w-full bg-[#1B4D3E] hover:bg-[#143B2F] text-white font-bold py-4 rounded-2xl transition-colors"
-            >
-              Fenster schließen
-            </button>
           </div>
         ) : (
           <>
-            {/* Ladebalken */}
             <div className="absolute top-0 left-0 right-0 h-1.5 bg-slate-100 rounded-t-3xl overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-500 ease-out" 
@@ -216,7 +232,6 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
               ></div>
             </div>
 
-            {/* Header */}
             <div className="flex justify-between items-center mb-6 mt-2">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-xl bg-[#1B4D3E] text-[#86EFAC] flex items-center justify-center font-bold text-xs">
@@ -227,7 +242,6 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-8">Schritt {step} von 3</span>
             </div>
 
-            {/* SCHRITT 1 */}
             {step === 1 && (
               <div className="animate-in fade-in duration-300">
                 <div className="flex flex-col gap-1 mb-2">
@@ -285,7 +299,6 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
               </div>
             )}
 
-            {/* SCHRITT 2 */}
             {step === 2 && (
               <div className="animate-in fade-in duration-300">
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">Ort & Zielgruppe</h2>
@@ -350,14 +363,13 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
               </div>
             )}
 
-            {/* SCHRITT 3 */}
             {step === 3 && (
               <div className="animate-in fade-in duration-300">
                 <form onSubmit={handleSubmit}>
                   <div className="mb-6">
                     <h2 className="text-lg font-bold text-slate-900 mb-1">Gewünschter Umfang</h2>
-                    <p className="text-slate-500 text-xs mb-3">Wähle das passendste Betreuungspaket.</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <p className="text-slate-500 text-xs mb-3">Wähle das passendste Paket (Guthaben-Block).</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       {packageOptions.map((pkg) => {
                         const isSelected = formData.selectedPackage.startsWith(pkg.name);
                         return (
@@ -365,7 +377,7 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
                             key={pkg.id}
                             type="button"
                             onClick={() => setFormData({ ...formData, selectedPackage: `${pkg.name} (${pkg.hours} • ${pkg.price})` })}
-                            className={`relative p-3 rounded-2xl border-2 text-left transition-all flex flex-col justify-between ${
+                            className={`relative p-3.5 rounded-2xl border-2 text-left transition-all flex flex-col justify-between ${
                               isSelected
                                 ? 'border-emerald-500 bg-emerald-50/50 shadow-sm'
                                 : 'border-slate-100 bg-white hover:border-slate-200'
@@ -376,8 +388,9 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
                               <span className="block text-[11px] font-bold text-emerald-600 mb-1">{pkg.hours}</span>
                               <p className="text-[11px] text-slate-500 leading-tight mb-3">{pkg.desc}</p>
                             </div>
-                            <div className="pt-1.5 border-t border-slate-100">
+                            <div className="pt-1.5 border-t border-slate-100 flex justify-between items-center">
                               <span className="text-xs font-black text-slate-900">{pkg.price}</span>
+                              <span className="text-[10px] text-slate-400 font-medium">Einmalzahlung</span>
                             </div>
                           </button>
                         );
@@ -446,7 +459,7 @@ export default function ClientRegisterWizard({ onClose }: ClientRegisterWizardPr
                       type="submit" 
                       className="w-2/3 bg-[#1B4D3E] text-white font-bold text-sm py-4 rounded-2xl hover:bg-[#143B2F] transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
                     >
-                      {loading ? 'Wird gesendet...' : 'Abschicken 🚀'}
+                      {loading ? 'Wird geleitet...' : 'Abschicken 🚀'}
                     </button>
                   </div>
                 </form>
