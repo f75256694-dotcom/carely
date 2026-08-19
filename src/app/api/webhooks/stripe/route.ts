@@ -2,19 +2,19 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2026-07-29.dahlia',
-});
-
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
-
-// Supabase Admin-Client (mit Service Role Key, um RLS-Sperren im Webhook zu umgehen)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
-
 export async function POST(req: Request) {
+  // Clients erst hier innerhalb des Request-Handlers initialisieren, um Build-Fehler zu vermeiden
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+    apiVersion: '2026-07-29.dahlia',
+  });
+
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  );
+
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
+
   const body = await req.text();
   const signature = req.headers.get('stripe-signature') || '';
 
@@ -33,7 +33,6 @@ export async function POST(req: Request) {
     const userEmail = session.customer_details?.email || session.metadata?.email;
     const packageName = session.metadata?.packageName || '';
 
-    // Stunden anhand des Paketnamens ermitteln
     let hoursToAdd = 0;
     if (packageName.includes('4 Std') || packageName.includes('Starter')) {
       hoursToAdd = 4;
@@ -43,7 +42,6 @@ export async function POST(req: Request) {
 
     if (userEmail && hoursToAdd > 0) {
       try {
-        // 1. User-ID anhand der E-Mail in der Profiles-Tabelle ermitteln
         const { data: profile, error: fetchError } = await supabaseAdmin
           .from('profiles')
           .select('id, total_hours')
@@ -55,7 +53,6 @@ export async function POST(req: Request) {
           return NextResponse.json({ error: 'User profile not found' }, { status: 404 });
         }
 
-        // 2. Guthaben (total_hours) in Supabase erhöhen
         const newTotalHours = (profile.total_hours || 0) + hoursToAdd;
 
         const { error: updateError } = await supabaseAdmin
