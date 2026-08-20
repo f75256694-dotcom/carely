@@ -51,12 +51,14 @@ function RegisterForm() {
           },
         ]);
 
-        if (profileError) console.error('Profil-Erstellung Warnung:', profileError);
+        if (profileError) throw profileError; // Wir werfen den Fehler jetzt, damit wir ihn sehen
 
         router.push('/dashboard');
       }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Fehler bei der Registrierung.');
+      console.error('Registrierungsfehler:', err);
+      // Hier wird der Fehler jetzt deutlich ausgegeben:
+      setErrorMsg(err.message || JSON.stringify(err, null, 2));
     } finally {
       setLoading(false);
     }
@@ -108,7 +110,7 @@ function RegisterForm() {
       </div>
 
       {errorMsg && (
-        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold">
+        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold whitespace-pre-wrap">
           {errorMsg}
         </div>
       )}
