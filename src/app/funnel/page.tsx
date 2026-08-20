@@ -24,6 +24,7 @@ function FunnelContent() {
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -60,6 +61,7 @@ function FunnelContent() {
             service_types: selectedServices,
             name: name,
             email: email,
+            phone: phone,
             status: 'pending',
             source: 'landing_funnel'
           }
@@ -182,7 +184,6 @@ function FunnelContent() {
               </p>
             </div>
 
-            {/* PREIS-BOX & TRANSPARENZ */}
             <div className="p-4 bg-[#F8FAFC] rounded-2xl border border-slate-200 text-left space-y-2">
               <div className="flex items-center justify-between text-xs font-bold text-[#0A2E23]">
                 <span>Transparente Kostenübersicht:</span>
@@ -219,6 +220,13 @@ function FunnelContent() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Deine E-Mail-Adresse" 
+                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#1B4D3E]"
+              />
+              <input 
+                type="tel" 
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Telefonnummer (für Rückfragen via WhatsApp/Anruf)" 
                 className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#1B4D3E]"
               />
             </div>
