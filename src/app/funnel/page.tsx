@@ -2,20 +2,21 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { MapPin, HeartHandshake, Calendar, ArrowRight, ShieldCheck } from 'lucide-react';
+import { MapPin, HeartHandshake, Calendar, ArrowRight, ShieldCheck, PenTool } from 'lucide-react';
 
 export default function FunnelPage() {
   const router = useRouter();
   const [step, setStep] = useState<number>(1);
   const [zipCode, setZipCode] = useState<string>('');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [otherServiceText, setOtherServiceText] = useState<string>('');
   const [schedule, setSchedule] = useState<string>('asap');
 
   const availableServices = [
     { id: 'companionship', label: 'Gesellschaft & Alltag' },
     { id: 'household', label: 'Haushalt & Einkaufen' },
     { id: 'mobility', label: 'Begleitung & Mobilisierung' },
-    { id: 'dementia', label: 'Demenz-Betreuung' },
+    { id: 'other', label: 'Sonstiges' },
   ];
 
   const toggleService = (id: string) => {
@@ -29,6 +30,7 @@ export default function FunnelPage() {
     const draftData = {
       zip_code: zipCode,
       services: selectedServices,
+      other_service_details: selectedServices.includes('other') ? otherServiceText : '',
       schedule: { timeframe: schedule },
       created_at: new Date().toISOString(),
     };
@@ -44,6 +46,25 @@ export default function FunnelPage() {
 
       <div className="max-w-lg w-full mx-auto relative z-10 space-y-6">
         
+        {/* Helpify Header Logo */}
+        <div className="flex items-center justify-center gap-2.5 mb-2">
+          <div className="w-10 h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-sm shrink-0">
+            <svg 
+              className="w-6 h-6 text-[#86EFAC]" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
+            </svg>
+          </div>
+          <span className="text-2xl font-bold tracking-tight text-[#0A2E23] font-serif">Helpify</span>
+        </div>
+
         {/* Progress Bar */}
         <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
           <div 
@@ -116,6 +137,22 @@ export default function FunnelPage() {
                     </button>
                   );
                 })}
+
+                {/* Dynamisches Freitextfeld für "Sonstiges" */}
+                {selectedServices.includes('other') && (
+                  <div className="pt-1 animate-in fade-in space-y-1">
+                    <div className="relative">
+                      <PenTool className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-teal-700" />
+                      <input
+                        type="text"
+                        value={otherServiceText}
+                        onChange={(e) => setOtherServiceText(e.target.value)}
+                        placeholder="Was benötigst du genau?"
+                        className="w-full bg-teal-50/30 border border-teal-600 rounded-2xl py-3.5 pl-11 pr-4 text-gray-900 text-xs font-medium focus:outline-none focus:bg-white transition-all"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3">
@@ -191,7 +228,7 @@ export default function FunnelPage() {
                   onClick={handleCompleteFunnel}
                   className="w-2/3 py-4 rounded-2xl bg-teal-700 hover:bg-teal-800 text-white font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-teal-700/20"
                 >
-                  <span>Ergebnis anzeigen</span>
+                  <span>Anfrage abschicken & Registrieren</span>
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>

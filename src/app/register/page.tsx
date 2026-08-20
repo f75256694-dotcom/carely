@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Heart, Shield, Search, ArrowRight, Lock, Mail, User as UserIcon, Users, MapPin } from 'lucide-react';
+import { Shield, Search, ArrowRight, Lock, Mail, User as UserIcon, Users, MapPin } from 'lucide-react';
 
 type UserRole = 'care_seeker' | 'family' | 'caregiver';
 
@@ -26,7 +26,6 @@ function RegisterForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
-  // PLZ aus dem Fragebogen-Entwurf vorbefüllen (falls vorhanden)
   useEffect(() => {
     const draftData = localStorage.getItem('care_request_draft');
     if (draftData) {
@@ -49,7 +48,6 @@ function RegisterForm() {
     try {
       const supabase = createClient();
       
-      // 1. Auth SignUp
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -67,7 +65,6 @@ function RegisterForm() {
       if (authData.user) {
         const userId = authData.user.id;
 
-        // 2. Profil anlegen / aktualisieren
         const { error: profileError } = await supabase.from('profiles').upsert([
           {
             id: userId,
@@ -80,44 +77,40 @@ function RegisterForm() {
 
         if (profileError) throw profileError;
 
-        // 3. Entwurf aus localStorage in care_requests übertragen (nur für Suchende)
         if (role !== 'caregiver') {
-            const draftData = localStorage.getItem('care_request_draft');
-            let requestPayload = {
+          const draftData = localStorage.getItem('care_request_draft');
+          let requestPayload = {
             user_id: userId,
             zip_code: zipCode,
             services: [],
             status: 'matching',
-            };
+          };
 
-            if (draftData) {
+          if (draftData) {
             try {
-                const parsedDraft = JSON.parse(draftData);
-                requestPayload = {
+              const parsedDraft = JSON.parse(draftData);
+              requestPayload = {
                 ...requestPayload,
                 ...parsedDraft,
-                user_id: userId, // ID überschreiben für Sicherheit
-                };
+                user_id: userId,
+              };
             } catch (e) {
-                console.error('Fehler beim Verarbeiten des Entwurfs:', e);
+              console.error('Fehler beim Verarbeiten des Entwurfs:', e);
             }
-            }
+          }
 
-            // Automatischen Care Request in DB schreiben
-            const { error: requestError } = await supabase
+          const { error: requestError } = await supabase
             .from('care_requests')
             .insert([requestPayload]);
 
-            if (requestError) {
-            console.error('Fehler beim Erstellen der Pflegeanfrage:', requestError);
-            } else {
-            // Entwurf löschen nach erfolgreicher Erstellung
+          if (requestError) {
+            console.error('Fehler beim Erstellen der Anfrage:', requestError);
+          } else {
             localStorage.removeItem('care_request_draft');
-            }
+          }
         }
       }
 
-      // 4. Weiterleitung nach Rolle
       if (role === 'caregiver') {
         router.replace('/caregiver/profile');
       } else {
@@ -138,13 +131,13 @@ function RegisterForm() {
       <div className="max-w-md w-full mx-auto relative z-10 space-y-8">
         <div className="text-center space-y-3">
           <Link href="/" className="inline-flex items-center gap-3.5 group">
-            <div className="w-12 h-12 rounded-2xl bg-teal-700 text-white flex items-center justify-center shadow-lg shadow-teal-700/20">
-              <Heart className="w-6 h-6 fill-current" />
+            <div className="w-12 h-12 rounded-2xl bg-teal-700 text-white flex items-center justify-center font-serif text-2xl font-black shadow-lg shadow-teal-700/20">
+              H
             </div>
-            <span className="text-3xl font-black text-gray-900 tracking-tight font-serif">Carely</span>
+            <span className="text-3xl font-black text-gray-900 tracking-tight font-serif">Helpify</span>
           </Link>
           <h2 className="text-2xl font-black font-serif text-gray-900">Konto erstellen</h2>
-          <p className="text-gray-500 text-sm">Speichere deine Anfrage & starte das Matching.</p>
+          <p className="text-gray-500 text-sm">Anfrage speichern & passende Helfer direkt matchen.</p>
         </div>
 
         <div className="bg-white/90 backdrop-blur-3xl border border-white/90 rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_50px_rgba(13,148,136,0.08)] space-y-6">
@@ -230,7 +223,7 @@ function RegisterForm() {
                   required
                   value={zipCode}
                   onChange={(e) => setZipCode(e.target.value)}
-                  placeholder="10115"
+                  placeholder="1170"
                   className="w-full bg-gray-50/80 border border-gray-200/90 rounded-2xl py-4 pl-12 pr-4 text-gray-900 text-sm font-medium focus:outline-none focus:border-teal-600 focus:bg-white transition-all"
                 />
               </div>
@@ -257,7 +250,7 @@ function RegisterForm() {
               disabled={loading}
               className="w-full mt-2 py-4 px-6 rounded-2xl bg-teal-700 hover:bg-teal-800 text-white text-base font-black shadow-lg shadow-teal-700/20 transition-all duration-300 hover:-translate-y-0.5 flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50"
             >
-              <span>{loading ? 'Erstelle Account...' : 'Konto erstellen & Anfrage starten'}</span>
+              <span>{loading ? 'Erstelle Account...' : 'Konto erstellen & Ergebnisse sehen'}</span>
               <ArrowRight className="w-5 h-5" />
             </button>
           </form>
