@@ -81,7 +81,7 @@ export default function HomePage() {
                 <span>Geprüfte Alltagsbegleiter in deiner Nähe</span>
               </div>
 
-              {/* 2-zeilige Headline (Kompakt & Leistungsstark) */}
+              {/* Knackige 2-zeilige Headline */}
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-medium text-[#1B4D3E] leading-[1.2] tracking-tight">
                 Herzliche Alltagshilfe. <br className="hidden sm:inline" />
                 <span className="italic font-normal text-emerald-800/80">Einfach, sicher & nah.</span>
@@ -132,19 +132,18 @@ export default function HomePage() {
 
             </div>
 
-            {/* Rechter Bild-Bereich: Warme Alltagssituation */}
+            {/* Rechter Bild-Bereich: Einkaufen & Spaziergang im Alltag */}
             <div className="lg:col-span-5 relative mt-4 lg:mt-0">
               <div className="relative mx-auto max-w-sm lg:max-w-none">
                 <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-xl border-4 border-white bg-emerald-100 flex items-center justify-center relative">
                   {!imgError ? (
                     <img 
-                      src="https://images.unsplash.com/photo-1516307365426-bea591f05011?auto=format&fit=crop&w=800&q=80" 
-                      alt="Seniorin beim herzlichen Spaziergang mit Alltagsbegleiter" 
+                      src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80" 
+                      alt="Seniorin beim Spaziergang und Einkaufen mit jungem Alltagsbegleiter" 
                       className="w-full h-full object-cover"
                       onError={() => setImgError(true)}
                     />
                   ) : (
-                    /* Fallback-Illustration, falls Unsplash blockiert wird */
                     <div className="p-8 text-center space-y-3 text-[#1B4D3E]">
                       <Heart className="w-16 h-16 mx-auto opacity-80" />
                       <p className="font-serif font-bold text-lg">Geprüfte Begleitung</p>
@@ -237,7 +236,7 @@ export default function HomePage() {
           </div>
 
           <div className="space-y-2.5">
-            <h4 className="text-white font-bold uppercase tracking-wider">Plattform</h4>
+            <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Plattform</h4>
             <ul className="space-y-2 text-slate-400">
               <li><Link href="/funnel" className="hover:text-white transition">Helfer suchen</Link></li>
               <li><Link href="/register?role=caregiver" className="hover:text-white transition">Helfer werden</Link></li>
@@ -246,7 +245,7 @@ export default function HomePage() {
           </div>
 
           <div className="space-y-2.5">
-            <h4 className="text-white font-bold uppercase tracking-wider">Rechtliches</h4>
+            <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Rechtliches</h4>
             <ul className="space-y-2 text-slate-400">
               <li>
                 <button onClick={() => setShowImpressum(true)} className="hover:text-white transition text-left cursor-pointer">
@@ -262,7 +261,7 @@ export default function HomePage() {
           </div>
 
           <div className="space-y-2.5">
-            <h4 className="text-white font-bold uppercase tracking-wider">Kontakt</h4>
+            <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Kontakt</h4>
             <div className="text-slate-400 space-y-1.5">
               <p className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-emerald-400" /> support@helpify.de</p>
               <p className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-emerald-400" /> +49 (0) 800 123 4567</p>
