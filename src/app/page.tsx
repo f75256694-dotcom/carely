@@ -14,13 +14,15 @@ import {
   Mail, 
   Phone,
   Search,
-  CheckCircle2
+  CheckCircle2,
+  Heart
 } from 'lucide-react';
 
 export default function HomePage() {
   const [zipCode, setZipCode] = useState('');
   const [showImpressum, setShowImpressum] = useState(false);
   const [showDatenschutz, setShowDatenschutz] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#FAFAF7] font-sans text-slate-800 flex flex-col selection:bg-emerald-200">
@@ -67,11 +69,11 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <main className="flex-1">
-        <section className="px-4 sm:px-8 lg:px-12 py-8 sm:py-16 lg:py-20 max-w-6xl mx-auto">
+        <section className="px-4 sm:px-8 lg:px-12 py-8 sm:py-14 lg:py-16 max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
             {/* Linker Bereich */}
-            <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-center lg:text-left">
+            <div className="lg:col-span-7 space-y-6 sm:space-y-7 text-center lg:text-left">
               
               {/* Trust Badge */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F0FDF4] border border-emerald-200/60 text-[#1B4D3E] text-xs font-semibold tracking-wide">
@@ -79,15 +81,15 @@ export default function HomePage() {
                 <span>Geprüfte Alltagsbegleiter in deiner Nähe</span>
               </div>
 
-              {/* Headline */}
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium text-[#1B4D3E] leading-[1.15] tracking-tight">
-                Herzliche Unterstützung im Alltag. <br />
-                <span className="italic font-normal text-emerald-800/80">Einfach & sicher.</span>
+              {/* 2-zeilige Headline (Kompakt & Leistungsstark) */}
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-medium text-[#1B4D3E] leading-[1.2] tracking-tight">
+                Herzliche Alltagshilfe. <br className="hidden sm:inline" />
+                <span className="italic font-normal text-emerald-800/80">Einfach, sicher & nah.</span>
               </h1>
 
               {/* Subline */}
-              <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 font-light leading-relaxed">
-                Wir vermitteln liebevolle Alltagsbegleitung für Senioren – fürs Einkaufen, Haushalt, Spaziergänge oder einfach gute Gesellschaft.
+              <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto lg:mx-0 font-light leading-relaxed">
+                Wir vermitteln qualifizierte Alltagsbegleitung für Senioren – fürs Einkaufen, Spaziergänge, Haushalt oder liebevolle Gesellschaft.
               </p>
 
               {/* PLZ-Eingabe / Conversion Card */}
@@ -112,8 +114,8 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Echter Vertrauensnachweis statt Fake-Sterne */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2 text-xs text-slate-600">
+              {/* Vertrauensnachweise */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-1 text-xs text-slate-600">
                 <span className="flex items-center gap-1.5 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   Identität geprüft
@@ -130,18 +132,28 @@ export default function HomePage() {
 
             </div>
 
-            {/* Rechter Bild-Bereich: Reine Alltagssituation (Haushalt/Gesellschaft) */}
+            {/* Rechter Bild-Bereich: Warme Alltagssituation */}
             <div className="lg:col-span-5 relative mt-4 lg:mt-0">
               <div className="relative mx-auto max-w-sm lg:max-w-none">
-                <div className="aspect-[4/4] sm:aspect-[4/5] rounded-3xl overflow-hidden shadow-xl border-4 border-white">
-                  <img 
-                    src="https://images.unsplash.com/photo-1581579438747-1dc8d1e05b63?auto=format&fit=crop&w=800&q=80" 
-                    alt="Seniorin kocht gemeinsam mit Alltagsbegleiterin" 
-                    className="w-full h-full object-cover"
-                  />
+                <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-xl border-4 border-white bg-emerald-100 flex items-center justify-center relative">
+                  {!imgError ? (
+                    <img 
+                      src="https://images.unsplash.com/photo-1516307365426-bea591f05011?auto=format&fit=crop&w=800&q=80" 
+                      alt="Seniorin beim herzlichen Spaziergang mit Alltagsbegleiter" 
+                      className="w-full h-full object-cover"
+                      onError={() => setImgError(true)}
+                    />
+                  ) : (
+                    /* Fallback-Illustration, falls Unsplash blockiert wird */
+                    <div className="p-8 text-center space-y-3 text-[#1B4D3E]">
+                      <Heart className="w-16 h-16 mx-auto opacity-80" />
+                      <p className="font-serif font-bold text-lg">Geprüfte Begleitung</p>
+                      <p className="text-xs text-slate-600">Gemeinsam unterwegs im Alltag</p>
+                    </div>
+                  )}
                 </div>
 
-                {/* Subtile Trust Badge Card */}
+                {/* Floating Trust Badge */}
                 <div className="absolute -bottom-4 left-4 right-4 sm:-left-6 sm:right-auto bg-white p-3.5 rounded-2xl shadow-lg border border-slate-100 flex items-center gap-3">
                   <div className="p-2 bg-[#F0FDF4] rounded-xl text-[#1B4D3E] shrink-0">
                     <UserCheck className="w-5 h-5" />
@@ -172,9 +184,9 @@ export default function HomePage() {
                 <div className="w-10 h-10 rounded-xl bg-emerald-100 text-[#1B4D3E] flex items-center justify-center font-bold">
                   <UserCheck className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-bold text-[#0A2E23]">Haushalt & Einkauf</h3>
+                <h3 className="text-base font-bold text-[#0A2E23]">Einkauf & Haushalt</h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Unterstützung beim Besorgen von Lebensmitteln, leichte Putzarbeiten oder Kochen.
+                  Unterstützung beim Tragen schwerer Taschen, Vorbereitung von Mahlzeiten und im Haushalt.
                 </p>
               </div>
 
@@ -184,7 +196,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-base font-bold text-[#0A2E23]">Gesellschaft & Freizeit</h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Gemeinsame Spaziergänge, Kartenspielen oder Begleitung zu Terminen und Ärzten.
+                  Gemeinsame Spaziergänge an der frischen Luft, Gespräche oder Begleitung zu Terminen.
                 </p>
               </div>
 
@@ -194,7 +206,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-base font-bold text-[#0A2E23]">Verlässlich & Flexibel</h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Flexible Terminvereinbarung ohne langfristige Bindung – genau dann, wenn Hilfe gebraucht wird.
+                  Flexible Termine ohne Aboverpflichtung – genau dann, wenn Hilfe gebraucht wird.
                 </p>
               </div>
             </div>
