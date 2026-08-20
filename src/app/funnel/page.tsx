@@ -15,7 +15,7 @@ function FunnelContent() {
     return cleanZip.length === 4 || cleanZip.length === 5;
   };
 
-  // Startschritt: Direkt Schritt 2, falls PLZ übergeben wurde
+  // Startschritt: Direkt Schritt 2, falls PLZ von der Landingpage mitgegeben wurde
   const [step, setStep] = useState(isValidZip(zipFromUrl) ? 2 : 1);
   const [zipCode, setZipCode] = useState(zipFromUrl);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -138,12 +138,11 @@ function FunnelContent() {
         {/* SCHRITT 3: Kontaktdaten */}
         {step === 3 && (
           <div className="space-y-6 text-center">
-            <div className="w-12 h-12 rounded-full bg-[#F0FDF4] text-[#1B4D3E] flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-6 h-6" />
-            </div>
             <div className="space-y-1">
-              <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Perfekt! Wir haben Helfer gefunden.</h2>
-              <p className="text-xs text-slate-500">In {zipCode} stehen passende Alltagsbegleiter bereit.</p>
+              <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Fast geschafft!</h2>
+              <p className="text-xs text-slate-500">
+                Wohin dürfen wir die passenden Angebote für PLZ <span className="font-bold text-[#1B4D3E]">{zipCode}</span> senden?
+              </p>
             </div>
 
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-left space-y-3">
