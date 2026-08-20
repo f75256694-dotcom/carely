@@ -9,17 +9,22 @@ function FunnelContent() {
   const searchParams = useSearchParams();
   const zipFromUrl = searchParams.get('zip') || '';
 
-  // Schritt-Steuerung & Formular-State
-  const [step, setStep] = useState(1);
+  // Prüft, ob es eine valide PLZ ist (4 Stellen für AT oder 5 für DE)
+  const isValidZip = (zip: string) => {
+    const cleanZip = zip.trim();
+    return cleanZip.length === 4 || cleanZip.length === 5;
+  };
+
+  // Startschritt: Direkt Schritt 2, falls PLZ übergeben wurde
+  const [step, setStep] = useState(isValidZip(zipFromUrl) ? 2 : 1);
   const [zipCode, setZipCode] = useState(zipFromUrl);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
-  // Automatisch PLZ übernehmen & bei gültiger Eingabe (5 Zahlen) direkt zu Schritt 2 springen
   useEffect(() => {
     if (zipFromUrl) {
       setZipCode(zipFromUrl);
-      if (zipFromUrl.trim().length === 5) {
-        setStep(2);
+      if (isValidZip(zipFromUrl)) {
+        setStep(2); // Direkt weiter zu Schritt 2 ohne erneutes Bestätigen
       }
     }
   }, [zipFromUrl]);
@@ -46,7 +51,7 @@ function FunnelContent() {
       {/* Main Funnel Card */}
       <main className="max-w-xl w-full mx-auto bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200/80 my-auto">
         
-        {/* SCHRITT 1: PLZ (wird übersprungen, wenn PLZ von der Landingpage kommt) */}
+        {/* SCHRITT 1: PLZ (nur sichtbar, wenn Landingpage OHNE PLZ aufgerufen wurde) */}
         {step === 1 && (
           <div className="space-y-6 text-center">
             <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Wo wird die Unterstützung benötigt?</h2>
@@ -57,14 +62,14 @@ function FunnelContent() {
               maxLength={5}
               value={zipCode}
               onChange={(e) => setZipCode(e.target.value)}
-              placeholder="PLZ eingeben (z. B. 10115)"
+              placeholder="PLZ eingeben (z. B. 1170)"
               className="w-full text-center text-xl font-bold py-3.5 px-4 rounded-xl border border-slate-300 focus:border-[#1B4D3E] focus:outline-none tracking-widest bg-slate-50"
             />
 
             <button
-              disabled={zipCode.trim().length !== 5}
+              disabled={!isValidZip(zipCode)}
               onClick={() => setStep(2)}
-              className="w-full bg-[#1B4D3E] hover:bg-[#143a2e] disabled:opacity-50 text-white font-bold text-sm py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
+              className="w-full bg-[#1B4D3E] hover:bg-[#143a2e] disabled:opacity-40 text-white font-bold text-sm py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:cursor-not-allowed"
             >
               <span>Weiter</span>
               <ArrowRight className="w-4 h-4" />
@@ -114,14 +119,14 @@ function FunnelContent() {
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => setStep(1)}
-                className="w-1/3 border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-sm py-3.5 rounded-xl transition"
+                className="w-1/3 border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-sm py-3.5 rounded-xl transition cursor-pointer"
               >
-                Zurück
+                PLZ ändern
               </button>
               <button
                 disabled={selectedServices.length === 0}
                 onClick={() => setStep(3)}
-                className="w-2/3 bg-[#1B4D3E] hover:bg-[#143a2e] disabled:opacity-50 text-white font-bold text-sm py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
+                className="w-2/3 bg-[#1B4D3E] hover:bg-[#143a2e] disabled:opacity-40 text-white font-bold text-sm py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:cursor-not-allowed"
               >
                 <span>Weiter</span>
                 <ArrowRight className="w-4 h-4" />
@@ -130,7 +135,7 @@ function FunnelContent() {
           </div>
         )}
 
-        {/* SCHRITT 3: Abschluss / Kontakt */}
+        {/* SCHRITT 3: Kontaktdaten */}
         {step === 3 && (
           <div className="space-y-6 text-center">
             <div className="w-12 h-12 rounded-full bg-[#F0FDF4] text-[#1B4D3E] flex items-center justify-center mx-auto">
@@ -157,7 +162,7 @@ function FunnelContent() {
             <div className="flex gap-3">
               <button
                 onClick={() => setStep(2)}
-                className="w-1/3 border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-sm py-3.5 rounded-xl transition"
+                className="w-1/3 border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-sm py-3.5 rounded-xl transition cursor-pointer"
               >
                 Zurück
               </button>
