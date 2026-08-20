@@ -18,8 +18,8 @@ export default function LoginPage() {
     setErrorMsg(null);
 
     try {
-      localStorage.removeItem('carely_bypass');
-      localStorage.removeItem('carely_role');
+      localStorage.removeItem('helpify_bypass');
+      localStorage.removeItem('helpify_role');
 
       // 1. Supabase Auth Anmeldeversuch
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -40,14 +40,14 @@ export default function LoginPage() {
       }
 
       if (authData?.user) {
-        // 2. Profil abfragen, aber ohne Absturz falls die Zeile in der DB fehlt (.maybeSingle statt .single)
+        // 2. Profil abfragen, aber ohne Absturz falls die Zeile in der DB fehlt
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', authData.user.id)
           .maybeSingle();
 
-        // 3. Falls die Profilzeile in der Datenbank fehlt, exakt die bei der Registrierung gewählte Rolle übernehmen
+        // 3. Falls die Profilzeile fehlt, Rolle übernehmen
         if (!profile) {
           const metaRole = authData.user.user_metadata?.role;
           const metaName = authData.user.user_metadata?.full_name || authData.user.email;
@@ -61,7 +61,7 @@ export default function LoginPage() {
           ]);
         }
 
-        // 4. Weiterleitung direkt auf das neue Dashboard
+        // 4. Weiterleitung direkt auf das Dashboard
         window.location.href = '/dashboard';
       }
     } catch (err: any) {
@@ -78,7 +78,7 @@ export default function LoginPage() {
             <div className="w-8 h-8 rounded-xl bg-[#235347] flex items-center justify-center text-white">
               <Heart className="w-4 h-4 fill-current" />
             </div>
-            <span className="font-serif font-black text-2xl text-[#235347]">Carely</span>
+            <span className="font-serif font-black text-2xl text-[#235347]">Helpify</span>
           </div>
 
           <div>
@@ -86,7 +86,7 @@ export default function LoginPage() {
               Willkommen zurück
             </h1>
             <p className="text-sm text-gray-500 font-medium mt-1">
-              Melde dich bei Carely an — herzlich, sicher, lokal.
+              Melde dich bei Helpify an — herzlich, sicher, lokal.
             </p>
           </div>
         </div>
@@ -139,15 +139,6 @@ export default function LoginPage() {
             {loading ? 'Anmelden...' : 'Anmelden'}
           </button>
         </form>
-
-        <div className="grid grid-cols-2 gap-3 pt-2">
-          <button className="py-3 px-4 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-bold text-gray-700 flex items-center justify-center gap-2 transition">
-            <span>Mit Google anmelden</span>
-          </button>
-          <button className="py-3 px-4 rounded-xl border border-gray-200 hover:bg-gray-50 text-xs font-bold text-gray-700 flex items-center justify-center gap-2 transition">
-            <span>Mit Apple anmelden</span>
-          </button>
-        </div>
 
         <div className="text-center pt-2 space-y-3">
           <p className="text-xs text-gray-600 font-medium">
