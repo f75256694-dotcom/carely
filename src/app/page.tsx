@@ -14,10 +14,7 @@ import {
   Mail, 
   Phone,
   Search,
-  CheckCircle2,
-  Heart,
-  Smile,
-  Users
+  CheckCircle2
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -68,131 +65,64 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Zentrierter Hero-Bereich ohne rechtes Bild/Element */}
       <main className="flex-1">
-        <section className="px-4 sm:px-8 lg:px-12 py-8 sm:py-14 lg:py-16 max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        <section className="px-4 sm:px-8 lg:px-12 py-12 sm:py-20 max-w-4xl mx-auto text-center">
+          <div className="space-y-6 sm:space-y-8">
             
-            {/* Linker Bereich */}
-            <div className="lg:col-span-7 space-y-6 sm:space-y-7 text-center lg:text-left">
-              
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F0FDF4] border border-emerald-200/60 text-[#1B4D3E] text-xs font-semibold tracking-wide">
-                <ShieldCheck className="w-4 h-4 text-[#1B4D3E] shrink-0" />
-                <span>Geprüfte Alltagsbegleiter in deiner Nähe</span>
-              </div>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-medium text-[#1B4D3E] leading-[1.2] tracking-tight">
-                Herzliche Alltagshilfe. <br className="hidden sm:inline" />
-                <span className="italic font-normal text-emerald-800/80">Einfach, sicher & nah.</span>
-              </h1>
-
-              <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto lg:mx-0 font-light leading-relaxed">
-                Wir vermitteln qualifizierte Alltagsbegleitung für Senioren – fürs Einkaufen, Spaziergänge, Haushalt oder liebevolle Gesellschaft.
-              </p>
-
-              <div className="p-2 bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-200/80 max-w-md mx-auto lg:mx-0 flex flex-col sm:flex-row gap-2">
-                <div className="flex items-center gap-2 px-3 py-2 sm:py-0 flex-1">
-                  <Search className="w-4 h-4 text-slate-400 shrink-0" />
-                  <input 
-                    type="text" 
-                    maxLength={5}
-                    value={zipCode}
-                    onChange={(e) => setZipCode(e.target.value)}
-                    placeholder="Deine PLZ eingeben..." 
-                    className="w-full bg-transparent text-slate-800 placeholder-slate-400 focus:outline-none text-sm font-medium"
-                  />
-                </div>
-                <Link 
-                  href={zipCode ? `/funnel?zip=${zipCode}` : '/funnel'}
-                  className="bg-[#1B4D3E] hover:bg-[#143a2e] text-white font-bold text-sm px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md active:scale-[0.98]"
-                >
-                  <span>Helfer finden</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-1 text-xs text-slate-600">
-                <span className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  Identität geprüft
-                </span>
-                <span className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  Keine Kündigungsfrist
-                </span>
-                <span className="flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  Unverbindliche Anfrage
-                </span>
-              </div>
-
+            {/* Trust Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F0FDF4] border border-emerald-200/60 text-[#1B4D3E] text-xs font-semibold tracking-wide">
+              <ShieldCheck className="w-4 h-4 text-[#1B4D3E] shrink-0" />
+              <span>Geprüfte Alltagsbegleiter in deiner Nähe</span>
             </div>
 
-            {/* Rechter Bereich: BILD / HERO-CARD (Lokal oder als stilvolle Visuell-Card) */}
-            <div className="lg:col-span-5 relative mt-4 lg:mt-0">
-              <div className="relative mx-auto max-w-sm lg:max-w-none">
-                
-                {/* 
-                   HINWEIS: Sobald du ein eigenes Bild hast, lege es unter 'public/hero-image.jpg' ab 
-                   und tausche den Code unten einfach gegen:
-                   <img src="/hero-image.jpg" alt="Alltagshilfe" className="w-full h-full object-cover rounded-3xl" />
-                */}
+            {/* Headline */}
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium text-[#1B4D3E] leading-[1.15] tracking-tight max-w-3xl mx-auto">
+              Herzliche Alltagshilfe. <br />
+              <span className="italic font-normal text-emerald-800/80">Einfach, sicher & nah.</span>
+            </h1>
 
-                <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-gradient-to-br from-emerald-50 via-teal-100/40 to-emerald-100 flex flex-col justify-between p-8 relative">
-                  
-                  {/* Deko Elemente im Hintergrund */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200/40 rounded-full blur-2xl pointer-events-none" />
-                  <div className="absolute bottom-10 left-0 w-32 h-32 bg-teal-200/40 rounded-full blur-2xl pointer-events-none" />
+            {/* Subline */}
+            <p className="text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto font-light leading-relaxed">
+              Wir vermitteln qualifizierte Alltagsbegleitung für Senioren – fürs Einkaufen, Spaziergänge, Haushalt oder liebevolle Gesellschaft.
+            </p>
 
-                  {/* Top Badge */}
-                  <div className="flex items-center justify-between z-10">
-                    <span className="px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[11px] font-bold text-[#1B4D3E] shadow-xs">
-                      100% Keine Pflege
-                    </span>
-                    <div className="w-9 h-9 rounded-full bg-white/90 flex items-center justify-center text-emerald-600 shadow-xs">
-                      <Heart className="w-5 h-5 fill-emerald-500 text-emerald-500" />
-                    </div>
-                  </div>
-
-                  {/* Hauptgrafik / Illustration */}
-                  <div className="my-auto text-center space-y-4 z-10 py-6">
-                    <div className="w-20 h-20 mx-auto rounded-3xl bg-white shadow-xl flex items-center justify-center text-[#1B4D3E] border border-emerald-100">
-                      <HeartHandshake className="w-10 h-10 text-[#1B4D3E]" />
-                    </div>
-                    <div className="space-y-1">
-                      <h3 className="font-serif font-bold text-xl text-[#0A2E23]">Gemeinsam statt einsam</h3>
-                      <p className="text-xs text-slate-600 max-w-[220px] mx-auto leading-relaxed">
-                        Liebevolle Unterstützung bei Einkäufen, Spaziergängen & im Haushalt.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Highlights unten in der Karte */}
-                  <div className="grid grid-cols-2 gap-2 z-10">
-                    <div className="bg-white/80 backdrop-blur-md p-2.5 rounded-xl border border-white/60 text-center">
-                      <p className="text-xs font-bold text-[#0A2E23]">Einkaufen</p>
-                      <p className="text-[10px] text-slate-500">Entlastung im Alltag</p>
-                    </div>
-                    <div className="bg-white/80 backdrop-blur-md p-2.5 rounded-xl border border-white/60 text-center">
-                      <p className="text-xs font-bold text-[#0A2E23]">Begleitung</p>
-                      <p className="text-[10px] text-slate-500">Freizeit & Termine</p>
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Floating Trust Badge */}
-                <div className="absolute -bottom-4 left-4 right-4 sm:-left-6 sm:right-auto bg-white p-3.5 rounded-2xl shadow-lg border border-slate-100 flex items-center gap-3 z-20">
-                  <div className="p-2 bg-[#F0FDF4] rounded-xl text-[#1B4D3E] shrink-0">
-                    <UserCheck className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs sm:text-sm font-bold text-slate-800">Sicher & Verifiziert</p>
-                    <p className="text-[11px] text-slate-500">Persönlich geprüfte Helfer</p>
-                  </div>
-                </div>
-
+            {/* PLZ-Suche */}
+            <div className="p-2 bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-200/80 max-w-md mx-auto flex flex-col sm:flex-row gap-2">
+              <div className="flex items-center gap-2 px-3 py-2.5 sm:py-0 flex-1">
+                <Search className="w-4 h-4 text-slate-400 shrink-0" />
+                <input 
+                  type="text" 
+                  maxLength={5}
+                  value={zipCode}
+                  onChange={(e) => setZipCode(e.target.value)}
+                  placeholder="Deine PLZ eingeben..." 
+                  className="w-full bg-transparent text-slate-800 placeholder-slate-400 focus:outline-none text-sm font-medium"
+                />
               </div>
+              <Link 
+                href={zipCode ? `/funnel?zip=${zipCode}` : '/funnel'}
+                className="bg-[#1B4D3E] hover:bg-[#143a2e] text-white font-bold text-sm px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md active:scale-[0.98]"
+              >
+                <span>Helfer finden</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {/* USPs darunter */}
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-2 text-xs text-slate-600">
+              <span className="flex items-center gap-1.5 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                Identität geprüft
+              </span>
+              <span className="flex items-center gap-1.5 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                Keine Kündigungsfrist
+              </span>
+              <span className="flex items-center gap-1.5 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                Unverbindliche Anfrage
+              </span>
             </div>
 
           </div>
