@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { 
   ShieldCheck, 
-  Star, 
   ArrowRight, 
   UserCheck, 
   HeartHandshake, 
@@ -14,7 +13,8 @@ import {
   FileText, 
   Mail, 
   Phone,
-  Search
+  Search,
+  CheckCircle2
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -25,7 +25,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#FAFAF7] font-sans text-slate-800 flex flex-col selection:bg-emerald-200">
       
-      {/* Header Navigation: Passt sich auf Mobile & Desktop an */}
+      {/* Header Navigation */}
       <header className="w-full py-3.5 px-4 sm:px-8 lg:px-12 flex items-center justify-between border-b border-gray-200/60 bg-white/80 backdrop-blur-md sticky top-0 z-40">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-md shrink-0">
@@ -70,24 +70,24 @@ export default function HomePage() {
         <section className="px-4 sm:px-8 lg:px-12 py-8 sm:py-16 lg:py-20 max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
-            {/* Linker Conversion-Bereich */}
+            {/* Linker Bereich */}
             <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-center lg:text-left">
               
               {/* Trust Badge */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F0FDF4] border border-emerald-200/60 text-[#1B4D3E] text-xs font-semibold tracking-wide">
                 <ShieldCheck className="w-4 h-4 text-[#1B4D3E] shrink-0" />
-                <span>Identitätsgeprüfte Helfer in deiner Nähe</span>
+                <span>Geprüfte Alltagsbegleiter in deiner Nähe</span>
               </div>
 
               {/* Headline */}
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium text-[#1B4D3E] leading-[1.15] tracking-tight">
-                Fürsorgliche Hilfe im Alltag. <br />
+                Herzliche Unterstützung im Alltag. <br />
                 <span className="italic font-normal text-emerald-800/80">Einfach & sicher.</span>
               </h1>
 
               {/* Subline */}
               <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 font-light leading-relaxed">
-                Wir vermitteln qualifizierte Alltagsbegleiter für Senioren – persönlich ausgewählt, zuverlässig und direkt in eurer Nachbarschaft.
+                Wir vermitteln liebevolle Alltagsbegleitung für Senioren – fürs Einkaufen, Haushalt, Spaziergänge oder einfach gute Gesellschaft.
               </p>
 
               {/* PLZ-Eingabe / Conversion Card */}
@@ -112,33 +112,31 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Social Proof */}
-              <div className="flex items-center justify-center lg:justify-start gap-4 pt-2">
-                <div className="flex -space-x-2">
-                  <img className="w-8 h-8 rounded-full border-2 border-white object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="User" />
-                  <img className="w-8 h-8 rounded-full border-2 border-white object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt="User" />
-                  <img className="w-8 h-8 rounded-full border-2 border-white object-cover" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=100&q=80" alt="User" />
-                </div>
-                <div className="text-left">
-                  <div className="flex items-center gap-1 text-amber-500">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    ))}
-                    <span className="text-xs font-bold text-slate-700 ml-1">4.9 / 5</span>
-                  </div>
-                  <p className="text-xs text-slate-500">Über 500+ zufriedene Familien</p>
-                </div>
+              {/* Echter Vertrauensnachweis statt Fake-Sterne */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2 text-xs text-slate-600">
+                <span className="flex items-center gap-1.5 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  Identität geprüft
+                </span>
+                <span className="flex items-center gap-1.5 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  Keine Kündigungsfrist
+                </span>
+                <span className="flex items-center gap-1.5 font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  Unverbindliche Anfrage
+                </span>
               </div>
 
             </div>
 
-            {/* Rechter Bild-Bereich */}
+            {/* Rechter Bild-Bereich: Reine Alltagssituation (Haushalt/Gesellschaft) */}
             <div className="lg:col-span-5 relative mt-4 lg:mt-0">
               <div className="relative mx-auto max-w-sm lg:max-w-none">
                 <div className="aspect-[4/4] sm:aspect-[4/5] rounded-3xl overflow-hidden shadow-xl border-4 border-white">
                   <img 
-                    src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80" 
-                    alt="Herzliche Betreuung" 
+                    src="https://images.unsplash.com/photo-1581579438747-1dc8d1e05b63?auto=format&fit=crop&w=800&q=80" 
+                    alt="Seniorin kocht gemeinsam mit Alltagsbegleiterin" 
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -149,8 +147,8 @@ export default function HomePage() {
                     <UserCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs sm:text-sm font-bold text-slate-800">Persönlich geprüft</p>
-                    <p className="text-[11px] text-slate-500">Ausweis & Führungszeugnis</p>
+                    <p className="text-xs sm:text-sm font-bold text-slate-800">Sicher & Verifiziert</p>
+                    <p className="text-[11px] text-slate-500">Persönlich geprüfte Helfer</p>
                   </div>
                 </div>
               </div>
@@ -163,9 +161,9 @@ export default function HomePage() {
         <section className="py-12 sm:py-16 bg-white border-y border-gray-200/80 px-4 sm:px-8">
           <div className="max-w-5xl mx-auto space-y-8 sm:space-y-12">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#0A2E23]">Sicherheit & Qualität an erster Stelle</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#0A2E23]">Alltagshilfe nach deinen Bedürfnissen</h2>
               <p className="text-slate-600 max-w-xl mx-auto text-xs sm:text-sm">
-                Höchste Standards für das Wohl Deiner Angehörigen.
+                Keine medizinische Pflege – sondern echte Entlastung im täglichen Leben.
               </p>
             </div>
 
@@ -174,19 +172,9 @@ export default function HomePage() {
                 <div className="w-10 h-10 rounded-xl bg-emerald-100 text-[#1B4D3E] flex items-center justify-center font-bold">
                   <UserCheck className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-bold text-[#0A2E23]">Geprüfte Profile</h3>
+                <h3 className="text-base font-bold text-[#0A2E23]">Haushalt & Einkauf</h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Jeder Helfer durchläuft unseren Verifizierungsprozess inklusive Identitätsprüfung.
-                </p>
-              </div>
-
-              <div className="bg-[#FAFAF7] p-5 sm:p-6 rounded-2xl border border-gray-200/70 space-y-2.5">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-[#1B4D3E] flex items-center justify-center font-bold">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <h3 className="text-base font-bold text-[#0A2E23]">Haftpflichtgeschützt</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Alle über Helpify vermittelten Einsätze sind haftpflicht- und unfallversichert.
+                  Unterstützung beim Besorgen von Lebensmitteln, leichte Putzarbeiten oder Kochen.
                 </p>
               </div>
 
@@ -194,9 +182,19 @@ export default function HomePage() {
                 <div className="w-10 h-10 rounded-xl bg-emerald-100 text-[#1B4D3E] flex items-center justify-center font-bold">
                   <HeartHandshake className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-bold text-[#0A2E23]">Feste Ansprechpartner</h3>
+                <h3 className="text-base font-bold text-[#0A2E23]">Gesellschaft & Freizeit</h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Verlässliche Betreuung durch persönliche Bezugspersonen in eurer Umgebung.
+                  Gemeinsame Spaziergänge, Kartenspielen oder Begleitung zu Terminen und Ärzten.
+                </p>
+              </div>
+
+              <div className="bg-[#FAFAF7] p-5 sm:p-6 rounded-2xl border border-gray-200/70 space-y-2.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-[#1B4D3E] flex items-center justify-center font-bold">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-bold text-[#0A2E23]">Verlässlich & Flexibel</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Flexible Terminvereinbarung ohne langfristige Bindung – genau dann, wenn Hilfe gebraucht wird.
                 </p>
               </div>
             </div>
@@ -219,7 +217,7 @@ export default function HomePage() {
               <span className="text-lg font-bold font-serif text-white">Helpify</span>
             </div>
             <p className="text-slate-400 leading-relaxed">
-              Deine vertrauensvolle Plattform für Alltagsbetreuung und Seniorenhilfe.
+              Deine Plattform für Alltagshilfe und Begleitung im Alter.
             </p>
             <div className="flex items-center gap-1.5 text-emerald-400 font-medium">
               <Lock className="w-3.5 h-3.5" /> 256-Bit SSL-Verschlüsselt
@@ -286,14 +284,6 @@ export default function HomePage() {
                 <h3 className="font-bold text-slate-900">Angaben gemäß § 5 DDG</h3>
                 <p>Helpify GmbH (i.G.)<br />Musterstraße 123, 80331 München</p>
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900">Vertreten durch</h3>
-                <p>Geschäftsführung: Max Mustermann</p>
-              </div>
-              <div>
-                <h3 className="font-bold text-slate-900">Kontakt</h3>
-                <p>E-Mail: support@helpify.de</p>
-              </div>
             </div>
           </div>
         </div>
@@ -317,10 +307,6 @@ export default function HomePage() {
 
             <div className="space-y-3 text-xs text-slate-600 leading-relaxed">
               <p>Wir verarbeiten personenbezogene Daten streng gemäß den Bestimmungen der DSGVO.</p>
-              <div>
-                <h3 className="font-bold text-slate-900">Datenerhebung im Funnel</h3>
-                <p>Daten zur Hilfeanfrage dienen ausschließlich der Vermittlung passender Alltagshelfer.</p>
-              </div>
             </div>
           </div>
         </div>
