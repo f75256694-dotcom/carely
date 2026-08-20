@@ -101,8 +101,8 @@ function RegisterForm() {
               <Handshake className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-base font-black text-[#0A2E23]">Als Helfer starten</h3>
-              <p className="text-xs text-slate-500 mt-1">Ich möchte flexibel Alltagshilfe anbieten und Geld verdienen.</p>
+              <h3 className="text-base font-black text-[#0A2E23]">Als selbständiger Alltagshelfer starten</h3>
+              <p className="text-xs text-slate-500 mt-1">Bestimme deine Zeiten selbst – inkl. einfachem Start-Guide.</p>
             </div>
           </button>
         </div>
@@ -115,18 +115,34 @@ function RegisterForm() {
     <div className="w-full max-w-lg bg-white rounded-[2.5rem] p-6 sm:p-10 shadow-xl border border-slate-100 space-y-6">
       
       {/* Zurück-Button zur Rollenauswahl */}
-      <button
-        type="button"
-        onClick={() => setRole(null)}
-        className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#1B4D3E] transition cursor-pointer"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Bereich wechseln ({role === 'seeker' ? 'Hilfe finden' : 'Als Helfer'})</span>
-      </button>
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => setRole(null)}
+          className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#1B4D3E] transition cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Bereich wechseln</span>
+        </button>
+        <span className="text-[11px] font-extrabold uppercase tracking-wider bg-emerald-50 text-[#1B4D3E] px-3 py-1 rounded-full">
+          {role === 'seeker' ? 'Hilfe finden' : 'Selbstständiger Helfer'}
+        </span>
+      </div>
 
       {errorMsg && (
         <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold whitespace-pre-wrap">
           {errorMsg}
+        </div>
+      )}
+
+      {/* Transparenz-Hinweis speziell für Helfer */}
+      {role === 'caregiver' && (
+        <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-slate-700 text-xs space-y-1">
+          <p className="font-bold text-[#0A2E23]">💡 Gut zu wissen:</p>
+          <p className="text-slate-600">
+            Als selbstständiger Helfer meldest du kurz ein freies Gewerbe an (Personenbetreuung). 
+            Keine Sorge: Wir unterstützen dich direkt nach der Registrierung via WhatsApp Schritt für Schritt dabei!
+          </p>
         </div>
       )}
 
@@ -142,7 +158,7 @@ function RegisterForm() {
               required
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="Maria Schmidt"
+              placeholder={role === 'caregiver' ? 'Anna Huber' : 'Maria Schmidt'}
               className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
             />
           </div>
@@ -158,7 +174,7 @@ function RegisterForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="maria@beispiel.de"
+              placeholder="name@beispiel.de"
               className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
             />
           </div>
@@ -203,7 +219,7 @@ function RegisterForm() {
           disabled={loading}
           className="w-full py-4 mt-2 rounded-2xl bg-[#1B4D3E] hover:bg-[#13382d] text-white font-bold text-base shadow-lg transition disabled:opacity-50 cursor-pointer"
         >
-          {loading ? 'Konto wird erstellt...' : 'Jetzt registrieren'}
+          {loading ? 'Konto wird erstellt...' : role === 'caregiver' ? 'Als selbständiger Helfer starten' : 'Jetzt registrieren'}
         </button>
       </form>
 
