@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { User, Mail, MapPin, Lock, Search, Heart, Handshake } from 'lucide-react';
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialRole = searchParams.get('role') || 'seeker';
@@ -27,7 +27,6 @@ export default function RegisterPage() {
     setErrorMsg(null);
 
     try {
-      // 1. Supabase Auth Registrierung
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -43,7 +42,6 @@ export default function RegisterPage() {
       if (authError) throw authError;
 
       if (authData?.user) {
-        // 2. Profil in der 'profiles' Tabelle anlegen
         const { error: profileError } = await supabase.from('profiles').upsert([
           {
             id: authData.user.id,
@@ -55,7 +53,6 @@ export default function RegisterPage() {
 
         if (profileError) console.error('Profil-Erstellung Warnung:', profileError);
 
-        // 3. Weiterleitung nach Registrierung
         router.push('/dashboard');
       }
     } catch (err: any) {
@@ -65,6 +62,148 @@ export default function RegisterPage() {
     }
   };
 
+  return (
+    <div className="w-full max-w-lg bg-white rounded-[2.5rem] p-6 sm:p-10 shadow-xl border border-slate-100 space-y-6">
+      
+      {/* Rollen-Tab Selection */}
+      <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-100/80 rounded-2xl text-xs font-bold text-slate-600">
+        <button
+          type="button"
+          onClick={() => setRole('seeker')}
+          className={`py-3 px-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
+            role === 'seeker' 
+              ? 'bg-[#1B4D3E] text-white shadow-sm' 
+              : 'hover:text-slate-900'
+          }`}
+        >
+          <Search className="w-3.5 h-3.5" />
+          <span>Suchend</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setRole('relative')}
+          className={`py-3 px-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
+            role === 'relative' 
+              ? 'bg-[#1B4D3E] text-white shadow-sm' 
+              : 'hover:text-slate-900'
+          }`}
+        >
+          <Heart className="w-3.5 h-3.5" />
+          <span>Angehörige</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setRole('caregiver')}
+          className={`py-3 px-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
+            role === 'caregiver' 
+              ? 'bg-[#1B4D3E] text-white shadow-sm' 
+              : 'hover:text-slate-900'
+          }`}
+        >
+          <Handshake className="w-3.5 h-3.5" />
+          <span>Helfer</span>
+        </button>
+      </div>
+
+      {errorMsg && (
+        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold">
+          {errorMsg}
+        </div>
+      )}
+
+      <form onSubmit={handleRegister} className="space-y-4">
+        
+        {/* Vollständiger Name */}
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">Vollständiger Name</label>
+          <div className="relative">
+            <User className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              required
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Maria Schmidt"
+              className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
+            />
+          </div>
+        </div>
+
+        {/* E-Mail */}
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">E-Mail-Adresse</label>
+          <div className="relative">
+            <Mail className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="maria@beispiel.de"
+              className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
+            />
+          </div>
+        </div>
+
+        {/* Postleitzahl */}
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">Postleitzahl</label>
+          <div className="relative">
+            <MapPin className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              maxLength={5}
+              required
+              value={zip}
+              onChange={(e) => setZip(e.target.value)}
+              placeholder="1170"
+              className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
+            />
+          </div>
+        </div>
+
+        {/* Passwort */}
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">Passwort</label>
+          <div className="relative">
+            <Lock className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="password"
+              required
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Mindestens 6 Zeichen"
+              className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-4 mt-2 rounded-2xl bg-[#1B4D3E] hover:bg-[#13382d] text-white font-bold text-base shadow-lg transition disabled:opacity-50 cursor-pointer"
+        >
+          {loading ? 'Konto wird erstellt...' : 'Jetzt registrieren'}
+        </button>
+      </form>
+
+      <div className="text-center pt-2">
+        <p className="text-xs text-slate-600 font-medium">
+          Bereits ein Konto?{' '}
+          <Link href="/login" className="text-[#1B4D3E] font-bold hover:underline">
+            Hier anmelden
+          </Link>
+        </p>
+      </div>
+
+    </div>
+  );
+}
+
+export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-[#FAFAF7] font-sans text-slate-800 flex flex-col justify-center items-center p-4 sm:p-6">
       
@@ -97,144 +236,10 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* Card Container */}
-      <div className="w-full max-w-lg bg-white rounded-[2.5rem] p-6 sm:p-10 shadow-xl border border-slate-100 space-y-6">
-        
-        {/* Rollen-Tab Selection */}
-        <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-100/80 rounded-2xl text-xs font-bold text-slate-600">
-          <button
-            type="button"
-            onClick={() => setRole('seeker')}
-            className={`py-3 px-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
-              role === 'seeker' 
-                ? 'bg-[#1B4D3E] text-white shadow-sm' 
-                : 'hover:text-slate-900'
-            }`}
-          >
-            <Search className="w-3.5 h-3.5" />
-            <span>Suchend</span>
-          </button>
+      <Suspense fallback={<div className="text-center p-8 text-slate-500 font-medium">Laden...</div>}>
+        <RegisterForm />
+      </Suspense>
 
-          <button
-            type="button"
-            onClick={() => setRole('relative')}
-            className={`py-3 px-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
-              role === 'relative' 
-                ? 'bg-[#1B4D3E] text-white shadow-sm' 
-                : 'hover:text-slate-900'
-            }`}
-          >
-            <Heart className="w-3.5 h-3.5" />
-            <span>Angehörige</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setRole('caregiver')}
-            className={`py-3 px-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
-              role === 'caregiver' 
-                ? 'bg-[#1B4D3E] text-white shadow-sm' 
-                : 'hover:text-slate-900'
-            }`}
-          >
-            <Handshake className="w-3.5 h-3.5" />
-            <span>Helfer</span>
-          </button>
-        </div>
-
-        {errorMsg && (
-          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold">
-            {errorMsg}
-          </div>
-        )}
-
-        <form onSubmit={handleRegister} className="space-y-4">
-          
-          {/* Vollständiger Name */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">Vollständiger Name</label>
-            <div className="relative">
-              <User className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Maria Schmidt"
-                className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
-              />
-            </div>
-          </div>
-
-          {/* E-Mail */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">E-Mail-Adresse</label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="maria@beispiel.de"
-                className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
-              />
-            </div>
-          </div>
-
-          {/* Postleitzahl */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">Postleitzahl</label>
-            <div className="relative">
-              <MapPin className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                maxLength={5}
-                required
-                value={zip}
-                onChange={(e) => setZip(e.target.value)}
-                placeholder="1170"
-                className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
-              />
-            </div>
-          </div>
-
-          {/* Passwort */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">Passwort</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mindestens 6 Zeichen"
-                className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-4 mt-2 rounded-2xl bg-[#1B4D3E] hover:bg-[#13382d] text-white font-bold text-base shadow-lg transition disabled:opacity-50 cursor-pointer"
-          >
-            {loading ? 'Konto wird erstellt...' : 'Jetzt registrieren'}
-          </button>
-        </form>
-
-        <div className="text-center pt-2">
-          <p className="text-xs text-slate-600 font-medium">
-            Bereits ein Konto?{' '}
-            <Link href="/login" className="text-[#1B4D3E] font-bold hover:underline">
-              Hier anmelden
-            </Link>
-          </p>
-        </div>
-
-      </div>
     </div>
   );
-}// TEST EDIT FOR GIT
+}
