@@ -1,242 +1,191 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { MapPin, HeartHandshake, Calendar, ArrowRight, ShieldCheck, PenTool } from 'lucide-react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft, ArrowRight, CheckCircle2, HeartHandshake, ShoppingBag, Home, Sparkles } from 'lucide-react';
 
-export default function FunnelPage() {
-  const router = useRouter();
-  const [step, setStep] = useState<number>(1);
-  const [zipCode, setZipCode] = useState<string>('');
+function FunnelContent() {
+  const searchParams = useSearchParams();
+  const zipFromUrl = searchParams.get('zip') || '';
+
+  // Schritt-Steuerung & Formular-State
+  const [step, setStep] = useState(1);
+  const [zipCode, setZipCode] = useState(zipFromUrl);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [otherServiceText, setOtherServiceText] = useState<string>('');
-  const [schedule, setSchedule] = useState<string>('asap');
 
-  const availableServices = [
-    { id: 'companionship', label: 'Gesellschaft & Alltag' },
-    { id: 'household', label: 'Haushalt & Einkaufen' },
-    { id: 'mobility', label: 'Begleitung & Mobilisierung' },
-    { id: 'other', label: 'Sonstiges' },
-  ];
+  // Automatisch PLZ übernehmen & bei gültiger Eingabe (5 Zahlen) direkt zu Schritt 2 springen
+  useEffect(() => {
+    if (zipFromUrl) {
+      setZipCode(zipFromUrl);
+      if (zipFromUrl.trim().length === 5) {
+        setStep(2);
+      }
+    }
+  }, [zipFromUrl]);
 
-  const toggleService = (id: string) => {
-    setSelectedServices((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const handleCompleteFunnel = () => {
-    // 1. Entwurf im localStorage speichern
-    const draftData = {
-      zip_code: zipCode,
-      services: selectedServices,
-      other_service_details: selectedServices.includes('other') ? otherServiceText : '',
-      schedule: { timeframe: schedule },
-      created_at: new Date().toISOString(),
-    };
-    localStorage.setItem('care_request_draft', JSON.stringify(draftData));
-
-    // 2. Direkt zur Registrierung leiten (Rolle als care_seeker vorausgewählt)
-    router.push('/register?role=care_seeker');
+  const handleServiceToggle = (service: string) => {
+    if (selectedServices.includes(service)) {
+      setSelectedServices(selectedServices.filter((s) => s !== service));
+    } else {
+      setSelectedServices([...selectedServices, service]);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAF7] font-sans text-gray-900 flex flex-col justify-center py-12 px-6 sm:px-12 relative overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-teal-500/10 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-[#FAFAF7] text-slate-800 flex flex-col justify-between p-4 sm:p-8">
+      
+      {/* Top Header */}
+      <header className="max-w-2xl w-full mx-auto flex items-center justify-between py-4">
+        <Link href="/" className="flex items-center gap-2 text-slate-600 hover:text-[#1B4D3E] text-xs font-bold transition">
+          <ArrowLeft className="w-4 h-4" /> Startseite
+        </Link>
+        <span className="text-xs font-bold text-slate-400">Schritt {step} von 3</span>
+      </header>
 
-      <div className="max-w-lg w-full mx-auto relative z-10 space-y-6">
+      {/* Main Funnel Card */}
+      <main className="max-w-xl w-full mx-auto bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200/80 my-auto">
         
-        {/* Helpify Header Logo */}
-        <div className="flex items-center justify-center gap-2.5 mb-2">
-          <div className="w-10 h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-sm shrink-0">
-            <svg 
-              className="w-6 h-6 text-[#86EFAC]" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2.2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
+        {/* SCHRITT 1: PLZ (wird übersprungen, wenn PLZ von der Landingpage kommt) */}
+        {step === 1 && (
+          <div className="space-y-6 text-center">
+            <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Wo wird die Unterstützung benötigt?</h2>
+            <p className="text-xs text-slate-500">Gib deine Postleitzahl ein, um Helfer in deiner Nähe zu finden.</p>
+            
+            <input 
+              type="text"
+              maxLength={5}
+              value={zipCode}
+              onChange={(e) => setZipCode(e.target.value)}
+              placeholder="PLZ eingeben (z. B. 10115)"
+              className="w-full text-center text-xl font-bold py-3.5 px-4 rounded-xl border border-slate-300 focus:border-[#1B4D3E] focus:outline-none tracking-widest bg-slate-50"
+            />
+
+            <button
+              disabled={zipCode.trim().length !== 5}
+              onClick={() => setStep(2)}
+              className="w-full bg-[#1B4D3E] hover:bg-[#143a2e] disabled:opacity-50 text-white font-bold text-sm py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
             >
-              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-              <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
-            </svg>
+              <span>Weiter</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
-          <span className="text-2xl font-bold tracking-tight text-[#0A2E23] font-serif">Helpify</span>
-        </div>
+        )}
 
-        {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-          <div 
-            className="bg-teal-700 h-full transition-all duration-300"
-            style={{ width: `${(step / 3) * 100}%` }}
-          />
-        </div>
-
-        <div className="bg-white/90 backdrop-blur-3xl border border-white/90 rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_50px_rgba(13,148,136,0.08)] space-y-6">
-          
-          {/* Schritt 1: Postleitzahl */}
-          {step === 1 && (
-            <div className="space-y-6 animate-in fade-in">
-              <div className="space-y-2 text-center">
-                <span className="text-xs font-bold uppercase tracking-wider text-teal-700">Schritt 1 von 3</span>
-                <h2 className="text-2xl font-black font-serif text-gray-900">Wo suchst du Unterstützung?</h2>
-                <p className="text-gray-500 text-sm">Gib deine Postleitzahl ein, um verfügbare Helfer in der Nähe zu prüfen.</p>
-              </div>
-
-              <div className="relative">
-                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  required
-                  maxLength={5}
-                  value={zipCode}
-                  onChange={(e) => setZipCode(e.target.value)}
-                  placeholder="z. B. 10115"
-                  className="w-full bg-gray-50/80 border border-gray-200/90 rounded-2xl py-4 pl-12 pr-4 text-gray-900 text-base font-bold focus:outline-none focus:border-teal-600 focus:bg-white transition-all text-center tracking-widest"
-                />
-              </div>
-
-              <button
-                type="button"
-                disabled={zipCode.trim().length < 4}
-                onClick={() => setStep(2)}
-                className="w-full py-4 px-6 rounded-2xl bg-teal-700 hover:bg-teal-800 text-white font-bold transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-              >
-                <span>Weiter zur Auswahl</span>
-                <ArrowRight className="w-5 h-5" />
-              </button>
+        {/* SCHRITT 2: Service-Auswahl */}
+        {step === 2 && (
+          <div className="space-y-6">
+            <div className="text-center space-y-1">
+              <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Wobei wird Hilfe benötigt?</h2>
+              <p className="text-xs text-slate-500">
+                Für PLZ <span className="font-bold text-[#1B4D3E]">{zipCode}</span> (Mehrfachauswahl möglich)
+              </p>
             </div>
-          )}
 
-          {/* Schritt 2: Benötigte Hilfe */}
-          {step === 2 && (
-            <div className="space-y-6 animate-in fade-in">
-              <div className="space-y-2 text-center">
-                <span className="text-xs font-bold uppercase tracking-wider text-teal-700">Schritt 2 von 3</span>
-                <h2 className="text-2xl font-black font-serif text-gray-900">Welche Hilfe wird benötigt?</h2>
-                <p className="text-gray-500 text-sm">Mehrfachauswahl möglich.</p>
-              </div>
-
-              <div className="grid grid-cols-1 gap-3">
-                {availableServices.map((service) => {
-                  const isSelected = selectedServices.includes(service.id);
-                  return (
-                    <button
-                      key={service.id}
-                      type="button"
-                      onClick={() => toggleService(service.id)}
-                      className={`py-4 px-5 rounded-2xl text-left text-sm font-bold border transition-all flex items-center justify-between cursor-pointer ${
-                        isSelected 
-                          ? 'border-teal-700 bg-teal-50/50 text-teal-900 shadow-sm' 
-                          : 'border-gray-200 hover:border-gray-300 text-gray-700'
-                      }`}
-                    >
-                      <span>{service.label}</span>
-                      <HeartHandshake className={`w-5 h-5 ${isSelected ? 'text-teal-700' : 'text-gray-400'}`} />
-                    </button>
-                  );
-                })}
-
-                {/* Dynamisches Freitextfeld für "Sonstiges" */}
-                {selectedServices.includes('other') && (
-                  <div className="pt-1 animate-in fade-in space-y-1">
-                    <div className="relative">
-                      <PenTool className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-teal-700" />
-                      <input
-                        type="text"
-                        value={otherServiceText}
-                        onChange={(e) => setOtherServiceText(e.target.value)}
-                        placeholder="Was benötigst du genau?"
-                        className="w-full bg-teal-50/30 border border-teal-600 rounded-2xl py-3.5 pl-11 pr-4 text-gray-900 text-xs font-medium focus:outline-none focus:bg-white transition-all"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="w-1/3 py-4 rounded-2xl border border-gray-300 text-gray-600 font-bold hover:bg-gray-50 transition"
-                >
-                  Zurück
-                </button>
-                <button
-                  type="button"
-                  disabled={selectedServices.length === 0}
-                  onClick={() => setStep(3)}
-                  className="w-2/3 py-4 rounded-2xl bg-teal-700 hover:bg-teal-800 text-white font-bold transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                >
-                  <span>Weiter</span>
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Schritt 3: Zeitraum & Teaser-Abschluss */}
-          {step === 3 && (
-            <div className="space-y-6 animate-in fade-in">
-              <div className="space-y-2 text-center">
-                <span className="text-xs font-bold uppercase tracking-wider text-teal-700">Letzter Schritt</span>
-                <h2 className="text-2xl font-black font-serif text-gray-900">Wann soll es losgehen?</h2>
-              </div>
-
-              <div className="space-y-3">
-                {[
-                  { id: 'asap', label: 'So schnell wie möglich' },
-                  { id: 'next_weeks', label: 'In den nächsten 2–4 Wochen' },
-                  { id: 'orienting', label: 'Erstmal nur informieren' },
-                ].map((item) => (
+            <div className="space-y-3">
+              {[
+                { id: 'einkauf', label: 'Einkaufen & Besorgungen', icon: ShoppingBag },
+                { id: 'haushalt', label: 'Haushalt & Kochen', icon: Home },
+                { id: 'gesellschaft', label: 'Spaziergänge & Gesellschaft', icon: HeartHandshake },
+                { id: 'sonstiges', label: 'Sonstige Begleitung', icon: Sparkles }
+              ].map((item) => {
+                const Icon = item.icon;
+                const isSelected = selectedServices.includes(item.id);
+                return (
                   <button
                     key={item.id}
-                    type="button"
-                    onClick={() => setSchedule(item.id)}
-                    className={`w-full py-4 px-5 rounded-2xl text-left text-sm font-bold border transition-all flex items-center justify-between cursor-pointer ${
-                      schedule === item.id 
-                        ? 'border-teal-700 bg-teal-50/50 text-teal-900 shadow-sm' 
-                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                    onClick={() => handleServiceToggle(item.id)}
+                    className={`w-full p-4 rounded-2xl border text-left font-medium text-sm flex items-center justify-between transition cursor-pointer ${
+                      isSelected 
+                        ? 'border-[#1B4D3E] bg-[#F0FDF4] text-[#0A2E23] shadow-xs' 
+                        : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
                     }`}
                   >
-                    <span>{item.label}</span>
-                    <Calendar className={`w-5 h-5 ${schedule === item.id ? 'text-teal-700' : 'text-gray-400'}`} />
+                    <div className="flex items-center gap-3">
+                      <Icon className={`w-5 h-5 ${isSelected ? 'text-[#1B4D3E]' : 'text-slate-400'}`} />
+                      <span>{item.label}</span>
+                    </div>
+                    {isSelected && <CheckCircle2 className="w-5 h-5 text-[#1B4D3E]" />}
                   </button>
-                ))}
-              </div>
-
-              {/* Concierge-Teaser Info Box */}
-              <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 text-emerald-900 text-xs font-medium space-y-1">
-                <div className="flex items-center gap-2 font-bold text-emerald-800">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                   Concierge-Matching für PLZ {zipCode} bereit
-                </div>
-                <p>Wir durchsuchen unser lokales Netzwerk und schalten die passenden Helfer-Profile in deinem Dashboard frei.</p>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  className="w-1/3 py-4 rounded-2xl border border-gray-300 text-gray-600 font-bold hover:bg-gray-50 transition"
-                >
-                  Zurück
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCompleteFunnel}
-                  className="w-2/3 py-4 rounded-2xl bg-teal-700 hover:bg-teal-800 text-white font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-teal-700/20"
-                >
-                  <span>Anfrage abschicken & Registrieren</span>
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-              </div>
+                );
+              })}
             </div>
-          )}
 
-        </div>
-      </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setStep(1)}
+                className="w-1/3 border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-sm py-3.5 rounded-xl transition"
+              >
+                Zurück
+              </button>
+              <button
+                disabled={selectedServices.length === 0}
+                onClick={() => setStep(3)}
+                className="w-2/3 bg-[#1B4D3E] hover:bg-[#143a2e] disabled:opacity-50 text-white font-bold text-sm py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
+              >
+                <span>Weiter</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* SCHRITT 3: Abschluss / Kontakt */}
+        {step === 3 && (
+          <div className="space-y-6 text-center">
+            <div className="w-12 h-12 rounded-full bg-[#F0FDF4] text-[#1B4D3E] flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Perfekt! Wir haben Helfer gefunden.</h2>
+              <p className="text-xs text-slate-500">In {zipCode} stehen passende Alltagsbegleiter bereit.</p>
+            </div>
+
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-left space-y-3">
+              <input 
+                type="text" 
+                placeholder="Dein Name" 
+                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#1B4D3E]"
+              />
+              <input 
+                type="email" 
+                placeholder="Deine E-Mail-Adresse" 
+                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#1B4D3E]"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setStep(2)}
+                className="w-1/3 border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-sm py-3.5 rounded-xl transition"
+              >
+                Zurück
+              </button>
+              <button
+                onClick={() => alert('Anfrage erfolgreich abgesendet!')}
+                className="w-2/3 bg-[#1B4D3E] hover:bg-[#143a2e] text-white font-bold text-sm py-3.5 rounded-xl transition shadow-md cursor-pointer"
+              >
+                Kostenlos anfragen
+              </button>
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      {/* Footer minimal */}
+      <footer className="text-center text-[11px] text-slate-400 py-4">
+        © {new Date().getFullYear()} Helpify – Sichere Vermittlung von Alltagshilfe
+      </footer>
+
     </div>
+  );
+}
+
+export default function FunnelPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-500">Formular wird geladen...</div>}>
+      <FunnelContent />
+    </Suspense>
   );
 }
