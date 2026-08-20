@@ -48,12 +48,18 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <Link 
             href="/login" 
             className="text-xs sm:text-sm font-bold text-slate-700 hover:text-[#1B4D3E] transition px-2.5 py-2"
           >
             Anmelden
+          </Link>
+          <Link 
+            href="/register" 
+            className="text-xs sm:text-sm font-bold text-slate-700 hover:text-[#1B4D3E] transition px-2.5 py-2 border border-slate-200 rounded-xl hover:bg-slate-50"
+          >
+            Registrieren
           </Link>
           <Link 
             href="/funnel" 
