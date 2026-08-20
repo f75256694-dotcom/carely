@@ -1,30 +1,37 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, CheckCircle2, HeartHandshake, ShoppingBag, Home, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, HeartHandshake, ShoppingBag, Home, Sparkles, Loader2, ShieldCheck, CreditCard } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 function FunnelContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const zipFromUrl = searchParams.get('zip') || '';
 
-  // Prüft, ob es eine valide PLZ ist (4 Stellen für AT oder 5 für DE)
+  const supabase = createClient();
+
   const isValidZip = (zip: string) => {
     const cleanZip = zip.trim();
     return cleanZip.length === 4 || cleanZip.length === 5;
   };
 
-  // Startschritt: Direkt Schritt 2, falls PLZ von der Landingpage mitgegeben wurde
   const [step, setStep] = useState(isValidZip(zipFromUrl) ? 2 : 1);
   const [zipCode, setZipCode] = useState(zipFromUrl);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (zipFromUrl) {
       setZipCode(zipFromUrl);
       if (isValidZip(zipFromUrl)) {
-        setStep(2); // Direkt weiter zu Schritt 2 ohne erneutes Bestätigen
+        setStep(2);
       }
     }
   }, [zipFromUrl]);
@@ -37,10 +44,41 @@ function FunnelContent() {
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !email) return;
+
+    setLoading(true);
+    setErrorMessage('');
+
+    try {
+      const { error } = await supabase
+        .from('care_requests')
+        .insert([
+          {
+            region: zipCode,
+            service_types: selectedServices,
+            name: name,
+            email: email,
+            status: 'pending',
+            source: 'landing_funnel'
+          }
+        ]);
+
+      if (error) throw error;
+
+      router.push('/danke');
+    } catch (err: any) {
+      console.error('Fehler beim Speichern in Supabase:', err);
+      setErrorMessage('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#FAFAF7] text-slate-800 flex flex-col justify-between p-4 sm:p-8">
       
-      {/* Top Header */}
       <header className="max-w-2xl w-full mx-auto flex items-center justify-between py-4">
         <Link href="/" className="flex items-center gap-2 text-slate-600 hover:text-[#1B4D3E] text-xs font-bold transition">
           <ArrowLeft className="w-4 h-4" /> Startseite
@@ -48,10 +86,9 @@ function FunnelContent() {
         <span className="text-xs font-bold text-slate-400">Schritt {step} von 3</span>
       </header>
 
-      {/* Main Funnel Card */}
       <main className="max-w-xl w-full mx-auto bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200/80 my-auto">
         
-        {/* SCHRITT 1: PLZ (nur sichtbar, wenn Landingpage OHNE PLZ aufgerufen wurde) */}
+        {/* SCHRITT 1: PLZ */}
         {step === 1 && (
           <div className="space-y-6 text-center">
             <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Wo wird die Unterstützung benötigt?</h2>
@@ -77,7 +114,7 @@ function FunnelContent() {
           </div>
         )}
 
-        {/* SCHRITT 2: Service-Auswahl */}
+        {/* SCHRITT 2: Services */}
         {step === 2 && (
           <div className="space-y-6">
             <div className="text-center space-y-1">
@@ -135,9 +172,9 @@ function FunnelContent() {
           </div>
         )}
 
-        {/* SCHRITT 3: Kontaktdaten */}
+        {/* SCHRITT 3: Preistransparenz & Kontaktdaten */}
         {step === 3 && (
-          <div className="space-y-6 text-center">
+          <form onSubmit={handleSubmit} className="space-y-5 text-center">
             <div className="space-y-1">
               <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Fast geschafft!</h2>
               <p className="text-xs text-slate-500">
@@ -145,39 +182,79 @@ function FunnelContent() {
               </p>
             </div>
 
+            {/* PREIS-BOX & TRANSPARENZ */}
+            <div className="p-4 bg-[#F8FAFC] rounded-2xl border border-slate-200 text-left space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-[#0A2E23]">
+                <span>Transparente Kostenübersicht:</span>
+                <span className="text-[#1B4D3E] bg-[#E6F4EA] px-2 py-0.5 rounded-md">ab 24,90 € / Std.</span>
+              </div>
+              <ul className="text-[11px] text-slate-600 space-y-1.5 pt-1">
+                <li className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#1B4D3E] shrink-0" />
+                  <span>Inklusive Haftpflicht- & Unfallversicherung</span>
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5 text-[#1B4D3E] shrink-0" />
+                  <span>Abrechnung bequem im Nachhinein per Rechnung</span>
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#1B4D3E] shrink-0" />
+                  <span>Keine Mindestvertragslaufzeit – Die Anfrage ist 100% kostenlos</span>
+                </li>
+              </ul>
+            </div>
+
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-left space-y-3">
               <input 
                 type="text" 
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Dein Name" 
                 className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#1B4D3E]"
               />
               <input 
                 type="email" 
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Deine E-Mail-Adresse" 
                 className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#1B4D3E]"
               />
             </div>
 
+            {errorMessage && (
+              <p className="text-xs text-red-600 font-medium">{errorMessage}</p>
+            )}
+
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={() => setStep(2)}
                 className="w-1/3 border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-sm py-3.5 rounded-xl transition cursor-pointer"
               >
                 Zurück
               </button>
               <button
-                onClick={() => alert('Anfrage erfolgreich abgesendet!')}
-                className="w-2/3 bg-[#1B4D3E] hover:bg-[#143a2e] text-white font-bold text-sm py-3.5 rounded-xl transition shadow-md cursor-pointer"
+                type="submit"
+                disabled={loading || !name || !email}
+                className="w-2/3 bg-[#1B4D3E] hover:bg-[#143a2e] disabled:opacity-50 text-white font-bold text-sm py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
               >
-                Kostenlos anfragen
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Wird gesendet...</span>
+                  </>
+                ) : (
+                  <span>Kostenlos anfragen</span>
+                )}
               </button>
             </div>
-          </div>
+          </form>
         )}
 
       </main>
 
-      {/* Footer minimal */}
       <footer className="text-center text-[11px] text-slate-400 py-4">
         © {new Date().getFullYear()} Helpify – Sichere Vermittlung von Alltagshilfe
       </footer>
