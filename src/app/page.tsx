@@ -8,9 +8,6 @@ import {
   UserCheck, 
   HeartHandshake, 
   Lock, 
-  X, 
-  Building2, 
-  FileText, 
   Mail, 
   Phone,
   Search,
@@ -19,8 +16,6 @@ import {
 
 export default function HomePage() {
   const [zipCode, setZipCode] = useState('');
-  const [showImpressum, setShowImpressum] = useState(false);
-  const [showDatenschutz, setShowDatenschutz] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#FAFAF7] font-sans text-slate-800 flex flex-col selection:bg-emerald-200">
@@ -214,14 +209,19 @@ export default function HomePage() {
             <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Rechtliches</h4>
             <ul className="space-y-2 text-slate-400">
               <li>
-                <button onClick={() => setShowImpressum(true)} className="hover:text-white transition text-left cursor-pointer">
+                <Link href="/imprint" className="hover:text-white transition">
                   Impressum
-                </button>
+                </Link>
               </li>
               <li>
-                <button onClick={() => setShowDatenschutz(true)} className="hover:text-white transition text-left cursor-pointer">
+                <Link href="/AGB" className="hover:text-white transition">
+                  AGB
+                </Link>
+              </li>
+              <li>
+                <Link href="/datenschutz" className="hover:text-white transition">
                   Datenschutz & DSGVO
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
@@ -229,65 +229,16 @@ export default function HomePage() {
           <div className="space-y-2.5">
             <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Kontakt</h4>
             <div className="text-slate-400 space-y-1.5">
-              <p className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-emerald-400" /> support@helpify.de</p>
-              <p className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-emerald-400" /> +49 (0) 800 123 4567</p>
+              <p className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-emerald-400" /> office@helpifyservices.at</p>
+              <p className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-emerald-400" /> +43 676 ...</p>
             </div>
           </div>
         </div>
 
         <div className="max-w-6xl mx-auto pt-6 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-500 gap-2 text-center sm:text-left">
-          <p>© {new Date().getFullYear()} Helpify GmbH. Alle Rechte vorbehalten.</p>
+          <p>© {new Date().getFullYear()} Helpify. Alle Rechte vorbehalten.</p>
         </div>
       </footer>
-
-      {/* Impressum Modal */}
-      {showImpressum && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-4 shadow-2xl relative border border-gray-200">
-            <button 
-              onClick={() => setShowImpressum(false)}
-              className="absolute top-5 right-5 p-2 rounded-full hover:bg-gray-100 text-slate-500 transition cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3">
-              <Building2 className="w-5 h-5 text-[#1B4D3E]" />
-              <h2 className="text-xl font-bold font-serif text-[#0A2E23]">Impressum</h2>
-            </div>
-
-            <div className="space-y-3 text-xs text-slate-600 leading-relaxed">
-              <div>
-                <h3 className="font-bold text-slate-900">Angaben gemäß § 5 DDG</h3>
-                <p>Helpify GmbH (i.G.)<br />Musterstraße 123, 80331 München</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Datenschutz Modal */}
-      {showDatenschutz && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-4 shadow-2xl relative border border-gray-200">
-            <button 
-              onClick={() => setShowDatenschutz(false)}
-              className="absolute top-5 right-5 p-2 rounded-full hover:bg-gray-100 text-slate-500 transition cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3">
-              <FileText className="w-5 h-5 text-[#1B4D3E]" />
-              <h2 className="text-xl font-bold font-serif text-[#0A2E23]">Datenschutz (DSGVO)</h2>
-            </div>
-
-            <div className="space-y-3 text-xs text-slate-600 leading-relaxed">
-              <p>Wir verarbeiten personenbezogene Daten streng gemäß den Bestimmungen der DSGVO.</p>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );
