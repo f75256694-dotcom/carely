@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Heart, Clock, ShieldCheck, Lock, Sparkles, UserCheck } from 'lucide-react';
+import { Heart, Clock, ShieldCheck, Lock, Sparkles, UserCheck, Euro, CheckCircle2 } from 'lucide-react';
 
 type CareRequest = {
   id: string;
@@ -19,22 +19,22 @@ type CaregiverProfile = {
 };
 
 export default function DashboardPage() {
+  const [role, setRole] = useState<string | null>(null);
   const [request, setRequest] = useState<CareRequest | null>(null);
   const [helpers, setHelpers] = useState<CaregiverProfile[]>([]);
   const [hoursBalance, setHoursBalance] = useState<number>(0);
+  const [totalEarned, setTotalEarned] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [showPaywall, setShowPaywall] = useState(false);
   const [selectedHelper, setSelectedHelper] = useState<CaregiverProfile | null>(null);
   const [selectedPackage, setSelectedPackage] = useState<'starter' | 'flex'>('starter');
 
-  // Stripe Links
   const STRIPE_STARTER_URL = 'https://buy.stripe.com/test_5kQdRcb2aeMd5ibaAm0gw01';
   const STRIPE_FLEX_URL = 'https://buy.stripe.com/test_3cIfZk3zIdI9h0TfUG0gw02';
 
   const supabase = createClient();
 
   useEffect(() => {
-    // 1. Stripe Checkout Erfolgs-Check
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('payment') === 'success') {
       alert('Vielen Dank! Deine Zahlung war erfolgreich und dein Guthaben wurde aufgeladen.');
@@ -48,31 +48,23 @@ export default function DashboardPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('hours_balance')
-      .eq('id', user.id)
-      .single();
-    if (profile) setHoursBalance(profile.hours_balance || 0);
+    const { data: profile } = await supabase.from('profiles').select('hours_balance, role, total_earned').eq('id', user.id).single();
+    if (profile) {
+      setRole(profile.role);
+      setHoursBalance(profile.hours_balance || 0);
+      setTotalEarned(profile.total_earned || 0);
+    }
 
-    const { data: req } = await supabase
-      .from('care_requests')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
+    if (profile?.role === 'caregiver') {
+      setLoading(false);
+      return;
+    }
+
+    const { data: req } = await supabase.from('care_requests').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).single();
 
     if (req) {
       setRequest(req);
-
-      const { data: matchedHelpers } = await supabase
-        .from('profiles')
-        .select('id, first_name, zip_code, hourly_rate, experience_years')
-        .eq('role', 'caregiver')
-        .eq('zip_code', req.zip_code)
-        .limit(4);
-
+      const { data: matchedHelpers } = await supabase.from('profiles').select('id, first_name, zip_code, hourly_rate, experience_years').eq('role', 'caregiver').eq('zip_code', req.zip_code).limit(4);
       if (matchedHelpers) setHelpers(matchedHelpers);
     }
     setLoading(false);
@@ -89,24 +81,15 @@ export default function DashboardPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // 1. Guthaben in Supabase um 1 Stunde reduzieren
     const newBalance = hoursBalance - 1;
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({ hours_balance: newBalance })
-      .eq('id', user.id);
+    const { error: updateError } = await supabase.from('profiles').update({ hours_balance: newBalance }).eq('id', user.id);
 
     if (updateError) {
       alert('Fehler beim Buchen. Bitte versuche es erneut.');
       return;
     }
 
-    // 2. Buchungseintrag in Datenbank schreiben
-    await supabase.from('bookings').insert({
-      family_id: user.id,
-      caregiver_id: helper.id,
-      status: 'pending',
-    });
+    await supabase.from('bookings').insert({ family_id: user.id, caregiver_id: helper.id, status: 'pending' });
 
     setHoursBalance(newBalance);
     alert(`Anfrage für ${helper.first_name} wurde erfolgreich übermittelt! 1 Stunde wurde von deinem Guthaben abgezogen.`);
@@ -121,11 +104,45 @@ export default function DashboardPage() {
     return <div className="min-h-screen flex items-center justify-center font-bold text-gray-500">Dashboard wird geladen...</div>;
   }
 
+  // --- HELFER DASHBOARD ---
+  if (role === 'caregiver') {
+    return (
+      <div className="min-h-screen bg-[#FAFAF7] p-6 md:p-12 font-sans text-gray-900">
+        <div className="max-w-4xl mx-auto space-y-8">
+          
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#235347] text-white flex items-center justify-center">
+                <Heart className="w-5 h-5 fill-current" />
+              </div>
+              <h1 className="text-2xl font-black font-serif">Helfer-Dashboard</h1>
+            </div>
+            <div className="bg-white border border-gray-200 px-4 py-2 rounded-2xl text-xs font-bold text-gray-700 shadow-sm flex items-center gap-2">
+              <Euro className="w-4 h-4 text-[#235347]" />
+              <span>Verdienst: <strong className="text-[#235347]">{totalEarned} €</strong></span>
+            </div>
+          </div>
+
+          <div className="bg-white border border-emerald-100 rounded-3xl p-8 shadow-sm space-y-3 text-center">
+            <div className="w-12 h-12 bg-emerald-50 text-[#235347] rounded-2xl flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-black font-serif">Dein Profil ist aktiv</h3>
+            <p className="text-xs text-gray-500 max-w-sm mx-auto">
+              Du wirst potenziellen Kunden in deiner Region angezeigt. Sobald eine Buchung eingeht, wirst du benachrichtigt.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  // --- KUNDEN DASHBOARD ---
   return (
     <div className="min-h-screen bg-[#FAFAF7] p-6 md:p-12 font-sans text-gray-900">
       <div className="max-w-4xl mx-auto space-y-8">
         
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#235347] text-white flex items-center justify-center">
@@ -139,7 +156,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Status-Kachel */}
         {request && (
           <div className="bg-white border border-emerald-100 rounded-3xl p-6 shadow-sm space-y-2">
             <div className="flex items-center justify-between">
@@ -153,7 +169,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Helfer-Ergebnisse */}
         <div className="space-y-4">
           <h2 className="text-lg font-black font-serif flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-[#235347]" />
@@ -204,7 +219,6 @@ export default function DashboardPage() {
 
       </div>
 
-      {/* PAYWALL MODAL */}
       {showPaywall && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white max-w-md w-full rounded-[2.5rem] p-8 space-y-6 shadow-2xl relative">
@@ -219,7 +233,6 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-3">
-              {/* Starter-Paket */}
               <div 
                 onClick={() => setSelectedPackage('starter')}
                 className={`border-2 rounded-2xl p-4 transition cursor-pointer flex justify-between items-center ${
@@ -233,7 +246,6 @@ export default function DashboardPage() {
                 <div className="font-black text-lg text-[#235347]">99 €</div>
               </div>
 
-              {/* Flex-Paket */}
               <div 
                 onClick={() => setSelectedPackage('flex')}
                 className={`border-2 rounded-2xl p-4 transition cursor-pointer flex justify-between items-center relative ${

@@ -4,16 +4,18 @@ import { useState, Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { User, Mail, MapPin, Lock, Search, Heart, Handshake } from 'lucide-react';
+import { User, Mail, MapPin, Lock, Search, Heart, Handshake, ArrowLeft } from 'lucide-react';
 
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialRole = searchParams.get('role') || 'seeker';
+  const initialRole = searchParams.get('role');
 
-  const [role, setRole] = useState<'seeker' | 'relative' | 'caregiver'>(
-    initialRole === 'caregiver' ? 'caregiver' : initialRole === 'relative' ? 'relative' : 'seeker'
+  // Wenn keine Rolle über URL vorgegeben ist, starten wir mit null, damit die 2 großen Karten gezeigt werden
+  const [role, setRole] = useState<'seeker' | 'caregiver' | null>(
+    initialRole === 'caregiver' ? 'caregiver' : initialRole ? 'seeker' : null
   );
+
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [zip, setZip] = useState('');
@@ -23,6 +25,7 @@ function RegisterForm() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!role) return;
     setLoading(true);
     setErrorMsg(null);
 
@@ -48,66 +51,78 @@ function RegisterForm() {
             full_name: fullName,
             role: role,
             zip: zip,
+            hours_balance: role === 'seeker' ? 0 : undefined,
+            total_earned: role === 'caregiver' ? 0 : undefined,
           },
         ]);
 
-        if (profileError) throw profileError; // Wir werfen den Fehler jetzt, damit wir ihn sehen
+        if (profileError) throw profileError;
 
         router.push('/dashboard');
       }
     } catch (err: any) {
       console.error('Registrierungsfehler:', err);
-      // Hier wird der Fehler jetzt deutlich ausgegeben:
       setErrorMsg(err.message || JSON.stringify(err, null, 2));
     } finally {
       setLoading(false);
     }
   };
 
+  // SCHRITT 1: Die 2 großen Auswahl-Karten, wenn noch keine Rolle gewählt wurde
+  if (!role) {
+    return (
+      <div className="w-full max-w-xl space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-serif font-black text-[#0A2E23]">Wie möchtest du Helpify nutzen?</h2>
+          <p className="text-xs text-slate-500 font-medium">Wähle deinen Bereich aus, um fortzufahren.</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button
+            type="button"
+            onClick={() => setRole('seeker')}
+            className="p-8 bg-white border-2 border-emerald-950/10 hover:border-[#1B4D3E] rounded-[2rem] shadow-sm hover:shadow-md transition text-left space-y-4 cursor-pointer group"
+          >
+            <div className="w-12 h-12 bg-emerald-50 text-[#1B4D3E] rounded-2xl flex items-center justify-center group-hover:scale-110 transition">
+              <Search className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-[#0A2E23]">Hilfe finden</h3>
+              <p className="text-xs text-slate-500 mt-1">Ich suche Alltagsbegleitung für mich oder Angehörige.</p>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setRole('caregiver')}
+            className="p-8 bg-white border-2 border-emerald-950/10 hover:border-[#1B4D3E] rounded-[2rem] shadow-sm hover:shadow-md transition text-left space-y-4 cursor-pointer group"
+          >
+            <div className="w-12 h-12 bg-emerald-50 text-[#1B4D3E] rounded-2xl flex items-center justify-center group-hover:scale-110 transition">
+              <Handshake className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-[#0A2E23]">Als Helfer starten</h3>
+              <p className="text-xs text-slate-500 mt-1">Ich möchte flexibel Alltagshilfe anbieten und Geld verdienen.</p>
+            </div>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // SCHRITT 2: Das eigentliche Registrierungsformular nach Rollen-Auswahl
   return (
     <div className="w-full max-w-lg bg-white rounded-[2.5rem] p-6 sm:p-10 shadow-xl border border-slate-100 space-y-6">
       
-      {/* Rollen-Tab Selection */}
-      <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-100/80 rounded-2xl text-xs font-bold text-slate-600">
-        <button
-          type="button"
-          onClick={() => setRole('seeker')}
-          className={`py-3 px-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
-            role === 'seeker' 
-              ? 'bg-[#1B4D3E] text-white shadow-sm' 
-              : 'hover:text-slate-900'
-          }`}
-        >
-          <Search className="w-3.5 h-3.5" />
-          <span>Suchend</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setRole('relative')}
-          className={`py-3 px-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
-            role === 'relative' 
-              ? 'bg-[#1B4D3E] text-white shadow-sm' 
-              : 'hover:text-slate-900'
-          }`}
-        >
-          <Heart className="w-3.5 h-3.5" />
-          <span>Angehörige</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setRole('caregiver')}
-          className={`py-3 px-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
-            role === 'caregiver' 
-              ? 'bg-[#1B4D3E] text-white shadow-sm' 
-              : 'hover:text-slate-900'
-          }`}
-        >
-          <Handshake className="w-3.5 h-3.5" />
-          <span>Helfer</span>
-        </button>
-      </div>
+      {/* Zurück-Button zur Rollenauswahl */}
+      <button
+        type="button"
+        onClick={() => setRole(null)}
+        className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#1B4D3E] transition cursor-pointer"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>Bereich wechseln ({role === 'seeker' ? 'Hilfe finden' : 'Als Helfer'})</span>
+      </button>
 
       {errorMsg && (
         <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold whitespace-pre-wrap">
@@ -209,7 +224,6 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-[#FAFAF7] font-sans text-slate-800 flex flex-col justify-center items-center p-4 sm:p-6">
       
-      {/* Header / Logo Bereich */}
       <div className="flex flex-col items-center text-center mb-8 space-y-3">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="w-10 h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-md shrink-0">
