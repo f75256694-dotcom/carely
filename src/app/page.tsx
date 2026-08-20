@@ -15,14 +15,15 @@ import {
   Phone,
   Search,
   CheckCircle2,
-  Heart
+  Heart,
+  Smile,
+  Users
 } from 'lucide-react';
 
 export default function HomePage() {
   const [zipCode, setZipCode] = useState('');
   const [showImpressum, setShowImpressum] = useState(false);
   const [showDatenschutz, setShowDatenschutz] = useState(false);
-  const [imgError, setImgError] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#FAFAF7] font-sans text-slate-800 flex flex-col selection:bg-emerald-200">
@@ -75,24 +76,20 @@ export default function HomePage() {
             {/* Linker Bereich */}
             <div className="lg:col-span-7 space-y-6 sm:space-y-7 text-center lg:text-left">
               
-              {/* Trust Badge */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F0FDF4] border border-emerald-200/60 text-[#1B4D3E] text-xs font-semibold tracking-wide">
                 <ShieldCheck className="w-4 h-4 text-[#1B4D3E] shrink-0" />
                 <span>Geprüfte Alltagsbegleiter in deiner Nähe</span>
               </div>
 
-              {/* Knackige 2-zeilige Headline */}
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-medium text-[#1B4D3E] leading-[1.2] tracking-tight">
                 Herzliche Alltagshilfe. <br className="hidden sm:inline" />
                 <span className="italic font-normal text-emerald-800/80">Einfach, sicher & nah.</span>
               </h1>
 
-              {/* Subline */}
               <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto lg:mx-0 font-light leading-relaxed">
                 Wir vermitteln qualifizierte Alltagsbegleitung für Senioren – fürs Einkaufen, Spaziergänge, Haushalt oder liebevolle Gesellschaft.
               </p>
 
-              {/* PLZ-Eingabe / Conversion Card */}
               <div className="p-2 bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-200/80 max-w-md mx-auto lg:mx-0 flex flex-col sm:flex-row gap-2">
                 <div className="flex items-center gap-2 px-3 py-2 sm:py-0 flex-1">
                   <Search className="w-4 h-4 text-slate-400 shrink-0" />
@@ -114,7 +111,6 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Vertrauensnachweise */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-1 text-xs text-slate-600">
                 <span className="flex items-center gap-1.5 font-medium">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -132,28 +128,61 @@ export default function HomePage() {
 
             </div>
 
-            {/* Rechter Bild-Bereich: Einkaufen & Spaziergang im Alltag */}
+            {/* Rechter Bereich: BILD / HERO-CARD (Lokal oder als stilvolle Visuell-Card) */}
             <div className="lg:col-span-5 relative mt-4 lg:mt-0">
               <div className="relative mx-auto max-w-sm lg:max-w-none">
-                <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-xl border-4 border-white bg-emerald-100 flex items-center justify-center relative">
-                  {!imgError ? (
-                    <img 
-                      src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80" 
-                      alt="Seniorin beim Spaziergang und Einkaufen mit jungem Alltagsbegleiter" 
-                      className="w-full h-full object-cover"
-                      onError={() => setImgError(true)}
-                    />
-                  ) : (
-                    <div className="p-8 text-center space-y-3 text-[#1B4D3E]">
-                      <Heart className="w-16 h-16 mx-auto opacity-80" />
-                      <p className="font-serif font-bold text-lg">Geprüfte Begleitung</p>
-                      <p className="text-xs text-slate-600">Gemeinsam unterwegs im Alltag</p>
+                
+                {/* 
+                   HINWEIS: Sobald du ein eigenes Bild hast, lege es unter 'public/hero-image.jpg' ab 
+                   und tausche den Code unten einfach gegen:
+                   <img src="/hero-image.jpg" alt="Alltagshilfe" className="w-full h-full object-cover rounded-3xl" />
+                */}
+
+                <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-gradient-to-br from-emerald-50 via-teal-100/40 to-emerald-100 flex flex-col justify-between p-8 relative">
+                  
+                  {/* Deko Elemente im Hintergrund */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200/40 rounded-full blur-2xl pointer-events-none" />
+                  <div className="absolute bottom-10 left-0 w-32 h-32 bg-teal-200/40 rounded-full blur-2xl pointer-events-none" />
+
+                  {/* Top Badge */}
+                  <div className="flex items-center justify-between z-10">
+                    <span className="px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[11px] font-bold text-[#1B4D3E] shadow-xs">
+                      100% Keine Pflege
+                    </span>
+                    <div className="w-9 h-9 rounded-full bg-white/90 flex items-center justify-center text-emerald-600 shadow-xs">
+                      <Heart className="w-5 h-5 fill-emerald-500 text-emerald-500" />
                     </div>
-                  )}
+                  </div>
+
+                  {/* Hauptgrafik / Illustration */}
+                  <div className="my-auto text-center space-y-4 z-10 py-6">
+                    <div className="w-20 h-20 mx-auto rounded-3xl bg-white shadow-xl flex items-center justify-center text-[#1B4D3E] border border-emerald-100">
+                      <HeartHandshake className="w-10 h-10 text-[#1B4D3E]" />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="font-serif font-bold text-xl text-[#0A2E23]">Gemeinsam statt einsam</h3>
+                      <p className="text-xs text-slate-600 max-w-[220px] mx-auto leading-relaxed">
+                        Liebevolle Unterstützung bei Einkäufen, Spaziergängen & im Haushalt.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Highlights unten in der Karte */}
+                  <div className="grid grid-cols-2 gap-2 z-10">
+                    <div className="bg-white/80 backdrop-blur-md p-2.5 rounded-xl border border-white/60 text-center">
+                      <p className="text-xs font-bold text-[#0A2E23]">Einkaufen</p>
+                      <p className="text-[10px] text-slate-500">Entlastung im Alltag</p>
+                    </div>
+                    <div className="bg-white/80 backdrop-blur-md p-2.5 rounded-xl border border-white/60 text-center">
+                      <p className="text-xs font-bold text-[#0A2E23]">Begleitung</p>
+                      <p className="text-[10px] text-slate-500">Freizeit & Termine</p>
+                    </div>
+                  </div>
+
                 </div>
 
                 {/* Floating Trust Badge */}
-                <div className="absolute -bottom-4 left-4 right-4 sm:-left-6 sm:right-auto bg-white p-3.5 rounded-2xl shadow-lg border border-slate-100 flex items-center gap-3">
+                <div className="absolute -bottom-4 left-4 right-4 sm:-left-6 sm:right-auto bg-white p-3.5 rounded-2xl shadow-lg border border-slate-100 flex items-center gap-3 z-20">
                   <div className="p-2 bg-[#F0FDF4] rounded-xl text-[#1B4D3E] shrink-0">
                     <UserCheck className="w-5 h-5" />
                   </div>
@@ -162,6 +191,7 @@ export default function HomePage() {
                     <p className="text-[11px] text-slate-500">Persönlich geprüfte Helfer</p>
                   </div>
                 </div>
+
               </div>
             </div>
 
