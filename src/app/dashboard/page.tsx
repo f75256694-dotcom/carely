@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Heart, Clock, ShieldCheck, Lock, Sparkles, UserCheck, Euro, CheckCircle2 } from 'lucide-react';
+import { Clock, ShieldCheck, Lock, Sparkles, UserCheck, Euro, CheckCircle2 } from 'lucide-react';
 
 type CareRequest = {
   id: string;
@@ -59,7 +59,6 @@ export default function DashboardPage() {
       setTotalEarned(profile.total_earned || 0);
     }
 
-    // Wenn Helfer: Lade offene Aufträge für das Helfer-Dashboard
     if (profile?.role === 'caregiver') {
       const { data: jobs } = await supabase
         .from('care_requests')
@@ -73,7 +72,6 @@ export default function DashboardPage() {
       return;
     }
 
-    // Wenn Kunde: Lade Suchauftrag und passende Helfer
     const { data: req } = await supabase.from('care_requests').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).single();
 
     if (req) {
@@ -126,24 +124,35 @@ export default function DashboardPage() {
           
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#235347] text-white flex items-center justify-center">
-                <Heart className="w-5 h-5 fill-current" />
+              <div className="w-10 h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-md shrink-0">
+                <svg 
+                  className="w-5 h-5 text-[#86EFAC]" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                  <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
+                </svg>
               </div>
-              <h1 className="text-2xl font-black font-serif">Helfer-Dashboard</h1>
+              <h1 className="text-2xl font-black font-serif text-[#0A2E23]">Helfer-Dashboard</h1>
             </div>
             <div className="bg-white border border-gray-200 px-4 py-2 rounded-2xl text-xs font-bold text-gray-700 shadow-sm flex items-center gap-2">
-              <Euro className="w-4 h-4 text-[#235347]" />
-              <span>Verdienst: <strong className="text-[#235347]">{totalEarned} €</strong></span>
+              <Euro className="w-4 h-4 text-[#1B4D3E]" />
+              <span>Verdienst: <strong className="text-[#1B4D3E]">{totalEarned} €</strong></span>
             </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-4">
             <div className="bg-white border border-emerald-100 rounded-3xl p-6 shadow-sm space-y-2 md:col-span-1">
               <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Offene Anfragen</span>
-              <div className="text-3xl font-black text-[#235347]">{availableJobs.length}</div>
+              <div className="text-3xl font-black text-[#1B4D3E]">{availableJobs.length}</div>
               <p className="text-xs text-gray-500">Verfügbare Einsätze in deiner Region</p>
             </div>
-            <div className="bg-[#235347] text-white rounded-3xl p-6 shadow-sm space-y-2 md:col-span-2 flex flex-col justify-between">
+            <div className="bg-[#1B4D3E] text-white rounded-3xl p-6 shadow-sm space-y-2 md:col-span-2 flex flex-col justify-between">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">Status</span>
                 <h3 className="text-lg font-bold">Dein Profil ist aktiv & sichtbar</h3>
@@ -153,8 +162,8 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-lg font-black font-serif flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#235347]" />
+            <h2 className="text-lg font-black font-serif flex items-center gap-2 text-[#0A2E23]">
+              <Sparkles className="w-5 h-5 text-[#1B4D3E]" />
               Verfügbare Aufträge in deiner Umgebung
             </h2>
 
@@ -173,7 +182,7 @@ export default function DashboardPage() {
                     </div>
                     <button
                       onClick={() => alert(`Du hast Interesse an dem Auftrag (${job.district || job.zip_code}) bekundet!`)}
-                      className="w-full md:w-auto px-5 py-3 rounded-2xl bg-[#235347] hover:bg-[#1b4238] text-white font-bold text-xs transition shadow-md cursor-pointer"
+                      className="w-full md:w-auto px-5 py-3 rounded-2xl bg-[#1B4D3E] hover:bg-[#13382d] text-white font-bold text-xs transition shadow-md cursor-pointer"
                     >
                       Auftrag anfragen
                     </button>
@@ -182,7 +191,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="bg-white border border-gray-200 rounded-3xl p-8 text-center space-y-3">
-                <div className="w-12 h-12 bg-emerald-50 text-[#235347] rounded-2xl flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 bg-emerald-50 text-[#1B4D3E] rounded-2xl flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <h3 className="font-extrabold text-base">Aktuell keine offenen Anfragen</h3>
@@ -205,21 +214,32 @@ export default function DashboardPage() {
         
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#235347] text-white flex items-center justify-center">
-              <Heart className="w-5 h-5 fill-current" />
+            <div className="w-10 h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-md shrink-0">
+              <svg 
+                className="w-5 h-5 text-[#86EFAC]" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2.2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
+              </svg>
             </div>
-            <h1 className="text-2xl font-black font-serif">Mein Pflege-Dashboard</h1>
+            <h1 className="text-2xl font-black font-serif text-[#0A2E23]">Mein Pflege-Dashboard</h1>
           </div>
           <div className="bg-white border border-gray-200 px-4 py-2 rounded-2xl text-xs font-bold text-gray-700 shadow-sm flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#235347]" />
-            <span>Guthaben: <strong className="text-[#235347]">{hoursBalance} Std.</strong></span>
+            <Clock className="w-4 h-4 text-[#1B4D3E]" />
+            <span>Guthaben: <strong className="text-[#1B4D3E]">{hoursBalance} Std.</strong></span>
           </div>
         </div>
 
         {request && (
           <div className="bg-white border border-emerald-100 rounded-3xl p-6 shadow-sm space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#235347]">Suchauftrag</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#1B4D3E]">Suchauftrag</span>
               <span className="bg-amber-100 text-amber-800 text-xs font-extrabold px-3 py-1 rounded-full flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
                 Matching aktiv
@@ -230,8 +250,8 @@ export default function DashboardPage() {
         )}
 
         <div className="space-y-4">
-          <h2 className="text-lg font-black font-serif flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[#235347]" />
+          <h2 className="text-lg font-black font-serif flex items-center gap-2 text-[#0A2E23]">
+            <Sparkles className="w-5 h-5 text-[#1B4D3E]" />
             Verfügbare Helfer in deiner Nähe
           </h2>
 
@@ -250,13 +270,13 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="text-xs text-gray-600 flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-[#235347]" />
+                    <ShieldCheck className="w-4 h-4 text-[#1B4D3E]" />
                     <span>{helper.experience_years ? `${helper.experience_years} Jahre Erfahrung` : 'Geprüftes Profil'}</span>
                   </div>
 
                   <button
                     onClick={() => handleBookHelper(helper)}
-                    className="w-full py-3 rounded-2xl bg-[#235347] hover:bg-[#1b4238] text-white font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    className="w-full py-3 rounded-2xl bg-[#1B4D3E] hover:bg-[#13382d] text-white font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
                   >
                     <UserCheck className="w-4 h-4" />
                     <span>Erstgespräch buchen</span>
@@ -283,7 +303,7 @@ export default function DashboardPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white max-w-md w-full rounded-[2.5rem] p-8 space-y-6 shadow-2xl relative">
             <div className="text-center space-y-2">
-              <div className="w-12 h-12 bg-emerald-50 text-[#235347] rounded-2xl flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 bg-emerald-50 text-[#1B4D3E] rounded-2xl flex items-center justify-center mx-auto">
                 <Lock className="w-6 h-6" />
               </div>
               <h3 className="text-2xl font-black font-serif">Guthaben aktivieren</h3>
@@ -296,37 +316,37 @@ export default function DashboardPage() {
               <div 
                 onClick={() => setSelectedPackage('starter')}
                 className={`border-2 rounded-2xl p-4 transition cursor-pointer flex justify-between items-center ${
-                  selectedPackage === 'starter' ? 'border-[#235347] bg-emerald-50/20' : 'border-gray-200 hover:border-gray-300'
+                  selectedPackage === 'starter' ? 'border-[#1B4D3E] bg-emerald-50/20' : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
                 <div>
                   <div className="font-extrabold text-sm text-gray-900">Starter-Paket (4 Std.)</div>
                   <div className="text-xs text-gray-500">Zum Kennenlernen</div>
                 </div>
-                <div className="font-black text-lg text-[#235347]">99 €</div>
+                <div className="font-black text-lg text-[#1B4D3E]">99 €</div>
               </div>
 
               <div 
                 onClick={() => setSelectedPackage('flex')}
                 className={`border-2 rounded-2xl p-4 transition cursor-pointer flex justify-between items-center relative ${
-                  selectedPackage === 'flex' ? 'border-[#235347] bg-emerald-50/30' : 'border-gray-200 hover:border-gray-300'
+                  selectedPackage === 'flex' ? 'border-[#1B4D3E] bg-emerald-50/30' : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <span className="absolute -top-2.5 right-4 bg-[#235347] text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
+                <span className="absolute -top-2.5 right-4 bg-[#1B4D3E] text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
                   Bestseller
                 </span>
                 <div>
                   <div className="font-extrabold text-sm text-gray-900">Flex-Paket (10 Std.)</div>
                   <div className="text-xs text-gray-500">Regelmäßige Betreuung</div>
                 </div>
-                <div className="font-black text-lg text-[#235347]">239 €</div>
+                <div className="font-black text-lg text-[#1B4D3E]">239 €</div>
               </div>
             </div>
 
             <div className="space-y-2">
               <button
                 onClick={handleBuy}
-                className="w-full py-4 rounded-2xl bg-[#235347] hover:bg-[#1b4238] text-white font-bold text-sm transition shadow-lg cursor-pointer"
+                className="w-full py-4 rounded-2xl bg-[#1B4D3E] hover:bg-[#13382d] text-white font-bold text-sm transition shadow-lg cursor-pointer"
               >
                 Guthaben kaufen
               </button>
