@@ -8,9 +8,6 @@ import {
   UserCheck, 
   HeartHandshake, 
   Lock, 
-  X, 
-  Building2, 
-  FileText, 
   Mail, 
   Phone,
   Search,
@@ -19,8 +16,6 @@ import {
 
 export default function HomePage() {
   const [zipCode, setZipCode] = useState('');
-  const [showImpressum, setShowImpressum] = useState(false);
-  const [showDatenschutz, setShowDatenschutz] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#FAFAF7] font-sans text-slate-800 flex flex-col selection:bg-emerald-200">
@@ -44,7 +39,7 @@ export default function HomePage() {
           </div>
           <div className="flex flex-col">
             <span className="text-xl sm:text-2xl font-black tracking-tight text-[#0A2E23] font-serif leading-none">Helpify</span>
-            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-700 tracking-wider uppercase mt-0.5">Alltagshilfe neu gedacht</span>
+            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-700 tracking-wider uppercase mt-0.5">Pioniere der Alltagshilfe</span>
           </div>
         </div>
 
@@ -71,29 +66,25 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Zentrierter Hero-Bereich ohne rechtes Bild/Element */}
+      {/* Hero-Bereich */}
       <main className="flex-1">
         <section className="px-4 sm:px-8 lg:px-12 py-12 sm:py-20 max-w-4xl mx-auto text-center">
           <div className="space-y-6 sm:space-y-8">
             
-            {/* Trust Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F0FDF4] border border-emerald-200/60 text-[#1B4D3E] text-xs font-semibold tracking-wide">
               <ShieldCheck className="w-4 h-4 text-[#1B4D3E] shrink-0" />
               <span>Geprüfte Alltagsbegleiter in deiner Nähe</span>
             </div>
 
-            {/* Headline */}
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium text-[#1B4D3E] leading-[1.15] tracking-tight max-w-3xl mx-auto">
               Herzliche Alltagshilfe. <br />
               <span className="italic font-normal text-emerald-800/80">Einfach, sicher & nah.</span>
             </h1>
 
-            {/* Subline */}
             <p className="text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto font-light leading-relaxed">
               Wir vermitteln qualifizierte Alltagsbegleitung – fürs Einkaufen, Spaziergänge, Haushalt oder liebevolle Gesellschaft.
             </p>
 
-            {/* PLZ-Suche */}
             <div className="p-2 bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-200/80 max-w-md mx-auto flex flex-col sm:flex-row gap-2">
               <div className="flex items-center gap-2 px-3 py-2.5 sm:py-0 flex-1">
                 <Search className="w-4 h-4 text-slate-400 shrink-0" />
@@ -115,7 +106,6 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* USPs darunter */}
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-2 text-xs text-slate-600">
               <span className="flex items-center gap-1.5 font-medium">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -138,7 +128,7 @@ export default function HomePage() {
         <section className="py-12 sm:py-16 bg-white border-y border-gray-200/80 px-4 sm:px-8">
           <div className="max-w-5xl mx-auto space-y-8 sm:space-y-12">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#0A2E23]">Alltagshilfe ganz nach ihren Bedürfnissen</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#0A2E23]">Alltagshilfe – ganz nach deinen Bedürfnissen</h2>
               <p className="text-slate-600 max-w-xl mx-auto text-xs sm:text-sm">
                 Keine medizinische Pflege – sondern echte Entlastung im täglichen Leben.
               </p>
@@ -213,16 +203,10 @@ export default function HomePage() {
           <div className="space-y-2.5">
             <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Rechtliches</h4>
             <ul className="space-y-2 text-slate-400">
-              <li>
-                <button onClick={() => setShowImpressum(true)} className="hover:text-white transition text-left cursor-pointer">
-                  Impressum
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setShowDatenschutz(true)} className="hover:text-white transition text-left cursor-pointer">
-                  Datenschutz & DSGVO
-                </button>
-              </li>
+              <li><Link href="/imprint" className="hover:text-white transition block">Impressum</Link></li>
+              <li><Link href="/datenschutz" className="hover:text-white transition block">Datenschutz & DSGVO</Link></li>
+              <li><Link href="/AGB" className="hover:text-white transition block">AGB</Link></li>
+              <li><Link href="/widerruf" className="hover:text-white transition block">Widerrufsbelehrung</Link></li>
             </ul>
           </div>
 
@@ -239,55 +223,6 @@ export default function HomePage() {
           <p>© {new Date().getFullYear()} Helpify GmbH. Alle Rechte vorbehalten.</p>
         </div>
       </footer>
-
-      {/* Impressum Modal */}
-      {showImpressum && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-4 shadow-2xl relative border border-gray-200">
-            <button 
-              onClick={() => setShowImpressum(false)}
-              className="absolute top-5 right-5 p-2 rounded-full hover:bg-gray-100 text-slate-500 transition cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3">
-              <Building2 className="w-5 h-5 text-[#1B4D3E]" />
-              <h2 className="text-xl font-bold font-serif text-[#0A2E23]">Impressum</h2>
-            </div>
-
-            <div className="space-y-3 text-xs text-slate-600 leading-relaxed">
-              <div>
-                <h3 className="font-bold text-slate-900">Angaben gemäß § 5 DDG</h3>
-                <p>Helpify GmbH (i.G.)<br />Musterstraße 123, 80331 München</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Datenschutz Modal */}
-      {showDatenschutz && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-4 shadow-2xl relative border border-gray-200">
-            <button 
-              onClick={() => setShowDatenschutz(false)}
-              className="absolute top-5 right-5 p-2 rounded-full hover:bg-gray-100 text-slate-500 transition cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3">
-              <FileText className="w-5 h-5 text-[#1B4D3E]" />
-              <h2 className="text-xl font-bold font-serif text-[#0A2E23]">Datenschutz (DSGVO)</h2>
-            </div>
-
-            <div className="space-y-3 text-xs text-slate-600 leading-relaxed">
-              <p>Wir verarbeiten personenbezogene Daten streng gemäß den Bestimmungen der DSGVO.</p>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );
