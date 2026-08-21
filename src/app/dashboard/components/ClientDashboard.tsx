@@ -40,7 +40,7 @@ export default function ClientDashboard({ user }: ClientDashboardProps) {
     async function fetchUserData() {
       if (!user?.id) return;
 
-      // 1. Guthaben holen
+      // 1. Guthaben holen[cite: 5]
       const { data: profile } = await supabase
         .from('profiles')
         .select('total_hours, used_hours')
@@ -54,7 +54,7 @@ export default function ClientDashboard({ user }: ClientDashboardProps) {
         });
       }
 
-      // 2. Offene Anfragen holen
+      // 2. Offene Anfragen holen[cite: 5]
       const { data: requests } = await supabase
         .from('care_requests')
         .select('*')
@@ -114,7 +114,7 @@ export default function ClientDashboard({ user }: ClientDashboardProps) {
       let currentUserEmail = user?.email || formData.email;
       let currentUserName = user?.name || formData.name;
 
-      // Falls uneingeloggt -> Bei Supabase registrieren (Triggert profiles-Eintrag)
+      // Falls uneingeloggt -> Bei Supabase registrieren (Triggert profiles-Eintrag)[cite: 5]
       if (!currentUserId) {
         if (!formData.password) throw new Error('Bitte gib ein Passwort für deinen Account an.');
         
@@ -138,7 +138,7 @@ export default function ClientDashboard({ user }: ClientDashboardProps) {
         finalServices.push(`Sonstiges: ${formData.otherServiceText.trim()}`);
       }
 
-      // Anfrage speichern mit status pending_matching
+      // Anfrage speichern mit status pending_matching[cite: 5]
       const { error: dbError } = await supabase.from('care_requests').insert([{
         user_id: currentUserId,
         role: 'care_seeker',
@@ -155,7 +155,7 @@ export default function ClientDashboard({ user }: ClientDashboardProps) {
 
       if (dbError) throw dbError;
 
-      // Admin-Benachrichtigung
+      // Admin-Benachrichtigung[cite: 5]
       await fetch('/api/notify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -187,6 +187,19 @@ export default function ClientDashboard({ user }: ClientDashboardProps) {
   return (
     <main className="min-h-screen bg-slate-50 p-6 sm:p-10">
       <div className="max-w-4xl mx-auto mb-8">
+        <div className="flex items-center gap-3 mb-3">
+          {/* Logo: Hände, die ein Herz formen */}
+          <div className="w-10 h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-sm shrink-0">
+            <svg className="w-6 h-6 text-[#86EFAC]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
+            </svg>
+          </div>
+          <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider">
+            Klienten-Portal
+          </span>
+        </div>
+
         <h1 className="text-3xl font-extrabold text-slate-900 mb-2">
           Willkommen zurück{user?.name ? `, ${user.name}` : ''}! 👋
         </h1>
