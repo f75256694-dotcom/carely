@@ -1,180 +1,334 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, Suspense } from 'react';
+import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { 
-  ShieldCheck, ArrowRight, UserCheck, HeartHandshake, 
-  Lock, Mail, Phone, Search, CheckCircle2 
-} from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { User, Mail, MapPin, Lock, Search, Handshake, ArrowLeft } from 'lucide-react';
 
-// Reusable Logo Icon
-function HelpifyLogo({ size = "md" }: { size?: "sm" | "md" }) {
-  const isSm = size === "sm";
+function RegisterForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialRole = searchParams.get('role');
+
+  const [role, setRole] = useState<'seeker' | 'caregiver' | null>(
+    initialRole === 'caregiver' ? 'caregiver' : initialRole ? 'seeker' : null
+  );
+
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [zip, setZip] = useState('');
+  const [password, setPassword] = useState('');
+  const [hasInsurance, setHasInsurance] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!role) return;
+
+    if (!termsAccepted) {
+      setErrorMsg('Bitte akzeptiere die AGB und die Datenschutzerklärung, um dich zu registrieren.');
+      return;
+    }
+
+    if (role === 'caregiver' && !hasInsurance) {
+      setErrorMsg('Bitte bestätige deine Privathaftpflichtversicherung, um fortzufahren.');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg(null);
+
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            role: role,
+            zip: zip,
+          },
+        },
+      });
+
+      if (authError) throw authError;
+
+      if (authData?.user) {
+        const { error: profileError } = await supabase.from('profiles').upsert([
+          {
+            id: authData.user.id,
+            full_name: fullName,
+            role: role,
+            zip: zip,
+            has_insurance_confirmed: role === 'caregiver' ? hasInsurance : false,
+            terms_accepted: termsAccepted,
+            hours_balance: role === 'seeker' ? 0 : undefined,
+            total_earned: role === 'caregiver' ? 0 : undefined,
+          },
+        ]);
+
+        if (profileError) throw profileError;
+
+        router.push('/dashboard');
+      }
+    } catch (err: any) {
+      console.error('Registrierungsfehler:', err);
+      setErrorMsg(err.message || JSON.stringify(err, null, 2));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!role) {
+    return (
+      <div className="w-full max-w-xl space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-serif font-black text-[#0A2E23]">Wie möchtest du Helpify nutzen?</h2>
+          <p className="text-xs text-slate-500 font-medium">Wähle deinen Bereich aus, um fortzufahren.</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button
+            type="button"
+            onClick={() => setRole('seeker')}
+            className="p-8 bg-white border-2 border-emerald-950/10 hover:border-[#1B4D3E] rounded-[2rem] shadow-sm hover:shadow-md transition text-left space-y-4 cursor-pointer group"
+          >
+            <div className="w-12 h-12 bg-emerald-50 text-[#1B4D3E] rounded-2xl flex items-center justify-center group-hover:scale-110 transition">
+              <Search className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-[#0A2E23]">Hilfe finden</h3>
+              <p className="text-xs text-slate-500 mt-1">Ich suche Alltagsbegleitung für mich oder Angehörige.</p>
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setRole('caregiver')}
+            className="p-8 bg-white border-2 border-emerald-950/10 hover:border-[#1B4D3E] rounded-[2rem] shadow-sm hover:shadow-md transition text-left space-y-4 cursor-pointer group"
+          >
+            <div className="w-12 h-12 bg-emerald-50 text-[#1B4D3E] rounded-2xl flex items-center justify-center group-hover:scale-110 transition">
+              <Handshake className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-[#0A2E23]">Als selbständiger Alltagshelfer starten</h3>
+              <p className="text-xs text-slate-500 mt-1">Bestimme deine Zeiten selbst – inkl. einfachem Start-Guide.</p>
+            </div>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-md shrink-0 ${isSm ? 'w-8 h-8' : 'w-9 h-9 sm:w-10 sm:h-10'}`}>
-      <svg className={`${isSm ? 'w-4 h-4' : 'w-5 h-5 sm:w-6 sm:h-6'} text-[#86EFAC]`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-        <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
-      </svg>
+    <div className="w-full max-w-lg bg-white rounded-[2.5rem] p-6 sm:p-10 shadow-xl border border-slate-100 space-y-6">
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => setRole(null)}
+          className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#1B4D3E] transition cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Bereich wechseln</span>
+        </button>
+        <span className="text-[11px] font-extrabold uppercase tracking-wider bg-emerald-50 text-[#1B4D3E] px-3 py-1 rounded-full">
+          {role === 'seeker' ? 'Hilfe finden' : 'Selbstständiger Helfer'}
+        </span>
+      </div>
+
+      {errorMsg && (
+        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold whitespace-pre-wrap">
+          {errorMsg}
+        </div>
+      )}
+
+      {role === 'caregiver' && (
+        <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-slate-700 text-xs space-y-1">
+          <p className="font-bold text-[#0A2E23]">💡 Gut zu wissen:</p>
+          <p className="text-slate-600">
+            Als selbstständiger Helfer meldest du kurz ein freies Gewerbe an (Personenbetreuung). 
+            Keine Sorge: Wir unterstützen dich direkt nach der Registrierung via WhatsApp Schritt für Schritt dabei!
+          </p>
+        </div>
+      )}
+
+      <form onSubmit={handleRegister} className="space-y-4">
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">Vollständiger Name</label>
+          <div className="relative">
+            <User className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              required
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder={role === 'caregiver' ? 'Anna Huber' : 'Maria Schmidt'}
+              className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">E-Mail-Adresse</label>
+          <div className="relative">
+            <Mail className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@beispiel.de"
+              className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">Postleitzahl</label>
+          <div className="relative">
+            <MapPin className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              maxLength={5}
+              required
+              value={zip}
+              onChange={(e) => setZip(e.target.value)}
+              placeholder="1170"
+              className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">Passwort</label>
+          <div className="relative">
+            <Lock className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="password"
+              required
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Mindestens 6 Zeichen"
+              className="w-full pl-11 pr-5 py-3.5 rounded-2xl bg-[#FAFAF7] border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition"
+            />
+          </div>
+        </div>
+
+        {/* Haftpflicht-Checkbox */}
+        {role === 'caregiver' && (
+          <div className="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 text-xs">
+            <label className="flex items-start gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                required
+                checked={hasInsurance}
+                onChange={(e) => setHasInsurance(e.target.checked)}
+                className="mt-0.5 rounded text-[#1B4D3E] focus:ring-[#1B4D3E] w-4 h-4 cursor-pointer shrink-0 accent-[#1B4D3E]"
+              />
+              <span className="text-slate-700 leading-tight">
+                Ich bestätige, dass ich über eine aufrechte Privathaftpflichtversicherung (z. B. im Rahmen einer Haushaltsversicherung) verfüge.
+              </span>
+            </label>
+          </div>
+        )}
+
+        {/* Rechtliche Bestätigung */}
+        <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs">
+          <label className="flex items-start gap-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              required
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="mt-0.5 rounded text-[#1B4D3E] focus:ring-[#1B4D3E] w-4 h-4 cursor-pointer shrink-0 accent-[#1B4D3E]"
+            />
+            <span className="text-slate-600 leading-tight">
+              Ich akzeptiere die{' '}
+              <Link 
+                href="/AGB" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-[#1B4D3E] font-bold underline hover:text-[#13382d]"
+              >
+                AGB
+              </Link>{' '}
+              und habe die{' '}
+              <Link 
+                href="/datenschutz" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-[#1B4D3E] font-bold underline hover:text-[#13382d]"
+              >
+                Datenschutzerklärung
+              </Link>{' '}
+              gelesen.
+            </span>
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-4 mt-2 rounded-2xl bg-[#1B4D3E] hover:bg-[#13382d] text-white font-bold text-base shadow-lg transition disabled:opacity-50 cursor-pointer"
+        >
+          {loading
+            ? 'Konto wird erstellt...'
+            : role === 'caregiver'
+            ? 'Kostenlos als Helfer registrieren'
+            : 'Kostenlos registrieren'}
+        </button>
+      </form>
+
+      <div className="text-center pt-2">
+        <p className="text-xs text-slate-600 font-medium">
+          Bereits ein Konto?{' '}
+          <Link href="/login" className="text-[#1B4D3E] font-bold hover:underline">
+            Hier anmelden
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
 
-export default function HomePage() {
-  const [zipCode, setZipCode] = useState('');
-  const router = useRouter();
-
-  const handleSearch = (e: FormEvent) => {
-    e.preventDefault();
-    const cleanZip = zipCode.trim();
-    router.push(cleanZip ? `/funnel?zip=${encodeURIComponent(cleanZip)}` : '/funnel');
-  };
-
+export default function RegisterPage() {
   return (
-    <div className="min-h-screen bg-[#FAFAF7] font-sans text-slate-800 flex flex-col selection:bg-emerald-200">
-      <header className="w-full py-3.5 px-4 sm:px-8 lg:px-12 flex items-center justify-between border-b border-gray-200/60 bg-white/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="flex items-center gap-2.5">
-          <HelpifyLogo />
-          <div className="flex flex-col">
-            <span className="text-xl sm:text-2xl font-black tracking-tight text-[#0A2E23] font-serif leading-none">Helpify</span>
-            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-700 tracking-wider uppercase mt-0.5">Senioren & Alltagshilfe</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1.5 sm:gap-3">
-          <Link href="/login" className="text-xs sm:text-sm font-bold text-slate-700 hover:text-[#1B4D3E] transition px-2.5 py-2">
-            Anmelden
-          </Link>
-          <Link href="/register" className="text-xs sm:text-sm font-bold text-slate-700 hover:text-[#1B4D3E] transition px-2.5 py-2 border border-slate-200 rounded-xl hover:bg-slate-50">
-            Registrieren
-          </Link>
-          <Link href="/funnel" className="bg-[#1B4D3E] hover:bg-[#13382d] text-white text-xs sm:text-sm font-bold px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl transition shadow-md flex items-center gap-1.5">
-            <span>Hilfe finden</span>
-            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          </Link>
-        </div>
-      </header>
-
-      <main className="flex-1">
-        <section className="px-4 sm:px-8 lg:px-12 py-12 sm:py-20 max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F0FDF4] border border-emerald-200/60 text-[#1B4D3E] text-xs font-semibold tracking-wide">
-            <ShieldCheck className="w-4 h-4 text-[#1B4D3E] shrink-0" />
-            <span>Geprüfte Alltagsbegleiter in deiner Nähe</span>
-          </div>
-
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-medium text-[#1B4D3E] leading-[1.15] tracking-tight max-w-3xl mx-auto">
-            Herzliche Alltagshilfe. <br />
-            <span className="italic font-normal text-emerald-800/80">Einfach, sicher & nah.</span>
-          </h1>
-
-          <p className="text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto font-light leading-relaxed">
-            Wir vermitteln qualifizierte Alltagsbegleitung für Senioren – fürs Einkaufen, Spaziergänge, Haushalt oder liebevolle Gesellschaft.
-          </p>
-
-          {/* Formular-Optimierung für Enter-Taste */}
-          <form onSubmit={handleSearch} className="p-2 bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-200/80 max-w-md mx-auto flex flex-col sm:flex-row gap-2">
-            <div className="flex items-center gap-2 px-3 py-2.5 sm:py-0 flex-1">
-              <Search className="w-4 h-4 text-slate-400 shrink-0" />
-              <input 
-                type="text" 
-                maxLength={5}
-                value={zipCode}
-                onChange={(e) => setZipCode(e.target.value)}
-                placeholder="Deine PLZ eingeben..." 
-                className="w-full bg-transparent text-slate-800 placeholder-slate-400 focus:outline-none text-sm font-medium"
-              />
-            </div>
-            <button 
-              type="submit"
-              className="bg-[#1B4D3E] hover:bg-[#143a2e] text-white font-bold text-sm px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md active:scale-[0.98] cursor-pointer"
+    <div className="min-h-screen bg-[#FAFAF7] font-sans text-slate-800 flex flex-col justify-center items-center p-4 sm:p-6">
+      <div className="flex flex-col items-center text-center mb-8 space-y-3">
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="w-10 h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-md shrink-0">
+            <svg 
+              className="w-6 h-6 text-[#86EFAC]" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
             >
-              <span>Helfer finden</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-2 text-xs text-slate-600">
-            <span className="flex items-center gap-1.5 font-medium"><CheckCircle2 className="w-4 h-4 text-emerald-600" />Identität geprüft</span>
-            <span className="flex items-center gap-1.5 font-medium"><CheckCircle2 className="w-4 h-4 text-emerald-600" />Keine Kündigungsfrist</span>
-            <span className="flex items-center gap-1.5 font-medium"><CheckCircle2 className="w-4 h-4 text-emerald-600" />Unverbindliche Anfrage</span>
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              <path d="M12 5 9.04 7.96a2.17 2.17 0 0 0 0 3.08c.82.82 2.13.85 3 .07l2.07-1.9a2.82 2.82 0 0 1 3.79 0l2.96 2.66"/>
+            </svg>
           </div>
-        </section>
-
-        <section className="py-12 sm:py-16 bg-white border-y border-gray-200/80 px-4 sm:px-8">
-          <div className="max-w-5xl mx-auto space-y-8 sm:space-y-12">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#0A2E23]">Alltagshilfe nach deinen Bedürfnissen</h2>
-              <p className="text-slate-600 max-w-xl mx-auto text-xs sm:text-sm">Keine medizinische Pflege – sondern echte Entlastung im täglichen Leben.</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="bg-[#FAFAF7] p-5 sm:p-6 rounded-2xl border border-gray-200/70 space-y-2.5">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-[#1B4D3E] flex items-center justify-center font-bold"><UserCheck className="w-5 h-5" /></div>
-                <h3 className="text-base font-bold text-[#0A2E23]">Einkauf & Haushalt</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">Unterstützung beim Tragen schwerer Taschen, Vorbereitung von Mahlzeiten und im Haushalt.</p>
-              </div>
-
-              <div className="bg-[#FAFAF7] p-5 sm:p-6 rounded-2xl border border-gray-200/70 space-y-2.5">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-[#1B4D3E] flex items-center justify-center font-bold"><HeartHandshake className="w-5 h-5" /></div>
-                <h3 className="text-base font-bold text-[#0A2E23]">Gesellschaft & Freizeit</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">Gemeinsame Spaziergänge an der frischen Luft, Gespräche oder Begleitung zu Terminen.</p>
-              </div>
-
-              <div className="bg-[#FAFAF7] p-5 sm:p-6 rounded-2xl border border-gray-200/70 space-y-2.5">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-[#1B4D3E] flex items-center justify-center font-bold"><ShieldCheck className="w-5 h-5" /></div>
-                <h3 className="text-base font-bold text-[#0A2E23]">Verlässlich & Flexibel</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">Flexible Termine ohne Aboverpflichtung – genau dann, wenn Hilfe gebraucht wird.</p>
-              </div>
-            </div>
+          <div className="flex flex-col text-left">
+            <span className="text-2xl font-black tracking-tight text-[#0A2E23] font-serif leading-none">Helpify</span>
+            <span className="text-[10px] font-bold text-emerald-700 tracking-wider uppercase mt-0.5">Senioren & Alltagshilfe</span>
           </div>
-        </section>
-      </main>
+        </Link>
 
-      <footer className="bg-[#0A2E23] text-slate-300 pt-12 pb-8 px-4 sm:px-8 border-t border-emerald-900">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-8 border-b border-emerald-900/60 text-xs">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <HelpifyLogo size="sm" />
-              <span className="text-lg font-bold font-serif text-white">Helpify</span>
-            </div>
-            <p className="text-slate-400 leading-relaxed">Deine Plattform für Alltagshilfe und Begleitung im Alter.</p>
-            <div className="flex items-center gap-1.5 text-emerald-400 font-medium">
-              <Lock className="w-3.5 h-3.5" /> 256-Bit SSL-Verschlüsselt
-            </div>
-          </div>
-
-          <div className="space-y-2.5">
-            <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Plattform</h4>
-            <ul className="space-y-2 text-slate-400">
-              <li><Link href="/funnel" className="hover:text-white transition">Helfer suchen</Link></li>
-              <li><Link href="/register?role=caregiver" className="hover:text-white transition">Helfer werden</Link></li>
-              <li><Link href="/login" className="hover:text-white transition">Anmelden</Link></li>
-            </ul>
-          </div>
-
-          <div className="space-y-2.5">
-            <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Rechtliches</h4>
-            <ul className="space-y-2 text-slate-400">
-              <li><Link href="/imprint" className="hover:text-white transition">Impressum</Link></li>
-              <li><Link href="/agb" className="hover:text-white transition">AGB</Link></li>
-              <li><Link href="/datenschutz" className="hover:text-white transition">Datenschutz & DSGVO</Link></li>
-            </ul>
-          </div>
-
-          <div className="space-y-2.5">
-            <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Kontakt</h4>
-            <div className="text-slate-400 space-y-1.5">
-              <p className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-emerald-400" /> office@helpifyservices.at</p>
-              <p className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-emerald-400" /> +43 676 ...</p>
-            </div>
-          </div>
+        <div className="pt-2">
+          <h1 className="text-3xl font-serif font-black text-[#0A2E23] tracking-tight">Konto erstellen</h1>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">Anfrage speichern & passende Helfer direkt matchen.</p>
         </div>
+      </div>
 
-        <div className="max-w-6xl mx-auto pt-6 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-500 gap-2 text-center sm:text-left">
-          <p>© {new Date().getFullYear()} Helpify. Alle Rechte vorbehalten.</p>
-        </div>
-      </footer>
+      <Suspense fallback={<div className="text-center p-8 text-slate-500 font-medium">Laden...</div>}>
+        <RegisterForm />
+      </Suspense>
     </div>
   );
 }
