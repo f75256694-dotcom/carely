@@ -17,7 +17,6 @@ export default function CaregiverDashboard({ user }: CaregiverDashboardProps) {
 
   useEffect(() => {
     async function fetchJobs() {
-      // Offene Anfragen aus allen Bezirken laden[cite: 4]
       const { data, error } = await supabase
         .from('care_requests')
         .select('*')
@@ -34,13 +33,14 @@ export default function CaregiverDashboard({ user }: CaregiverDashboardProps) {
   }, []);
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6 sm:p-10">
+    <main className="min-h-screen bg-[#FAFAF7] p-6 sm:p-10 font-sans text-gray-900">
       <div className="max-w-4xl mx-auto mb-8">
         <div className="flex items-center gap-3 mb-3">
-          {/* Logo: Herz aus zwei Händen */}
-          <div className="w-12 h-12 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-sm">
-            <svg className="w-7 h-7 fill-current" viewBox="0 0 24 24">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          {/* Logo: Hände, die ein Herz formen (zwei ineinandergreifende Hände mit Herz-Kontur) */}
+          <div className="w-12 h-12 rounded-2xl bg-[#235347] text-white flex items-center justify-center shadow-sm">
+            <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              <path d="M12 5.5c-1.2-1.1-2.9-1.5-4.5-1.1-1.6.4-2.8 1.8-3 3.5-.2 1.7.8 3.3 2.3 4.1 1.5.8 3.3.5 4.5-.7 1.2 1.2 3 1.5 4.5.7 1.5-.8 2.5-2.4 2.3-4.1-.2-1.7-1.4-3.1-3-3.5-1.6-.4-3.3 0-4.5 1.1z" fill="none" stroke="currentColor" strokeWidth="0.5"/>
             </svg>
           </div>
           <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider">
@@ -48,20 +48,20 @@ export default function CaregiverDashboard({ user }: CaregiverDashboardProps) {
           </span>
         </div>
         
-        <h1 className="text-3xl font-extrabold text-slate-900 mb-1">
+        <h1 className="text-3xl font-black text-slate-900 mb-1 font-serif">
           Hallo{user?.name ? `, ${user.name}` : ''}! 🤝
         </h1>
-        <p className="text-slate-500">Hier findest du verfügbare Pflege- und Unterstützungsanfragen.</p>
+        <p className="text-slate-500 text-sm">Hier findest du verfügbare Pflege- und Unterstützungsanfragen[cite: 4].</p>
       </div>
 
       <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm col-span-1">
           <h3 className="text-slate-400 font-bold text-xs uppercase tracking-wider mb-2">Offene Anfragen</h3>
-          <span className="text-4xl font-black text-slate-900">{availableJobs.length}</span>
+          <span className="text-4xl font-black text-[#235347]">{availableJobs.length}</span>
           <p className="text-xs text-slate-400 mt-2">In Wien & Umgebung</p>
         </div>
 
-        <div className="bg-[#1B4D3E] p-6 rounded-3xl text-white shadow-sm col-span-2 flex flex-col justify-between">
+        <div className="bg-[#235347] p-6 rounded-3xl text-white shadow-sm col-span-2 flex flex-col justify-between">
           <div>
             <h3 className="text-emerald-300 font-bold text-xs uppercase tracking-wider mb-1">Stundensatz</h3>
             <span className="text-2xl font-bold">Fester Satz je Einsatz</span>
@@ -71,7 +71,7 @@ export default function CaregiverDashboard({ user }: CaregiverDashboardProps) {
       </div>
 
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-xl font-bold text-slate-900 mb-4">Verfügbare Aufträge</h2>
+        <h2 className="text-xl font-bold text-slate-900 mb-4 font-serif">Verfügbare Aufträge</h2>
 
         {loading ? (
           <p className="text-slate-500 text-sm">Aufträge werden geladen...</p>
@@ -96,7 +96,7 @@ export default function CaregiverDashboard({ user }: CaregiverDashboardProps) {
 
                 <button 
                   onClick={() => alert(`Du hast Interesse an der Anfrage in ${job.district} bekundet! Wir kontaktieren dich.`)}
-                  className="bg-[#1B4D3E] text-white text-xs font-bold px-5 py-3 rounded-xl hover:bg-emerald-900 transition-colors w-full sm:w-auto"
+                  className="bg-[#235347] text-white text-xs font-bold px-5 py-3 rounded-xl hover:bg-[#1b4238] transition-colors w-full sm:w-auto cursor-pointer"
                 >
                   Auftrag anfragen
                 </button>
