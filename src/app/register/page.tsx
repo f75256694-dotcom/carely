@@ -4,7 +4,7 @@ import { useState, Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { User, Mail, MapPin, Lock, Search, Heart, Handshake, ArrowLeft } from 'lucide-react';
+import { User, Mail, MapPin, Lock, Search, Handshake, ArrowLeft } from 'lucide-react';
 
 function RegisterForm() {
   const router = useRouter();
@@ -20,12 +20,18 @@ function RegisterForm() {
   const [zip, setZip] = useState('');
   const [password, setPassword] = useState('');
   const [hasInsurance, setHasInsurance] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!role) return;
+
+    if (!termsAccepted) {
+      setErrorMsg('Bitte akzeptiere die AGB und die Datenschutzerklärung, um dich zu registrieren.');
+      return;
+    }
 
     if (role === 'caregiver' && !hasInsurance) {
       setErrorMsg('Bitte bestätige deine Privathaftpflichtversicherung, um fortzufahren.');
@@ -58,6 +64,7 @@ function RegisterForm() {
             role: role,
             zip: zip,
             has_insurance_confirmed: role === 'caregiver' ? hasInsurance : false,
+            terms_accepted: termsAccepted,
             hours_balance: role === 'seeker' ? 0 : undefined,
             total_earned: role === 'caregiver' ? 0 : undefined,
           },
@@ -211,15 +218,16 @@ function RegisterForm() {
           </div>
         </div>
 
+        {/* Haftpflicht-Checkbox (nur für Helfer, visuell abgehoben) */}
         {role === 'caregiver' && (
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+          <div className="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 text-xs">
             <label className="flex items-start gap-2.5 cursor-pointer">
               <input
                 type="checkbox"
                 required
                 checked={hasInsurance}
                 onChange={(e) => setHasInsurance(e.target.checked)}
-                className="mt-0.5 rounded text-[#1B4D3E] focus:ring-[#1B4D3E] w-4 h-4 cursor-pointer shrink-0"
+                className="mt-0.5 rounded text-[#1B4D3E] focus:ring-[#1B4D3E] w-4 h-4 cursor-pointer shrink-0 accent-[#1B4D3E]"
               />
               <span className="text-slate-700 leading-tight">
                 Ich bestätige, dass ich über eine aufrechte Privathaftpflichtversicherung (z. B. im Rahmen einer Haushaltsversicherung) verfüge.
@@ -228,12 +236,40 @@ function RegisterForm() {
           </div>
         )}
 
+        {/* Rechtliche Bestätigung: AGB & Datenschutz (für alle Rollen) */}
+        <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs">
+          <label className="flex items-start gap-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              required
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="mt-0.5 rounded text-[#1B4D3E] focus:ring-[#1B4D3E] w-4 h-4 cursor-pointer shrink-0 accent-[#1B4D3E]"
+            />
+            <span className="text-slate-600 leading-tight">
+              Ich akzeptiere die{' '}
+              <Link href="/agb" target="_blank" className="text-[#1B4D3E] font-bold underline hover:text-[#13382d]">
+                AGB
+              </Link>{' '}
+              und habe die{' '}
+              <Link href="/datenschutz" target="_blank" className="text-[#1B4D3E] font-bold underline hover:text-[#13382d]">
+                Datenschutzerklärung
+              </Link>{' '}
+              gelesen.
+            </span>
+          </label>
+        </div>
+
         <button
           type="submit"
           disabled={loading}
           className="w-full py-4 mt-2 rounded-2xl bg-[#1B4D3E] hover:bg-[#13382d] text-white font-bold text-base shadow-lg transition disabled:opacity-50 cursor-pointer"
         >
-          {loading ? 'Konto wird erstellt...' : role === 'caregiver' ? 'Als selbständiger Helfer starten' : 'Jetzt registrieren'}
+          {loading
+            ? 'Konto wird erstellt...'
+            : role === 'caregiver'
+            ? 'Kostenlos als Helfer registrieren'
+            : 'Kostenlos registrieren'}
         </button>
       </form>
 
