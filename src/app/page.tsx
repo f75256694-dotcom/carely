@@ -39,7 +39,7 @@ export default function HomePage() {
           </div>
           <div className="flex flex-col">
             <span className="text-xl sm:text-2xl font-black tracking-tight text-[#0A2E23] font-serif leading-none">Helpify</span>
-            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-700 tracking-wider uppercase mt-0.5">Pioniere der Alltagshilfe</span>
+            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-700 tracking-wider uppercase mt-0.5">Pioniere moderner Alltagshilfe</span>
           </div>
         </div>
 
@@ -161,7 +161,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-base font-bold text-[#0A2E23]">Verlässlich & Flexibel</h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Flexible Termine ohne Aboverpflichtung – genau dann, wenn Hilfe gebraucht wird.
+                  Flexible Termine, ohne versteckte Kosten – genau dann, wenn Hilfe gebraucht wird.
                 </p>
               </div>
             </div>
