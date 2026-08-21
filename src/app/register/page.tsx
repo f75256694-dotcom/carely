@@ -11,7 +11,6 @@ function RegisterForm() {
   const searchParams = useSearchParams();
   const initialRole = searchParams.get('role');
 
-  // Wenn keine Rolle über URL vorgegeben ist, starten wir mit null, damit die 2 großen Karten gezeigt werden
   const [role, setRole] = useState<'seeker' | 'caregiver' | null>(
     initialRole === 'caregiver' ? 'caregiver' : initialRole ? 'seeker' : null
   );
@@ -20,12 +19,19 @@ function RegisterForm() {
   const [email, setEmail] = useState('');
   const [zip, setZip] = useState('');
   const [password, setPassword] = useState('');
+  const [hasInsurance, setHasInsurance] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!role) return;
+
+    if (role === 'caregiver' && !hasInsurance) {
+      setErrorMsg('Bitte bestätige deine Privathaftpflichtversicherung, um fortzufahren.');
+      return;
+    }
+
     setLoading(true);
     setErrorMsg(null);
 
@@ -51,6 +57,7 @@ function RegisterForm() {
             full_name: fullName,
             role: role,
             zip: zip,
+            has_insurance_confirmed: role === 'caregiver' ? hasInsurance : false,
             hours_balance: role === 'seeker' ? 0 : undefined,
             total_earned: role === 'caregiver' ? 0 : undefined,
           },
@@ -68,7 +75,6 @@ function RegisterForm() {
     }
   };
 
-  // SCHRITT 1: Die 2 großen Auswahl-Karten, wenn noch keine Rolle gewählt wurde
   if (!role) {
     return (
       <div className="w-full max-w-xl space-y-6">
@@ -110,11 +116,8 @@ function RegisterForm() {
     );
   }
 
-  // SCHRITT 2: Das eigentliche Registrierungsformular nach Rollen-Auswahl
   return (
     <div className="w-full max-w-lg bg-white rounded-[2.5rem] p-6 sm:p-10 shadow-xl border border-slate-100 space-y-6">
-      
-      {/* Zurück-Button zur Rollenauswahl */}
       <div className="flex items-center justify-between">
         <button
           type="button"
@@ -135,7 +138,6 @@ function RegisterForm() {
         </div>
       )}
 
-      {/* Transparenz-Hinweis speziell für Helfer */}
       {role === 'caregiver' && (
         <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-slate-700 text-xs space-y-1">
           <p className="font-bold text-[#0A2E23]">💡 Gut zu wissen:</p>
@@ -147,8 +149,6 @@ function RegisterForm() {
       )}
 
       <form onSubmit={handleRegister} className="space-y-4">
-        
-        {/* Vollständiger Name */}
         <div className="space-y-1.5">
           <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">Vollständiger Name</label>
           <div className="relative">
@@ -164,7 +164,6 @@ function RegisterForm() {
           </div>
         </div>
 
-        {/* E-Mail */}
         <div className="space-y-1.5">
           <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">E-Mail-Adresse</label>
           <div className="relative">
@@ -180,7 +179,6 @@ function RegisterForm() {
           </div>
         </div>
 
-        {/* Postleitzahl */}
         <div className="space-y-1.5">
           <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">Postleitzahl</label>
           <div className="relative">
@@ -197,7 +195,6 @@ function RegisterForm() {
           </div>
         </div>
 
-        {/* Passwort */}
         <div className="space-y-1.5">
           <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">Passwort</label>
           <div className="relative">
@@ -213,6 +210,23 @@ function RegisterForm() {
             />
           </div>
         </div>
+
+        {role === 'caregiver' && (
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+            <label className="flex items-start gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                required
+                checked={hasInsurance}
+                onChange={(e) => setHasInsurance(e.target.checked)}
+                className="mt-0.5 rounded text-[#1B4D3E] focus:ring-[#1B4D3E] w-4 h-4 cursor-pointer shrink-0"
+              />
+              <span className="text-slate-700 leading-tight">
+                Ich bestätige, dass ich über eine aufrechte Privathaftpflichtversicherung (z. B. im Rahmen einer Haushaltsversicherung) verfüge.
+              </span>
+            </label>
+          </div>
+        )}
 
         <button
           type="submit"
@@ -231,7 +245,6 @@ function RegisterForm() {
           </Link>
         </p>
       </div>
-
     </div>
   );
 }
@@ -239,7 +252,6 @@ function RegisterForm() {
 export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-[#FAFAF7] font-sans text-slate-800 flex flex-col justify-center items-center p-4 sm:p-6">
-      
       <div className="flex flex-col items-center text-center mb-8 space-y-3">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="w-10 h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-md shrink-0">
@@ -271,7 +283,6 @@ export default function RegisterPage() {
       <Suspense fallback={<div className="text-center p-8 text-slate-500 font-medium">Laden...</div>}>
         <RegisterForm />
       </Suspense>
-
     </div>
   );
 }
