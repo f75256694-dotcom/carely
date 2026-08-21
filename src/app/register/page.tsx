@@ -48,7 +48,7 @@ function RegisterForm() {
         options: {
           data: {
             full_name: fullName,
-            role: role,
+            role: role, // 'seeker' oder 'caregiver'
             zip: zip,
           },
         },
@@ -61,12 +61,12 @@ function RegisterForm() {
           {
             id: authData.user.id,
             full_name: fullName,
-            role: role,
+            role: role, // Hier wird nun garantiert 'caregiver' oder 'seeker' geschrieben
             zip: zip,
             has_insurance_confirmed: role === 'caregiver' ? hasInsurance : false,
             terms_accepted: termsAccepted,
-            hours_balance: role === 'seeker' ? 0 : undefined,
-            total_earned: role === 'caregiver' ? 0 : undefined,
+            hours_balance: role === 'seeker' ? 0 : 0,
+            total_earned: role === 'caregiver' ? 0 : 0,
           },
         ]);
 
@@ -218,7 +218,6 @@ function RegisterForm() {
           </div>
         </div>
 
-        {/* Haftpflicht-Checkbox */}
         {role === 'caregiver' && (
           <div className="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 text-xs">
             <label className="flex items-start gap-2.5 cursor-pointer">
@@ -236,7 +235,6 @@ function RegisterForm() {
           </div>
         )}
 
-        {/* Rechtliche Bestätigung */}
         <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs">
           <label className="flex items-start gap-2.5 cursor-pointer">
             <input
