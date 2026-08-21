@@ -6,8 +6,11 @@ import { Heart, Clock, ShieldCheck, Lock, Sparkles, UserCheck, Euro, CheckCircle
 
 type CareRequest = {
   id: string;
-  zip_code: string;
+  zip_code?: string;
+  district?: string;
   services: string[];
+  name?: string;
+  package?: string;
 };
 
 type CaregiverProfile = {
@@ -22,6 +25,7 @@ export default function DashboardPage() {
   const [role, setRole] = useState<string | null>(null);
   const [request, setRequest] = useState<CareRequest | null>(null);
   const [helpers, setHelpers] = useState<CaregiverProfile[]>([]);
+  const [availableJobs, setAvailableJobs] = useState<CareRequest[]>([]);
   const [hoursBalance, setHoursBalance] = useState<number>(0);
   const [totalEarned, setTotalEarned] = useState<number>(0);
   const [loading, setLoading] = useState(true);
@@ -55,11 +59,21 @@ export default function DashboardPage() {
       setTotalEarned(profile.total_earned || 0);
     }
 
+    // Wenn Helfer: Lade offene Aufträge für das Helfer-Dashboard
     if (profile?.role === 'caregiver') {
+      const { data: jobs } = await supabase
+        .from('care_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (jobs) {
+        setAvailableJobs(jobs);
+      }
       setLoading(false);
       return;
     }
 
+    // Wenn Kunde: Lade Suchauftrag und passende Helfer
     const { data: req } = await supabase.from('care_requests').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).single();
 
     if (req) {
@@ -123,14 +137,60 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white border border-emerald-100 rounded-3xl p-8 shadow-sm space-y-3 text-center">
-            <div className="w-12 h-12 bg-emerald-50 text-[#235347] rounded-2xl flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-6 h-6" />
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="bg-white border border-emerald-100 rounded-3xl p-6 shadow-sm space-y-2 md:col-span-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Offene Anfragen</span>
+              <div className="text-3xl font-black text-[#235347]">{availableJobs.length}</div>
+              <p className="text-xs text-gray-500">Verfügbare Einsätze in deiner Region</p>
             </div>
-            <h3 className="text-lg font-black font-serif">Dein Profil ist aktiv</h3>
-            <p className="text-xs text-gray-500 max-w-sm mx-auto">
-              Du wirst potenziellen Kunden in deiner Region angezeigt. Sobald eine Buchung eingeht, wirst du benachrichtigt.
-            </p>
+            <div className="bg-[#235347] text-white rounded-3xl p-6 shadow-sm space-y-2 md:col-span-2 flex flex-col justify-between">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">Status</span>
+                <h3 className="text-lg font-bold">Dein Profil ist aktiv & sichtbar</h3>
+              </div>
+              <p className="text-xs text-emerald-100">Sobald Kunden in deiner Nähe buchen oder anfragen, wirst du benachrichtigt.</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-lg font-black font-serif flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-[#235347]" />
+              Verfügbare Aufträge in deiner Umgebung
+            </h2>
+
+            {availableJobs.length > 0 ? (
+              <div className="space-y-3">
+                {availableJobs.map((job) => (
+                  <div key={job.id} className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-base">{job.district || `PLZ ${job.zip_code}`}</span>
+                        {job.package && <span className="bg-emerald-50 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded-md">{job.package}</span>}
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Leistungen: {Array.isArray(job.services) ? job.services.join(', ') : job.services}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => alert(`Du hast Interesse an dem Auftrag (${job.district || job.zip_code}) bekundet!`)}
+                      className="w-full md:w-auto px-5 py-3 rounded-2xl bg-[#235347] hover:bg-[#1b4238] text-white font-bold text-xs transition shadow-md cursor-pointer"
+                    >
+                      Auftrag anfragen
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white border border-gray-200 rounded-3xl p-8 text-center space-y-3">
+                <div className="w-12 h-12 bg-emerald-50 text-[#235347] rounded-2xl flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+                <h3 className="font-extrabold text-base">Aktuell keine offenen Anfragen</h3>
+                <p className="text-xs text-gray-500 max-w-sm mx-auto">
+                  Wir informieren dich, sobald neue Unterstützungssuchende in deinem Gebiet einen Auftrag einstellen.
+                </p>
+              </div>
+            )}
           </div>
 
         </div>
@@ -165,7 +225,7 @@ export default function DashboardPage() {
                 Matching aktiv
               </span>
             </div>
-            <h3 className="text-lg font-bold">Unterstützung in PLZ {request.zip_code}</h3>
+            <h3 className="text-lg font-bold">Unterstützung in {request.district || `PLZ ${request.zip_code}`}</h3>
           </div>
         )}
 
@@ -211,7 +271,7 @@ export default function DashboardPage() {
               </div>
               <h3 className="font-extrabold text-base">Dein Concierge sucht gerade</h3>
               <p className="text-xs text-gray-500 max-w-sm mx-auto">
-                Wir prüfen aktuell manuell weitere Helfer-Aktivierungen für deine PLZ {request?.zip_code}. In Kürze schalten wir dir Vorschläge frei.
+                Wir prüfen aktuell manuell weitere Helfer-Aktivierungen für deine Region. In Kürze schalten wir dir Vorschläge frei.
               </p>
             </div>
           )}
