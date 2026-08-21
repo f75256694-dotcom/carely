@@ -44,7 +44,7 @@ export default function HomePage() {
           </div>
           <div className="flex flex-col">
             <span className="text-xl sm:text-2xl font-black tracking-tight text-[#0A2E23] font-serif leading-none">Helpify</span>
-            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-700 tracking-wider uppercase mt-0.5">Senioren & Alltagshilfe</span>
+            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-700 tracking-wider uppercase mt-0.5">Alltagshilfe neu gedacht</span>
           </div>
         </div>
 
@@ -138,7 +138,7 @@ export default function HomePage() {
         <section className="py-12 sm:py-16 bg-white border-y border-gray-200/80 px-4 sm:px-8">
           <div className="max-w-5xl mx-auto space-y-8 sm:space-y-12">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#0A2E23]">Alltagshilfe nach deinen Bedürfnissen</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold font-serif text-[#0A2E23]">Alltagshilfe ganz nach ihren Bedürfnissen</h2>
               <p className="text-slate-600 max-w-xl mx-auto text-xs sm:text-sm">
                 Keine medizinische Pflege – sondern echte Entlastung im täglichen Leben.
               </p>
