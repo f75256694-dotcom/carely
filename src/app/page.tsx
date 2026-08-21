@@ -213,14 +213,14 @@ export default function HomePage() {
           <div className="space-y-2.5">
             <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Kontakt</h4>
             <div className="text-slate-400 space-y-1.5">
-              <p className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-emerald-400" /> support@helpify.de</p>
-              <p className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-emerald-400" /> +49 (0) 800 123 4567</p>
+              <p className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-emerald-400" /> support@helpifyservices.de</p>
+              <p className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-emerald-400" /> +49 176 32089328</p>
             </div>
           </div>
         </div>
 
         <div className="max-w-6xl mx-auto pt-6 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-500 gap-2 text-center sm:text-left">
-          <p>© {new Date().getFullYear()} Helpify GmbH. Alle Rechte vorbehalten.</p>
+          <p>© {new Date().getFullYear()} Helpify. Alle Rechte vorbehalten.</p>
         </div>
       </footer>
 
