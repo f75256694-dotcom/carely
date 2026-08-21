@@ -17,7 +17,7 @@ export default function CaregiverDashboard({ user }: CaregiverDashboardProps) {
 
   useEffect(() => {
     async function fetchJobs() {
-      // Offene Anfragen aus allen Bezirken laden (in einem MVP vollkommen ausreichend)
+      // Offene Anfragen aus allen Bezirken laden[cite: 4]
       const { data, error } = await supabase
         .from('care_requests')
         .select('*')
@@ -36,10 +36,19 @@ export default function CaregiverDashboard({ user }: CaregiverDashboardProps) {
   return (
     <main className="min-h-screen bg-slate-50 p-6 sm:p-10">
       <div className="max-w-4xl mx-auto mb-8">
-        <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider">
-          Helfer-Portal
-        </span>
-        <h1 className="text-3xl font-extrabold text-slate-900 mt-2 mb-1">
+        <div className="flex items-center gap-3 mb-3">
+          {/* Logo: Herz aus zwei Händen */}
+          <div className="w-12 h-12 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-sm">
+            <svg className="w-7 h-7 fill-current" viewBox="0 0 24 24">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+          </div>
+          <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider">
+            Helfer-Portal
+          </span>
+        </div>
+        
+        <h1 className="text-3xl font-extrabold text-slate-900 mb-1">
           Hallo{user?.name ? `, ${user.name}` : ''}! 🤝
         </h1>
         <p className="text-slate-500">Hier findest du verfügbare Pflege- und Unterstützungsanfragen.</p>
@@ -52,12 +61,12 @@ export default function CaregiverDashboard({ user }: CaregiverDashboardProps) {
           <p className="text-xs text-slate-400 mt-2">In Wien & Umgebung</p>
         </div>
 
-        <div className="bg-emerald-950 p-6 rounded-3xl text-white shadow-sm col-span-2 flex flex-col justify-between">
+        <div className="bg-[#1B4D3E] p-6 rounded-3xl text-white shadow-sm col-span-2 flex flex-col justify-between">
           <div>
-            <h3 className="text-emerald-400 font-bold text-xs uppercase tracking-wider mb-1">Stundensatz</h3>
+            <h3 className="text-emerald-300 font-bold text-xs uppercase tracking-wider mb-1">Stundensatz</h3>
             <span className="text-2xl font-bold">Fester Satz je Einsatz</span>
           </div>
-          <p className="text-xs text-emerald-200/80 mt-4">Auszahlungen erfolgen nach Bestätigung des abgeschlossenen Termins.</p>
+          <p className="text-xs text-emerald-100/80 mt-4">Auszahlungen erfolgen nach Bestätigung des abgeschlossenen Termins[cite: 4].</p>
         </div>
       </div>
 
