@@ -26,6 +26,7 @@ function FunnelContent() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -51,7 +52,7 @@ function FunnelContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email) return;
+    if (!name || !email || !privacyAccepted) return;
 
     setLoading(true);
     setErrorMessage('');
@@ -146,7 +147,6 @@ function FunnelContent() {
                 );
               })}
 
-              {/* Dynamisches Textfeld bei Auswahl von "Sonstige Begleitung" */}
               {selectedServices.includes('sonstiges') && (
                 <div className="mt-3 space-y-1.5 animate-fadeIn">
                   <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">
@@ -182,36 +182,36 @@ function FunnelContent() {
           </div>
         )}
 
-{/* SCHRITT 3: Preistransparenz & Kontaktdaten */}
-{step === 3 && (
-  <form onSubmit={handleSubmit} className="space-y-5 text-center">
-    <div className="space-y-1">
-      <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Fast geschafft!</h2>
-      <p className="text-xs text-slate-500">
-        Wohin dürfen wir die passenden Angebote für PLZ <span className="font-bold text-[#1B4D3E]">{zipCode}</span> senden?
-      </p>
-    </div>
+        {/* SCHRITT 3: Preistransparenz & Kontaktdaten */}
+        {step === 3 && (
+          <form onSubmit={handleSubmit} className="space-y-5 text-center">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Fast geschafft!</h2>
+              <p className="text-xs text-slate-500">
+                Wohin dürfen wir die passenden Angebote für PLZ <span className="font-bold text-[#1B4D3E]">{zipCode}</span> senden?
+              </p>
+            </div>
 
-    <div className="p-4 bg-[#F8FAFC] rounded-2xl border border-slate-200 text-left space-y-2">
-      <div className="flex items-center justify-between text-xs font-bold text-[#0A2E23]">
-        <span>Transparente Kostenübersicht:</span>
-        <span className="text-[#1B4D3E] bg-[#E6F4EA] px-2 py-0.5 rounded-md">ab 24,90 € / Std.</span>
-      </div>
-      <ul className="text-[11px] text-slate-600 space-y-1.5 pt-1">
-        <li className="flex items-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#1B4D3E] shrink-0" />
-          <span>Plattformgeprüfte Helfer mit Haftpflichtschutz</span>
-        </li>
-        <li className="flex items-center gap-1.5">
-          <CreditCard className="w-3.5 h-3.5 text-[#1B4D3E] shrink-0" />
-          <span>Abrechnung bequem im Nachhinein per Rechnung</span>
-        </li>
-        <li className="flex items-center gap-1.5">
-          <CheckCircle2 className="w-3.5 h-3.5 text-[#1B4D3E] shrink-0" />
-          <span>Keine Mindestvertragslaufzeit – Die Anfrage ist 100% kostenlos</span>
-        </li>
-      </ul>
-    </div>
+            <div className="p-4 bg-[#F8FAFC] rounded-2xl border border-slate-200 text-left space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-[#0A2E23]">
+                <span>Transparente Kostenübersicht:</span>
+                <span className="text-[#1B4D3E] bg-[#E6F4EA] px-2 py-0.5 rounded-md">ab 23,90 € / Std.</span>
+              </div>
+              <ul className="text-[11px] text-slate-600 space-y-1.5 pt-1">
+                <li className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#1B4D3E] shrink-0" />
+                  <span>Plattformgeprüfte Helfer mit Haftpflichtschutz</span>
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5 text-[#1B4D3E] shrink-0" />
+                  <span>Abrechnung bequem im Nachhinein per Rechnung</span>
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#1B4D3E] shrink-0" />
+                  <span>Keine Mindestvertragslaufzeit – Die Anfrage ist 100% kostenlos</span>
+                </li>
+              </ul>
+            </div>
 
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-left space-y-3">
               <input 
@@ -239,6 +239,30 @@ function FunnelContent() {
               />
             </div>
 
+            {/* DATENSCHUTZ CHECKBOX MIT ANKLICKBAREM LINK */}
+            <div className="flex items-start gap-2.5 text-left px-1">
+              <input
+                type="checkbox"
+                id="privacy"
+                required
+                checked={privacyAccepted}
+                onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#1B4D3E] focus:ring-[#1B4D3E] cursor-pointer"
+              />
+              <label htmlFor="privacy" className="text-xs text-slate-600 leading-snug cursor-pointer select-none">
+                Ich habe die{' '}
+                <Link
+                  href="/datenschutz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#1B4D3E] font-bold underline hover:text-[#143a2e]"
+                >
+                  Datenschutzerklärung
+                </Link>{' '}
+                gelesen und akzeptiere sie.
+              </label>
+            </div>
+
             {errorMessage && (
               <p className="text-xs text-red-600 font-medium">{errorMessage}</p>
             )}
@@ -253,7 +277,7 @@ function FunnelContent() {
               </button>
               <button
                 type="submit"
-                disabled={loading || !name || !email}
+                disabled={loading || !name || !email || !privacyAccepted}
                 className="w-2/3 bg-[#1B4D3E] hover:bg-[#143a2e] disabled:opacity-50 text-white font-bold text-sm py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
               >
                 {loading ? (
