@@ -274,7 +274,7 @@ export default function CareSeekerApplyPage() {
                   <input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900" />
                 </div>
                 
-                {/* DATENSCHUTZ CHECKBOX MIT MODAL */}
+                {/* DATENSCHUTZ CHECKBOX MIT DIREKT-LINK UND KURZ-MODAL */}
                 <div className="flex items-start gap-3 pt-2 text-left">
                   <input 
                     required 
@@ -286,17 +286,26 @@ export default function CareSeekerApplyPage() {
                   />
                   <span className="text-xs text-slate-600 leading-snug select-none">
                     Ich habe die{' '}
+                    <a
+                      href="/datenschutz"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-700 font-bold underline hover:text-emerald-800 cursor-pointer"
+                    >
+                      Datenschutzerklärung
+                    </a>{' '}
+                    gelesen und stimme ihr zu. (
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         setShowPrivacyModal(true);
                       }}
-                      className="text-emerald-700 font-bold underline hover:text-emerald-800 cursor-pointer inline-block"
+                      className="text-slate-500 underline hover:text-slate-700 cursor-pointer inline-block"
                     >
-                      Datenschutzerklärung
-                    </button>{' '}
-                    gelesen und stimme ihr zu.
+                      Kurzübersicht
+                    </button>
+                    )
                   </span>
                 </div>
               </div>
@@ -315,7 +324,6 @@ export default function CareSeekerApplyPage() {
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] flex flex-col p-6 sm:p-8 shadow-2xl border border-slate-100 text-left">
             
-            {/* Header mit Zurück-Pfeil */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
               <button
                 type="button"
@@ -327,9 +335,8 @@ export default function CareSeekerApplyPage() {
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Datenschutz</span>
             </div>
 
-            {/* Inhaltsbereich */}
             <div className="overflow-y-auto text-xs text-slate-600 space-y-4 pr-2">
-              <h3 className="text-lg font-bold text-slate-900 font-serif">Datenschutzerklärung</h3>
+              <h3 className="text-lg font-bold text-slate-900 font-serif">Datenschutz-Kurzübersicht</h3>
               
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-slate-700 space-y-1">
                 <p className="font-bold text-slate-900">Helpify</p>
@@ -350,39 +357,34 @@ export default function CareSeekerApplyPage() {
                 <p>
                   Impressum:{' '}
                   <a
-                    href="https://helpifyservices.at/imprint"
+                    href="/imprint"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-emerald-700 font-bold underline hover:text-emerald-800"
                   >
-                    https://helpifyservices.at/imprint
+                    /imprint
                   </a>
                 </p>
               </div>
 
               <p className="leading-relaxed">
-                Wir verarbeiten Ihre angegebenen personenbezogenen Daten (Name, E-Mail-Adresse, Telefonnummer, Bezirk sowie Angaben zur benötigten Hilfe und zum Paket) ausschließlich zur Bearbeitung und Vermittlung Ihrer Anfrage auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO.
-              </p>
-              
-              <p className="leading-relaxed">
-                Ihre Daten werden vertraulich behandelt und nur an geprüfte Alltagshelfer im Rahmen Ihrer Anfrage weitergegeben. Sie haben jederzeit das Recht auf Auskunft, Berichtigung, Einschränkung und Löschung Ihrer Daten.
+                Wir verarbeiten Ihre angegebenen personenbezogenen Daten ausschließlich zur Bearbeitung und Vermittlung Ihrer Anfrage auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO.
               </p>
 
               <p className="leading-relaxed">
-                Die vollständige Datenschutzerklärung können Sie auch jederzeit unter{' '}
+                Die vollständige, ausführliche Datenschutzerklärung können Sie jederzeit unter{' '}
                 <a
-                  href="https://helpifyservices.at/imprint"
+                  href="/datenschutz"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-emerald-700 font-bold underline hover:text-emerald-800"
                 >
-                  https://helpifyservices.at/imprint
+                  /datenschutz
                 </a>{' '}
                 abrufen.
               </p>
             </div>
 
-            {/* Aktion-Buttons */}
             <div className="pt-4 border-t border-slate-100 mt-4 flex gap-3">
               <button
                 type="button"
