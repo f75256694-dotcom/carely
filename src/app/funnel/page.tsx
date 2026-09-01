@@ -27,6 +27,7 @@ function FunnelContent() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -239,7 +240,7 @@ function FunnelContent() {
               />
             </div>
 
-            {/* DATENSCHUTZ CHECKBOX MIT ANKLICKBAREM LINK */}
+            {/* DATENSCHUTZ CHECKBOX MIT POP-UP MODAL TRIGGER */}
             <div className="flex items-start gap-2.5 text-left px-1">
               <input
                 type="checkbox"
@@ -247,20 +248,22 @@ function FunnelContent() {
                 required
                 checked={privacyAccepted}
                 onChange={(e) => setPrivacyAccepted(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#1B4D3E] focus:ring-[#1B4D3E] cursor-pointer"
+                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#1B4D3E] focus:ring-[#1B4D3E] cursor-pointer shrink-0"
               />
-              <label htmlFor="privacy" className="text-xs text-slate-600 leading-snug cursor-pointer select-none">
+              <span className="text-xs text-slate-600 leading-snug select-none">
                 Ich habe die{' '}
-                <Link
-                  href="/datenschutz"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[#1B4D3E] font-bold underline hover:text-[#143a2e]"
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowPrivacyModal(true);
+                  }}
+                  className="text-[#1B4D3E] font-bold underline hover:text-[#143a2e] inline-block cursor-pointer"
                 >
                   Datenschutzerklärung
-                </Link>{' '}
+                </button>{' '}
                 gelesen und akzeptiere sie.
-              </label>
+              </span>
             </div>
 
             {errorMessage && (
@@ -298,6 +301,82 @@ function FunnelContent() {
       <footer className="text-center text-[11px] text-slate-400 py-4">
         © {new Date().getFullYear()} Helpify – Sichere Vermittlung von Alltagshilfe
       </footer>
+
+      {/* DATENSCHUTZ MODAL OVERLAY MIT ZURÜCK-PFEIL */}
+      {showPrivacyModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] flex flex-col p-6 sm:p-8 shadow-2xl border border-slate-200">
+            
+            {/* Header mit Zurück-Pfeil */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+              <button
+                type="button"
+                onClick={() => setShowPrivacyModal(false)}
+                className="flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-[#1B4D3E] transition cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4" /> Zurück zum Formular
+              </button>
+              <span className="text-xs font-bold text-slate-400">Datenschutz</span>
+            </div>
+
+            {/* Inhaltsbereich */}
+            <div className="overflow-y-auto text-xs text-slate-600 space-y-4 pr-2">
+              <h3 className="text-lg font-serif font-bold text-[#0A2E23]">Datenschutzerklärung</h3>
+              
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-slate-700 space-y-1">
+                <p className="font-semibold text-slate-900">Helpify</p>
+                <p>Florian Touraj Saubiez</p>
+                <p>Kulmgasse 44, 1170 Wien, Österreich</p>
+                <p>E-Mail: office@helpifyservices.at</p>
+              </div>
+
+              <p className="leading-relaxed">
+                Wir verarbeiten Ihre angegebenen personenbezogenen Daten (Name, E-Mail-Adresse, Telefonnummer, PLZ sowie Angaben zur benötigten Hilfe) ausschließlich zur Bearbeitung und Vermittlung Ihrer Anfrage auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO.
+              </p>
+              
+              <p className="leading-relaxed">
+                Ihre Daten werden vertraulich behandelt und nur an geprüfte Alltagshelfer im Rahmen Ihrer Anfrage weitergegeben. Sie haben jederzeit das Recht auf Auskunft, Berichtigung, Einschränkung und Löschung Ihrer Daten.
+              </p>
+
+              <p className="leading-relaxed">
+                Die vollständige Datenschutzerklärung können Sie auch jederzeit unter{' '}
+                <Link
+                  href="/datenschutz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#1B4D3E] font-bold underline hover:text-[#143a2e]"
+                >
+                  /datenschutz
+                </Link>{' '}
+                abrufen.
+              </p>
+            </div>
+
+            {/* Aktion-Footer */}
+            <div className="pt-4 border-t border-slate-100 mt-4 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowPrivacyModal(false)}
+                className="w-1/3 border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-xs py-3 rounded-xl transition cursor-pointer"
+              >
+                Schließen
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPrivacyAccepted(true);
+                  setShowPrivacyModal(false);
+                }}
+                className="w-2/3 bg-[#1B4D3E] hover:bg-[#143a2e] text-white font-bold text-xs py-3 rounded-xl transition shadow-md cursor-pointer flex items-center justify-center gap-2"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Gelesen & Akzeptieren</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );
