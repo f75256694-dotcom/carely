@@ -335,7 +335,29 @@ export default function CareSeekerApplyPage() {
                 <p className="font-bold text-slate-900">Helpify</p>
                 <p>Florian Touraj Saubiez</p>
                 <p>Kulmgasse 44, 1170 Wien, Österreich</p>
-                <p>E-Mail: office@helpifyservices.at</p>
+                <p>
+                  E-Mail:{' '}
+                  <a href="mailto:office@helpifyservices.at" className="text-emerald-700 font-bold underline hover:text-emerald-800">
+                    office@helpifyservices.at
+                  </a>
+                </p>
+                <p>
+                  Telefon:{' '}
+                  <a href="tel:+4917632089328" className="text-emerald-700 font-bold underline hover:text-emerald-800">
+                    +49 176 32089328
+                  </a>
+                </p>
+                <p>
+                  Impressum:{' '}
+                  <a
+                    href="https://helpifyservices.at/imprint"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-700 font-bold underline hover:text-emerald-800"
+                  >
+                    https://helpifyservices.at/imprint
+                  </a>
+                </p>
               </div>
 
               <p className="leading-relaxed">
@@ -349,12 +371,12 @@ export default function CareSeekerApplyPage() {
               <p className="leading-relaxed">
                 Die vollständige Datenschutzerklärung können Sie auch jederzeit unter{' '}
                 <a
-                  href="/datenschutz"
+                  href="https://helpifyservices.at/imprint"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-emerald-700 font-bold underline hover:text-emerald-800"
                 >
-                  /datenschutz
+                  https://helpifyservices.at/imprint
                 </a>{' '}
                 abrufen.
               </p>
