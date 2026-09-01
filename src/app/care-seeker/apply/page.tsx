@@ -1,291 +1,391 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft, ArrowRight, CheckCircle2, HeartHandshake, ShoppingBag, Home, Sparkles, Loader2, ShieldCheck, CreditCard } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+function FunnelContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const zipFromUrl = searchParams.get('zip') || '';
 
-export default function CareSeekerApplyPage() {
-  const [step, setStep] = useState(1);
-  const [submitted, setSubmitted] = useState(false);
+  const supabase = createClient();
+
+  const isValidZip = (zip: string) => {
+    const cleanZip = zip.trim();
+    return cleanZip.length === 4 || cleanZip.length === 5;
+  };
+
+  const [step, setStep] = useState(isValidZip(zipFromUrl) ? 2 : 1);
+  const [zipCode, setZipCode] = useState(zipFromUrl);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [otherService, setOtherService] = useState('');
+  
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [emailTouched, setEmailTouched] = useState(false);
-
-  const [formData, setFormData] = useState({
-    services: [] as string[],
-    otherServiceText: '',
-    district: '1. Innere Stadt',
-    selectedPackage: 'Starter-Paket (4 Std.) - 99 €',
-    targetGroup: 'Für mich selbst',
-    fullName: '',
-    email: '',
-    phone: '',
-    privacyAccepted: false,
-    source: 'direct',
-  });
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const sourceParam = params.get('source') || params.get('ref');
-    if (sourceParam) {
-      setFormData(prev => ({ ...prev, source: sourceParam }));
+    if (zipFromUrl) {
+      setZipCode(zipFromUrl);
+      if (isValidZip(zipFromUrl)) {
+        setStep(2);
+      }
     }
-  }, []);
+  }, [zipFromUrl]);
 
-  const serviceOptions = [
-    { id: 'Einkäufe & Besorgungen', icon: '🛒', title: 'Einkäufe & Besorgungen', desc: 'Unterstützung beim wöchentlichen Einkauf' },
-    { id: 'Gesellschaft & Spaziergänge', icon: '☀️', title: 'Gesellschaft & Spaziergänge', desc: 'Gemeinsame Zeit & frische Luft' },
-    { id: 'Leichte Haushaltshilfe', icon: '✨', title: 'Leichte Haushaltshilfe', desc: 'Hilfe im Haushalt & Ordnung halten' },
-    { id: 'Terminbegleitung', icon: '🤝', title: 'Terminbegleitung', desc: 'Sicherer Begleitschutz zum Arzt oder Ämtern' }
-  ];
-
-  const districtOptions = [
-    '1.', '2. ', '3. ', '4. ', '5. ',
-    '6. ', '7. ', '8. ', '9. ', '10. ',
-    '11. ', '12. ', '13. ', '14. ', '15. ',
-    '16. ', '17. ', '18. ', '19. ', '20. ',
-    '21. ', '22. ', '23. '
-  ];
-
-  const packageOptions = [
-    { name: 'Starter-Paket (4 Std.) - 99 €', desc: 'Ideal zum Testen ohne Risiko' },
-    { name: 'Flex-Paket (10 Std.) - 239 €', desc: 'Der Bestseller für regelmäßige Alltagsbegleitung' }
-  ];
-
-  const targetGroupOptions = ['Für mich selbst', 'Für meine Eltern / Angehörigen', 'Für Bekannte'];
-
-  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
-
-  const toggleService = (serviceId: string) => {
-    setFormData(prev => ({
-      ...prev,
-      services: prev.services.includes(serviceId) ? prev.services.filter(s => s !== serviceId) : [...prev.services, serviceId]
-    }));
+  const handleServiceToggle = (service: string) => {
+    if (selectedServices.includes(service)) {
+      setSelectedServices(selectedServices.filter((s) => s !== service));
+      if (service === 'sonstiges') {
+        setOtherService('');
+      }
+    } else {
+      setSelectedServices([...selectedServices, service]);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setEmailTouched(true);
-    if (!formData.privacyAccepted || !isValidEmail(formData.email)) return;
-    setLoading(true);
-    try {
-      const finalServices = [...formData.services];
-      if (formData.otherServiceText.trim()) {
-        finalServices.push(`Sonstiges: ${formData.otherServiceText.trim()}`);
-      }
+    if (!name || !email || !privacyAccepted) return;
 
-      const { error } = await supabase.from('care_requests').insert([{
-        role: 'care_seeker',
-        name: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        services: finalServices,
-        district: formData.district,
-        package: formData.selectedPackage,
-        target_group: formData.targetGroup,
-        source: formData.source,
-        status: 'submitted'
-      }]);
+    setLoading(true);
+    setErrorMessage('');
+
+    try {
+      const { error } = await supabase.from('care_requests').insert([{ region: zipCode, service_types: selectedServices, other_service: otherService, name: name, email: email, phone: phone, status: 'pending', source: 'landing_funnel' }]);
 
       if (error) throw error;
 
-      await fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          role: 'care_seeker',
-          name: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
-          district: formData.district,
-          services: finalServices,
-          package: formData.selectedPackage,
-          target_group: formData.targetGroup,
-          source: formData.source,
-        }),
-      });
-
-      // Stripe Checkout Session aufrufen und direkt zu Stripe umleiten
-      const stripeRes = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          packageName: formData.selectedPackage,
-          email: formData.email,
-          name: formData.fullName,
-        }),
-      });
-
-      const stripeData = await stripeRes.json();
-      if (stripeData.url) {
-        window.location.href = stripeData.url;
-      } else {
-        throw new Error('Konnte keine Checkout-Session erstellen');
-      }
-
-    } catch (err) {
-      console.error('Fehler beim Speichern der Pflege-Anfrage:', err);
-      alert('Es gab ein Problem beim Absenden. Bitte versuche es erneut.');
+      router.push('/danke');
+    } catch (err: any) {
+      console.error('Fehler beim Speichern in Supabase:', err);
+      setErrorMessage('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
+    } finally {
       setLoading(false);
     }
   };
 
-  if (submitted) {
-    return (
-      <main className="min-h-screen bg-[#0F172A] flex items-center justify-center p-4 selection:bg-emerald-500 selection:text-white">
-        <div className="max-w-lg w-full bg-white/15 backdrop-blur-xl border border-white/20 rounded-3xl p-8 sm:p-10 text-center shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
-          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#1B4D3E] text-[#86EFAC] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_0_40px_rgba(27,77,62,0.4)]">
-            <svg className="w-10 h-10 sm:w-12 sm:h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-            </svg>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Vielen Dank!</h1>
-          <p className="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed">Deine Anfrage ist bei uns eingegangen. Wir melden uns schnellstmöglich bei dir!</p>
-          <div className="inline-block px-6 py-3 rounded-2xl bg-white/10 text-emerald-400 font-semibold text-sm border border-white/10">Du kannst dieses Fenster jetzt schließen.</div>
-        </div>
-      </main>
-    );
-  }
-
-  const isOtherSelected = formData.services.includes('Sonstiges');
-  const isEmailInvalid = emailTouched && formData.email.length > 0 && !isValidEmail(formData.email);
-
   return (
-    <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-50 via-slate-50 to-white py-6 sm:py-12 px-4 flex flex-col items-center selection:bg-emerald-200">
-      <div className="max-w-xl w-full text-center mb-6 sm:mb-10">
-        <div className="flex items-center justify-center gap-2.5 mb-6">
-          <div className="w-10 h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-sm shrink-0">
-            <svg className="w-5 h-5 text-[#86EFAC]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-            </svg>
-          </div>
-          <span className="text-3xl font-bold tracking-tight text-[#0A2E23] font-serif">Helpify</span>
-        </div>
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-3">Unterstützung im Alltag finden</h1>
-        <p className="text-slate-600 text-base sm:text-xl">Erhalte persönliche Unterstützung für dich oder deine Angehörigen.</p>
-      </div>
+    <div className="min-h-screen bg-[#FAFAF7] text-slate-800 flex flex-col justify-between p-4 sm:p-8">
+      
+      <header className="max-w-2xl w-full mx-auto flex items-center justify-between py-4">
+        <Link href="/" className="flex items-center gap-2 text-slate-600 hover:text-[#1B4D3E] text-xs font-bold transition">
+          <ArrowLeft className="w-4 h-4" /> Startseite
+        </Link>
+        <span className="text-xs font-bold text-slate-400">Schritt {step} von 3</span>
+      </header>
 
-      <div className="max-w-xl w-full bg-white rounded-3xl p-5 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-100">
-          <div className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-500 ease-out" style={{ width: `${(step / 3) * 100}%` }}></div>
-        </div>
-
-        <div className="flex justify-between items-center mb-6 sm:mb-8 mt-2">
-          <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-wider">Schritt {step} von 3</span>
-        </div>
-
+      <main className="max-w-xl w-full mx-auto bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200/80 my-auto">
+        
+        {/* SCHRITT 1: PLZ */}
         {step === 1 && (
-          <div className="animate-in fade-in duration-500">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">Wo benötigst du Hilfe?</h2>
-            <div className="grid grid-cols-1 gap-3.5 mb-6">
-              {serviceOptions.map(s => {
-                const isSelected = formData.services.includes(s.id);
+          <div className="space-y-6 text-center">
+            <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Wo wird die Unterstützung benötigt?</h2>
+            <p className="text-xs text-slate-500">Gib deine Postleitzahl ein, um Helfer in deiner Nähe zu finden.</p>
+            
+            <input 
+              type="text"
+              maxLength={5}
+              value={zipCode}
+              onChange={(e) => setZipCode(e.target.value)}
+              placeholder="PLZ eingeben (z. B. 1170)"
+              className="w-full text-center text-xl font-bold py-3.5 px-4 rounded-xl border border-slate-300 focus:border-[#1B4D3E] focus:outline-none tracking-widest bg-slate-50"
+            />
+
+            <button
+              disabled={!isValidZip(zipCode)}
+              onClick={() => setStep(2)}
+              className="w-full bg-[#1B4D3E] hover:bg-[#143a2e] disabled:opacity-40 text-white font-bold text-sm py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:cursor-not-allowed"
+            >
+              <span>Weiter</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* SCHRITT 2: Services */}
+        {step === 2 && (
+          <div className="space-y-6">
+            <div className="text-center space-y-1">
+              <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Wobei wird Hilfe benötigt?</h2>
+              <p className="text-xs text-slate-500">
+                Für PLZ <span className="font-bold text-[#1B4D3E]">{zipCode}</span> (Mehrfachauswahl möglich)
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                { id: 'einkauf', label: 'Einkaufen & Besorgungen', icon: ShoppingBag },
+                { id: 'haushalt', label: 'Haushalt & Kochen', icon: Home },
+                { id: 'gesellschaft', label: 'Spaziergänge & Gesellschaft', icon: HeartHandshake },
+                { id: 'sonstiges', label: 'Sonstige Begleitung', icon: Sparkles }
+              ].map((item) => {
+                const Icon = item.icon;
+                const isSelected = selectedServices.includes(item.id);
                 return (
-                  <button key={s.id} type="button" onClick={() => toggleService(s.id)} className={`flex items-center p-4 rounded-2xl border-2 text-left transition-all ${isSelected ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-100 bg-white'}`}>
-                    <span className="text-2xl mr-4">{s.icon}</span>
-                    <div>
-                      <span className="block font-bold text-slate-800">{s.title}</span>
-                      <span className="block text-xs text-slate-500">{s.desc}</span>
+                  <button
+                    key={item.id}
+                    onClick={() => handleServiceToggle(item.id)}
+                    className={`w-full p-4 rounded-2xl border text-left font-medium text-sm flex items-center justify-between transition cursor-pointer ${
+                      isSelected 
+                        ? 'border-[#1B4D3E] bg-[#F0FDF4] text-[#0A2E23] shadow-xs' 
+                        : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className={`w-5 h-5 ${isSelected ? 'text-[#1B4D3E]' : 'text-slate-400'}`} />
+                      <span>{item.label}</span>
                     </div>
+                    {isSelected && <CheckCircle2 className="w-5 h-5 text-[#1B4D3E]" />}
                   </button>
                 );
               })}
-              <button type="button" onClick={() => toggleService('Sonstiges')} className={`flex items-center p-4 rounded-2xl border-2 text-left transition-all ${isOtherSelected ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-100 bg-white'}`}>
-                <span className="text-2xl mr-4">💡</span>
-                <div>
-                  <span className="block font-bold text-slate-800">Sonstiges</span>
-                  <span className="block text-xs text-slate-500">Individuelle Wünsche</span>
+
+              {selectedServices.includes('sonstiges') && (
+                <div className="mt-3 space-y-1.5 animate-fadeIn">
+                  <label className="text-[11px] font-bold text-slate-600 tracking-wider uppercase">
+                    Was genau wird benötigt? (optional)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={otherService}
+                    onChange={(e) => setOtherService(e.target.value)}
+                    placeholder="z. B. Begleitung zum Arzt, Hilfe im Garten..."
+                    className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-[#1B4D3E] text-slate-900 text-sm font-medium outline-none transition resize-none"
+                  />
                 </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setStep(1)}
+                className="w-1/3 border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-sm py-3.5 rounded-xl transition cursor-pointer"
+              >
+                PLZ ändern
+              </button>
+              <button
+                disabled={selectedServices.length === 0}
+                onClick={() => setStep(3)}
+                className="w-2/3 bg-[#1B4D3E] hover:bg-[#143a2e] disabled:opacity-40 text-white font-bold text-sm py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:cursor-not-allowed"
+              >
+                <span>Weiter</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* SCHRITT 3: Preistransparenz & Kontaktdaten */}
+        {step === 3 && (
+          <form onSubmit={handleSubmit} className="space-y-5 text-center">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Fast geschafft!</h2>
+              <p className="text-xs text-slate-500">
+                Wohin dürfen wir die passenden Angebote für PLZ <span className="font-bold text-[#1B4D3E]">{zipCode}</span> senden?
+              </p>
+            </div>
+
+            <div className="p-4 bg-[#F8FAFC] rounded-2xl border border-slate-200 text-left space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-[#0A2E23]">
+                <span>Transparente Kostenübersicht:</span>
+                <span className="text-[#1B4D3E] bg-[#E6F4EA] px-2 py-0.5 rounded-md">ab 23,90 € / Std.</span>
+              </div>
+              <ul className="text-[11px] text-slate-600 space-y-1.5 pt-1">
+                <li className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#1B4D3E] shrink-0" />
+                  <span>Plattformgeprüfte Helfer mit Haftpflichtschutz</span>
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5 text-[#1B4D3E] shrink-0" />
+                  <span>Abrechnung bequem im Nachhinein per Rechnung</span>
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#1B4D3E] shrink-0" />
+                  <span>Keine Mindestvertragslaufzeit – Die Anfrage ist 100% kostenlos</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-left space-y-3">
+              <input 
+                type="text" 
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Dein Name" 
+                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#1B4D3E]"
+              />
+              <input 
+                type="email" 
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Deine E-Mail-Adresse" 
+                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#1B4D3E]"
+              />
+              <input 
+                type="tel" 
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Telefonnummer (für Rückfragen via WhatsApp/Anruf)" 
+                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#1B4D3E]"
+              />
+            </div>
+
+            {/* DATENSCHUTZ CHECKBOX MIT POP-UP MODAL TRIGGER */}
+            <div className="flex items-start gap-2.5 text-left px-1">
+              <input
+                type="checkbox"
+                id="privacy"
+                required
+                checked={privacyAccepted}
+                onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#1B4D3E] focus:ring-[#1B4D3E] cursor-pointer shrink-0"
+              />
+              <span className="text-xs text-slate-600 leading-snug select-none">
+                Ich habe die{' '}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowPrivacyModal(true);
+                  }}
+                  className="text-[#1B4D3E] font-bold underline hover:text-[#143a2e] inline-block cursor-pointer"
+                >
+                  Datenschutzerklärung
+                </button>{' '}
+                gelesen und akzeptiere sie.
+              </span>
+            </div>
+
+            {errorMessage && (
+              <p className="text-xs text-red-600 font-medium">{errorMessage}</p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="w-1/3 border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-sm py-3.5 rounded-xl transition cursor-pointer"
+              >
+                Zurück
+              </button>
+              <button
+                type="submit"
+                disabled={loading || !name || !email || !privacyAccepted}
+                className="w-2/3 bg-[#1B4D3E] hover:bg-[#143a2e] disabled:opacity-50 text-white font-bold text-sm py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Wird gesendet...</span>
+                  </>
+                ) : (
+                  <span>Kostenlos anfragen</span>
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+
+      </main>
+
+      <footer className="text-center text-[11px] text-slate-400 py-4">
+        © {new Date().getFullYear()} Helpify – Sichere Vermittlung von Alltagshilfe
+      </footer>
+
+      {/* DATENSCHUTZ MODAL OVERLAY MIT ZURÜCK-PFEIL */}
+      {showPrivacyModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] flex flex-col p-6 sm:p-8 shadow-2xl border border-slate-200">
+            
+            {/* Header mit Zurück-Pfeil */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+              <button
+                type="button"
+                onClick={() => setShowPrivacyModal(false)}
+                className="flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-[#1B4D3E] transition cursor-pointer"
+              >
+                <ArrowLeft className="w-4 h-4" /> Zurück zum Formular
+              </button>
+              <span className="text-xs font-bold text-slate-400">Datenschutz</span>
+            </div>
+
+            {/* Inhaltsbereich */}
+            <div className="overflow-y-auto text-xs text-slate-600 space-y-4 pr-2">
+              <h3 className="text-lg font-serif font-bold text-[#0A2E23]">Datenschutzerklärung</h3>
+              
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-slate-700 space-y-1">
+                <p className="font-semibold text-slate-900">Helpify</p>
+                <p>Florian Touraj Saubiez</p>
+                <p>Kulmgasse 44, 1170 Wien, Österreich</p>
+                <p>E-Mail: office@helpifyservices.at</p>
+              </div>
+
+              <p className="leading-relaxed">
+                Wir verarbeiten Ihre angegebenen personenbezogenen Daten (Name, E-Mail-Adresse, Telefonnummer, PLZ sowie Angaben zur benötigten Hilfe) ausschließlich zur Bearbeitung und Vermittlung Ihrer Anfrage auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO.
+              </p>
+              
+              <p className="leading-relaxed">
+                Ihre Daten werden vertraulich behandelt und nur an geprüfte Alltagshelfer im Rahmen Ihrer Anfrage weitergegeben. Sie haben jederzeit das Recht auf Auskunft, Berichtigung, Einschränkung und Löschung Ihrer Daten.
+              </p>
+
+              <p className="leading-relaxed">
+                Die vollständige Datenschutzerklärung können Sie auch jederzeit unter{' '}
+                <Link
+                  href="/datenschutz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#1B4D3E] font-bold underline hover:text-[#143a2e]"
+                >
+                  /datenschutz
+                </Link>{' '}
+                abrufen.
+              </p>
+            </div>
+
+            {/* Aktion-Footer */}
+            <div className="pt-4 border-t border-slate-100 mt-4 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowPrivacyModal(false)}
+                className="w-1/3 border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-xs py-3 rounded-xl transition cursor-pointer"
+              >
+                Schließen
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPrivacyAccepted(true);
+                  setShowPrivacyModal(false);
+                }}
+                className="w-2/3 bg-[#1B4D3E] hover:bg-[#143a2e] text-white font-bold text-xs py-3 rounded-xl transition shadow-md cursor-pointer flex items-center justify-center gap-2"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Gelesen & Akzeptieren</span>
               </button>
             </div>
 
-            {isOtherSelected && (
-              <div className="mb-6">
-                <input type="text" placeholder="Beschreibe kurz deine Wünsche..." value={formData.otherServiceText} onChange={e => setFormData({...formData, otherServiceText: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900" />
-              </div>
-            )}
-
-            <button type="button" onClick={() => setStep(2)} disabled={formData.services.length === 0} className="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-emerald-600 disabled:opacity-40">Weiter →</button>
           </div>
-        )}
+        </div>
+      )}
 
-        {step === 2 && (
-          <div className="animate-in fade-in duration-500">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">Details & Ort</h2>
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Für wen suchst du?</label>
-                <select value={formData.targetGroup} onChange={e => setFormData({...formData, targetGroup: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium">
-                  {targetGroupOptions.map(tg => <option key={tg} value={tg}>{tg}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">In welchem Bezirk?</label>
-                <select value={formData.district} onChange={e => setFormData({...formData, district: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium">
-                  {districtOptions.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button type="button" onClick={() => setStep(1)} className="w-1/3 border-2 border-slate-200 text-slate-600 font-bold py-4 rounded-2xl">Zurück</button>
-              <button type="button" onClick={() => setStep(3)} className="w-2/3 bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-emerald-600">Weiter →</button>
-            </div>
-          </div>
-        )}
+    </div>
+  );
+}
 
-        {step === 3 && (
-          <div className="animate-in fade-in duration-500">
-            <form onSubmit={handleSubmit}>
-              <div className="mb-6">
-                <label className="block text-xs font-bold text-slate-700 mb-2">Wähle dein Paket</label>
-                <div className="grid grid-cols-1 gap-2.5">
-                  {packageOptions.map(pkg => {
-                    const isSelected = formData.selectedPackage === pkg.name;
-                    return (
-                      <button 
-                        key={pkg.name} 
-                        type="button" 
-                        onClick={() => setFormData({...formData, selectedPackage: pkg.name})} 
-                        className={`p-4 rounded-2xl border-2 text-left transition-all ${isSelected ? 'border-emerald-500 bg-emerald-50/60 text-emerald-900 shadow-sm' : 'border-slate-100 bg-white text-slate-700'}`}
-                      >
-                        <div className="font-bold text-sm">{pkg.name}</div>
-                        <div className="text-xs text-slate-500 mt-0.5">{pkg.desc}</div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Name</label>
-                  <input required type="text" placeholder="Vor- & Nachname" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">E-Mail</label>
-                  <input required type="email" placeholder="name@beispiel.at" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} onBlur={() => setEmailTouched(true)} className={`w-full px-4 py-3.5 bg-slate-50 border rounded-2xl text-slate-900 ${isEmailInvalid ? 'border-red-400' : 'border-slate-200'}`} />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Telefonnummer</label>
-                  <input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900" />
-                </div>
-                <div className="flex items-start gap-3 pt-2">
-                  <input required type="checkbox" id="privacy" checked={formData.privacyAccepted} onChange={e => setFormData({...formData, privacyAccepted: e.target.checked})} className="mt-1 w-4 h-4 rounded border-slate-300 text-emerald-600" />
-                  <label htmlFor="privacy" className="text-xs text-slate-600">Ich stimme den Datenschutzbestimmungen zu.</label>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 font-bold py-4 rounded-2xl">Zurück</button>
-                <button disabled={loading || !formData.privacyAccepted || !isValidEmail(formData.email)} type="submit" className="w-2/3 bg-emerald-600 text-white font-bold py-4 rounded-2xl hover:bg-emerald-500 disabled:opacity-70">{loading ? 'Wird geleitet...' : 'Abschicken 🚀'}</button>
-              </div>
-            </form>
-          </div>
-        )}
-      </div>
-    </main>
+export default function FunnelPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-500">Formular wird geladen...</div>}>
+      <FunnelContent />
+    </Suspense>
   );
 }
