@@ -18,7 +18,7 @@ export default function CareSeekerApplyPage() {
   const [formData, setFormData] = useState({
     services: [] as string[],
     otherServiceText: '',
-    district: '1. Innere Stadt',
+    district: '19. Döbling', // Standardwert auf Döbling geändert
     selectedPackage: 'Starter-Paket (4 Std.) - 99 €',
     targetGroup: 'Für mich selbst',
     fullName: '',
@@ -43,11 +43,12 @@ export default function CareSeekerApplyPage() {
     { id: 'Terminbegleitung', icon: '🤝', title: 'Terminbegleitung', desc: 'Sicherer Begleitschutz zum Arzt oder Ämtern' }
   ];
 
+  // Döbling an die erste Stelle verschoben, Rest als Fallback
   const districtOptions = [
-    '1. Innere Stadt', '2. Leopoldstadt', '3. Landstraße', '4. Wieden', '5. Margareten',
+    '19. Döbling', '1. Innere Stadt', '2. Leopoldstadt', '3. Landstraße', '4. Wieden', '5. Margareten',
     '6. Mariahilf', '7. Neubau', '8. Josefstadt', '9. Alsergrund', '10. Favoriten',
     '11. Simmering', '12. Meidling', '13. Hietzing', '14. Penzing', '15. Rudolfsheim-Fünfhaus',
-    '16. Ottakring', '17. Hernals', '18. Währing', '19. Döbling', '20. Brigittenau',
+    '16. Ottakring', '17. Hernals', '18. Währing', '20. Brigittenau',
     '21. Floridsdorf', '22. Donaustadt', '23. Liesing'
   ];
 
@@ -274,7 +275,6 @@ export default function CareSeekerApplyPage() {
                   <input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900" />
                 </div>
                 
-                {/* DATENSCHUTZ CHECKBOX MIT DIREKT-LINK UND KURZ-MODAL */}
                 <div className="flex items-start gap-3 pt-2 text-left">
                   <input 
                     required 
@@ -319,7 +319,6 @@ export default function CareSeekerApplyPage() {
         )}
       </div>
 
-      {/* DATENSCHUTZ MODAL OVERLAY */}
       {showPrivacyModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] flex flex-col p-6 sm:p-8 shadow-2xl border border-slate-100 text-left">
