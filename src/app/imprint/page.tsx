@@ -42,7 +42,7 @@ export default function ImprintPage() {
               <li><strong>Umsatzsteuer:</strong> Umsatzsteuerbefreit aufgrund der Kleinunternehmerregelung gemäß § 6 Abs. 1 Z 27 UStG.</li>
               <li><strong>Mitglied bei:</strong> Wirtschaftskammer Wien (WKO)</li>
               <li><strong>Berufsrecht:</strong> Gewerbeordnung (GewO), abrufbar unter <a href="https://www.ris.bka.gv.at" target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:underline">www.ris.bka.gv.at</a></li>
-              <li><strong>Berufsbezeichnung / Gewerbewortlaut:</strong> Organisation von Betreuungsleistungen / Vermittlung von Alltagshilfe</li>
+              <li><strong>Berufsbezeichnung / Gewerbewortlaut:</strong> Organisation von Personenbetreuung / Vermittlung von Alltagshilfe</li>
               <li><strong>Verleihungsstaat:</strong> Österreich</li>
             </ul>
           </section>
@@ -66,12 +66,9 @@ export default function ImprintPage() {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-slate-900">Online-Streitbeilegung</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Verbraucherstreitbeilegung</h2>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Verbraucher haben die Möglichkeit, Beschwerden an die Online-Streitbeilegungsplattform der EU zu richten:{' '}
-              <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:underline font-medium">
-                https://ec.europa.eu/consumers/odr
-              </a>. Sie können allfällige Beschwerden auch an die oben angegebene E-Mail-Adresse richten.
+              Wir sind nicht verpflichtet und nicht bereit, an einem Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen. Sie können allfällige Anliegen oder Beschwerden jedoch jederzeit direkt per E-Mail an uns richten: <a href="mailto:office@helpifyservices.at" className="text-emerald-700 hover:underline">office@helpifyservices.at</a>.
             </p>
           </section>
 
