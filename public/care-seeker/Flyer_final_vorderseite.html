@@ -3,22 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Helpify - DIN A5 Flyer (Hilfesuchende - Wohnhaus)</title>
+  <title>Helpify - DIN A5 Flyer (Vorderseite)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
     body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     .font-serif { font-family: 'Playfair Display', serif; }
+    .page { width: 148mm; height: 210mm; }
     @page { size: A5 portrait; margin: 0; }
     @media print { 
-      html, body { background: none !important; padding: 0 !important; margin: 0 !important; width: 148mm; height: 210mm; } 
-      #flyer { width: 148mm !important; height: 210mm !important; border-radius: 0 !important; box-shadow: none !important; border: none !important; margin: 0 !important; } 
+      html, body { background: none !important; padding: 0 !important; margin: 0 !important; } 
+      .page { width: 148mm !important; height: 210mm !important; border-radius: 0 !important; box-shadow: none !important; border: none !important; margin: 0 !important; } 
     }
   </style>
 </head>
-<body class="bg-slate-300 min-h-screen flex items-center justify-center p-4">
-  <div id="flyer" class="w-[148mm] h-[210mm] bg-[#F2F6F4] text-[#0A2E23] p-[26px] rounded-[2.5rem] shadow-2xl border border-emerald-950/5 relative overflow-hidden flex flex-col justify-between shrink-0 select-none">
+<body class="bg-slate-300 min-h-screen flex items-center justify-center p-6">
+
+  <div class="page bg-[#F2F6F4] text-[#0A2E23] p-[26px] rounded-[2.5rem] shadow-2xl border border-emerald-950/5 relative overflow-hidden flex flex-col justify-between shrink-0 select-none">
     
     <!-- HEADER & HEADLINE -->
     <div class="shrink-0">
@@ -50,7 +52,7 @@
     <div class="my-auto">
       <div class="flex items-center justify-between mb-2.5 px-1">
         <span class="text-[#1B4D3E] text-[10px] font-extrabold uppercase tracking-widest">Warum Familien Helpify vertrauen</span>
-        <div class="h-[1px] flex-1 ml-3 bg-emerald-900/10"></div>
+        <div class="h-[1px] flex-1 ml-4 bg-emerald-900/10"></div>
       </div>
       <div class="space-y-2.5">
         <div class="bg-white/90 backdrop-blur-md px-4 py-3 rounded-2xl border border-emerald-900/5 shadow-[0_4px_20px_rgba(10,46,35,0.02)] flex items-center gap-4">
@@ -62,7 +64,7 @@
           </div>
           <div>
             <h3 class="font-extrabold text-[#0A2E23] text-[13px] leading-tight tracking-tight">Haushalt, Einkäufe &amp; Gesellschaft</h3>
-            <p class="text-[10.5px] text-slate-500 font-normal leading-relaxed">Unterstützung im Alltag - bei Reinigung &amp; Kochen, Spaziergängen , Terminbegleitungen oder gemeinsame Zeit.</p>
+            <p class="text-[10.5px] text-slate-500 font-normal leading-relaxed">Unterstützung im Alltag - bei Reinigung &amp; Kochen, Spaziergängen, Terminbegleitungen oder gemeinsame Zeit.</p>
           </div>
         </div>
 
@@ -97,10 +99,9 @@
       </div>
     </div>
 
-  <!-- CTA & QR CODE SECTION -->
+    <!-- CTA & QR CODE SECTION -->
     <div class="bg-[#1B4D3E] text-white px-5 pt-5 pb-4 rounded-2xl flex items-center justify-between gap-3 shadow-xl shrink-0 border border-emerald-800/40 relative overflow-visible">
       
-      <!-- LEUCHT-PFEIL -->
       <svg class="absolute -top-3 left-0 w-full h-[calc(100%+24px)] pointer-events-none z-30 overflow-visible" viewBox="0 0 420 120" fill="none">
         <defs>
           <filter id="mint-glow" x="-20%" y="-20%" width="140%" height="140%">
@@ -114,23 +115,19 @@
       </svg>
 
       <div class="space-y-2 flex-1 min-w-0 relative z-10">
-        <!-- BADGES -->
         <div class="flex items-center gap-1.5 flex-wrap">
           <span class="inline-block text-[8px] font-extrabold text-[#86EFAC] bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">100% Unverbindlich</span>
           <span class="inline-block text-[8px] font-extrabold text-emerald-100 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15">Kostenlose Erstanfrage</span>
         </div>
         
-        <!-- HEADLINE -->
         <h2 class="text-[18px] font-serif font-bold text-white leading-tight">Jetzt Hilfe in Döbling finden!</h2>
         
-        <!-- E-MAIL BOX -->
         <div class="bg-emerald-950/60 p-2.5 rounded-xl border border-emerald-500/20 text-[9.5px]">
           <p class="text-emerald-100/90 font-medium leading-none mb-1">QR-Code scannen oder direkt schreiben:</p>
           <span class="text-[#86EFAC] font-bold text-[11px] tracking-wide block">hilfe@helpifyservices.at</span>
         </div>
       </div>
       
-      <!-- QR CODE -->
       <div class="flex flex-col items-center shrink-0 relative z-10 ml-1">
         <div class="bg-white p-2 rounded-2xl shadow-2xl shrink-0 flex items-center justify-center border-2 border-[#86EFAC] ring-4 ring-[#86EFAC]/25 relative">
           <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://helpify-platform.vercel.app/care-seeker/apply?source=wohnhaus_qr" alt="QR Code" class="w-[75px] h-[75px] rounded-xl block">
@@ -139,10 +136,11 @@
     </div>
 
     <!-- FOOTER -->
-    <div class="text-center text-[7px] text-slate-400 mt-1.5">
-      Helpify | Medieninhaber: Florian Saubiez, Wien
+    <div class="text-center text-[7.5px] text-slate-400 mt-1.5 font-medium">
+      Helpify | Döbling | Bitte wenden
     </div>
 
   </div>
+
 </body>
 </html>

@@ -5,7 +5,10 @@ export default function ImprintPage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-800 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto space-y-6">
-        <Link href="/" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium text-sm transition-colors">
+        <Link 
+          href="/" 
+          className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium text-sm transition-colors"
+        >
           <ArrowLeft className="w-4 h-4" /> Zurück zur Startseite
         </Link>
 
@@ -13,6 +16,7 @@ export default function ImprintPage() {
           
           <div className="border-b border-slate-200 pb-6">
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">Impressum</h1>
+            <p className="text-xs text-slate-400 mt-1">Informationen gemäß § 5 E-Commerce-Gesetz (ECG) und § 14 Unternehmensgesetzbuch (UGB)</p>
           </div>
 
           <section className="space-y-4">
@@ -22,43 +26,57 @@ export default function ImprintPage() {
               <p>Florian Touraj Saubiez</p>
               <p>Kulmgasse 44, 1170 Wien, Österreich</p>
               <p className="pt-2"><strong>Tel.:</strong> +49 176 32089328</p>
-              <p><strong>E-Mail:</strong> <a href="mailto:office@helpifyservices.at" className="text-indigo-600 hover:underline">office@helpifyservices.at</a></p>
+              <p><strong>E-Mail:</strong> <a href="mailto:office@helpifyservices.at" className="text-emerald-700 hover:underline font-medium">office@helpifyservices.at</a></p>
             </div>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-slate-900">Unternehmensdetails</h2>
-            <ul className="space-y-2 text-slate-600">
-              <li><strong>Unternehmensgegenstand:</strong> Erbringung von Dienstleistungen im Bereich Alltagshilfe und Betreuung</li>
-              <li><strong>Mitglied bei:</strong> Wirtschaftskammer Wien</li>
-              <li><strong>Berufsrecht:</strong> Gewerbeordnung (GewO): <a href="https://www.ris.bka.gv.at" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">www.ris.bka.gv.at</a></li>
+            <h2 className="text-xl font-semibold text-slate-900">Unternehmensdetails & Gewerbe</h2>
+            <ul className="space-y-3 text-slate-600">
+              <li>
+                <strong>Unternehmensgegenstand:</strong> Organisation und Vermittlung von Dienstleistungen im Bereich Alltagshilfe und Betreuung.
+                <span className="block text-xs text-slate-500 mt-1">
+                  (Hinweis: Es werden ausschließlich alltägliche Unterstützungsleistungen vermittelt. Es erfolgen keine medizinischen, hauswertigen Pflege- oder Krankenpflegedienstleistungen im Sinne des GuKG.)
+                </span>
+              </li>
+              <li><strong>Umsatzsteuer:</strong> Umsatzsteuerbefreit aufgrund der Kleinunternehmerregelung gemäß § 6 Abs. 1 Z 27 UStG.</li>
+              <li><strong>Mitglied bei:</strong> Wirtschaftskammer Wien (WKO)</li>
+              <li><strong>Berufsrecht:</strong> Gewerbeordnung (GewO), abrufbar unter <a href="https://www.ris.bka.gv.at" target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:underline">www.ris.bka.gv.at</a></li>
+              <li><strong>Berufsbezeichnung / Gewerbewortlaut:</strong> Organisation von Betreuungsleistungen / Vermittlung von Alltagshilfe</li>
+              <li><strong>Verleihungsstaat:</strong> Österreich</li>
             </ul>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-slate-900">Aufsichtsbehörde</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Aufsichtsbehörde / Gewerbebehörde</h2>
             <div className="text-slate-600 space-y-1">
-              <p>Magistratisches Bezirksamt für den 9./17. Bezirk</p>
+              <p>Magistratisches Bezirksamt für den 17. Bezirk (Wien)</p>
               <p>Elterleinplatz 14, 1170 Wien, Österreich</p>
-              <p><strong>Webseite:</strong> <a href="https://www.wien.gv.at" target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">www.wien.gv.at</a></p>
-              <p className="pt-2"><strong>Berufsbezeichnung:</strong> Dienstleister im Bereich Alltagshilfe</p>
-              <p><strong>Verleihungsstaat:</strong> Österreich</p>
+              <p><strong>Webseite:</strong> <a href="https://www.wien.gv.at" target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:underline">www.wien.gv.at</a></p>
             </div>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-slate-900">Datenschutz Verantwortlicher</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Verantwortlich für den Datenschutz</h2>
             <div className="text-slate-600 space-y-1">
               <p className="font-medium text-slate-800">Florian Touraj Saubiez</p>
               <p>Kulmgasse 44, 1170 Wien, Österreich</p>
-              <p><strong>E-Mail:</strong> <a href="mailto:office@helpifyservices.at" className="text-indigo-600 hover:underline">office@helpifyservices.at</a></p>
-              <p><strong>Tel.:</strong> +49 176 32089328</p>
+              <p><strong>E-Mail:</strong> <a href="mailto:office@helpifyservices.at" className="text-emerald-700 hover:underline">office@helpifyservices.at</a></p>
             </div>
           </section>
 
+          <section className="space-y-4">
+            <h2 className="text-xl font-semibold text-slate-900">Online-Streitbeilegung</h2>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Verbraucher haben die Möglichkeit, Beschwerden an die Online-Streitbeilegungsplattform der EU zu richten:{' '}
+              <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:underline font-medium">
+                https://ec.europa.eu/consumers/odr
+              </a>. Sie können allfällige Beschwerden auch an die oben angegebene E-Mail-Adresse richten.
+            </p>
+          </section>
+
           <div className="border-t border-slate-200 pt-6 text-xs text-slate-400 space-y-1">
-            <p>Alle Texte sind urheberrechtlich geschützt.</p>
-            <p>Quelle: Erstellt mit dem Impressum Generator von AdSimple</p>
+            <p>© {new Date().getFullYear()} Helpify – Alle Rechte vorbehalten.</p>
           </div>
 
         </div>
