@@ -18,8 +18,8 @@ export default function CareSeekerApplyPage() {
   const [formData, setFormData] = useState({
     services: [] as string[],
     otherServiceText: '',
-    district: '19. Döbling', // Standardwert auf Döbling geändert
-    selectedPackage: 'Starter-Paket (4 Std.) - 99 €',
+    district: '19. Döbling',
+    selectedPackage: 'Erstgespräch & Beratung',
     targetGroup: 'Für mich selbst',
     fullName: '',
     email: '',
@@ -43,18 +43,12 @@ export default function CareSeekerApplyPage() {
     { id: 'Terminbegleitung', icon: '🤝', title: 'Terminbegleitung', desc: 'Sicherer Begleitschutz zum Arzt oder Ämtern' }
   ];
 
-  // Döbling an die erste Stelle verschoben, Rest als Fallback
   const districtOptions = [
     '19. Döbling', '1. Innere Stadt', '2. Leopoldstadt', '3. Landstraße', '4. Wieden', '5. Margareten',
     '6. Mariahilf', '7. Neubau', '8. Josefstadt', '9. Alsergrund', '10. Favoriten',
     '11. Simmering', '12. Meidling', '13. Hietzing', '14. Penzing', '15. Rudolfsheim-Fünfhaus',
     '16. Ottakring', '17. Hernals', '18. Währing', '20. Brigittenau',
     '21. Floridsdorf', '22. Donaustadt', '23. Liesing'
-  ];
-
-  const packageOptions = [
-    { name: 'Starter-Paket (4 Std.) - 99 €', desc: 'Ideal zum Testen ohne Risiko' },
-    { name: 'Flex-Paket (10 Std.) - 239 €', desc: 'Der Bestseller für regelmäßige Alltagsbegleitung' }
   ];
 
   const targetGroupOptions = ['Für mich selbst', 'Für meine Eltern / Angehörigen', 'Für Bekannte'];
@@ -64,7 +58,9 @@ export default function CareSeekerApplyPage() {
   const toggleService = (serviceId: string) => {
     setFormData(prev => ({
       ...prev,
-      services: prev.services.includes(serviceId) ? prev.services.filter(s => s !== serviceId) : [...prev.services, serviceId]
+      services: prev.services.includes(serviceId) 
+        ? prev.services.filter(s => s !== serviceId) 
+        : [...prev.services, serviceId]
     }));
   };
 
@@ -73,12 +69,14 @@ export default function CareSeekerApplyPage() {
     setEmailTouched(true);
     if (!formData.privacyAccepted || !isValidEmail(formData.email)) return;
     setLoading(true);
+
     try {
       const finalServices = [...formData.services];
       if (formData.otherServiceText.trim()) {
         finalServices.push(`Sonstiges: ${formData.otherServiceText.trim()}`);
       }
 
+      // 1. Lead in Supabase speichern
       const { error } = await supabase.from('care_requests').insert([{
         role: 'care_seeker',
         name: formData.fullName,
@@ -94,6 +92,7 @@ export default function CareSeekerApplyPage() {
 
       if (error) throw error;
 
+      // 2. Benachrichtigungs-Mail auslösen
       await fetch('/api/notify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -110,26 +109,13 @@ export default function CareSeekerApplyPage() {
         }),
       });
 
-      const stripeRes = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          packageName: formData.selectedPackage,
-          email: formData.email,
-          name: formData.fullName,
-        }),
-      });
-
-      const stripeData = await stripeRes.json();
-      if (stripeData.url) {
-        window.location.href = stripeData.url;
-      } else {
-        throw new Error('Konnte keine Checkout-Session erstellen');
-      }
+      // 3. Erfolgsseite anzeigen
+      setSubmitted(true);
 
     } catch (err) {
-      console.error('Fehler beim Speichern der Pflege-Anfrage:', err);
+      console.error('Fehler beim Speichern der Anfrage:', err);
       alert('Es gab ein Problem beim Absenden. Bitte versuche es erneut.');
+    } finally {
       setLoading(false);
     }
   };
@@ -145,8 +131,12 @@ export default function CareSeekerApplyPage() {
             </svg>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Vielen Dank!</h1>
-          <p className="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed">Deine Anfrage ist bei uns eingegangen. Wir melden uns schnellstmöglich bei dir!</p>
-          <div className="inline-block px-6 py-3 rounded-2xl bg-white/10 text-emerald-400 font-semibold text-sm border border-white/10">Du kannst dieses Fenster jetzt schließen.</div>
+          <p className="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed">
+            Deine Anfrage ist erfolgreich bei uns eingegangen. Wir melden uns in Kürze persönlich bei dir für ein unverbindliches Erstgespräch!
+          </p>
+          <div className="inline-block px-6 py-3 rounded-2xl bg-white/10 text-emerald-400 font-semibold text-sm border border-white/10">
+            Du kannst dieses Fenster jetzt schließen.
+          </div>
         </div>
       </main>
     );
@@ -206,11 +196,19 @@ export default function CareSeekerApplyPage() {
 
             {isOtherSelected && (
               <div className="mb-6">
-                <input type="text" placeholder="Beschreibe kurz deine Wünsche..." value={formData.otherServiceText} onChange={e => setFormData({...formData, otherServiceText: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900" />
+                <input 
+                  type="text" 
+                  placeholder="Beschreibe kurz deine Wünsche..." 
+                  value={formData.otherServiceText} 
+                  onChange={e => setFormData({ ...formData, otherServiceText: e.target.value })} 
+                  className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900" 
+                />
               </div>
             )}
 
-            <button type="button" onClick={() => setStep(2)} disabled={formData.services.length === 0} className="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-emerald-600 disabled:opacity-40">Weiter →</button>
+            <button type="button" onClick={() => setStep(2)} disabled={formData.services.length === 0} className="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-emerald-600 disabled:opacity-40">
+              Weiter →
+            </button>
           </div>
         )}
 
@@ -220,20 +218,20 @@ export default function CareSeekerApplyPage() {
             <div className="space-y-4 mb-6">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Für wen suchst du?</label>
-                <select value={formData.targetGroup} onChange={e => setFormData({...formData, targetGroup: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium">
+                <select value={formData.targetGroup} onChange={e => setFormData({ ...formData, targetGroup: e.target.value })} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium">
                   {targetGroupOptions.map(tg => <option key={tg} value={tg}>{tg}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">In welchem Bezirk?</label>
-                <select value={formData.district} onChange={e => setFormData({...formData, district: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium">
+                <select value={formData.district} onChange={e => setFormData({ ...formData, district: e.target.value })} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium">
                   {districtOptions.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
             </div>
             <div className="flex gap-3">
-              <button type="button" onClick={() => setStep(1)} className="w-1/3 border-2 border-slate-200 text-slate-600 font-bold py-4 rounded-2xl">Zurück</button>
-              <button type="button" onClick={() => setStep(3)} className="w-2/3 bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-emerald-600">Weiter →</button>
+              <button type="button" onClick={() => setStep(1)} className="w-1/3 border-2 border-slate-200 text-slate-600 font-bold py-4 rounded-2xl cursor-pointer">Zurück</button>
+              <button type="button" onClick={() => setStep(3)} className="w-2/3 bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-emerald-600 cursor-pointer">Weiter →</button>
             </div>
           </div>
         )}
@@ -241,38 +239,23 @@ export default function CareSeekerApplyPage() {
         {step === 3 && (
           <div className="animate-in fade-in duration-500">
             <form onSubmit={handleSubmit}>
-              <div className="mb-6">
-                <label className="block text-xs font-bold text-slate-700 mb-2">Wähle dein Paket</label>
-                <div className="grid grid-cols-1 gap-2.5">
-                  {packageOptions.map(pkg => {
-                    const isSelected = formData.selectedPackage === pkg.name;
-                    return (
-                      <button 
-                        key={pkg.name} 
-                        type="button" 
-                        onClick={() => setFormData({...formData, selectedPackage: pkg.name})} 
-                        className={`p-4 rounded-2xl border-2 text-left transition-all ${isSelected ? 'border-emerald-500 bg-emerald-50/60 text-emerald-900 shadow-sm' : 'border-slate-100 bg-white text-slate-700'}`}
-                      >
-                        <div className="font-bold text-sm">{pkg.name}</div>
-                        <div className="text-xs text-slate-500 mt-0.5">{pkg.desc}</div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">Deine Kontaktdaten</h2>
+              <p className="text-xs sm:text-sm text-slate-500 mb-6">
+                Wohin dürfen wir dich für das kostenlose & unverbindliche Erstgespräch kontaktieren?
+              </p>
 
               <div className="space-y-4 mb-6">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Name</label>
-                  <input required type="text" placeholder="Vor- & Nachname" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900" />
+                  <input required type="text" placeholder="Vor- & Nachname" value={formData.fullName} onChange={e => setFormData({ ...formData, fullName: e.target.value })} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">E-Mail</label>
-                  <input required type="email" placeholder="name@beispiel.at" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} onBlur={() => setEmailTouched(true)} className={`w-full px-4 py-3.5 bg-slate-50 border rounded-2xl text-slate-900 ${isEmailInvalid ? 'border-red-400' : 'border-slate-200'}`} />
+                  <input required type="email" placeholder="name@beispiel.at" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} onBlur={() => setEmailTouched(true)} className={`w-full px-4 py-3.5 bg-slate-50 border rounded-2xl text-slate-900 font-medium ${isEmailInvalid ? 'border-red-400' : 'border-slate-200'}`} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Telefonnummer</label>
-                  <input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900" />
+                  <input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium" />
                 </div>
                 
                 <div className="flex items-start gap-3 pt-2 text-left">
@@ -281,7 +264,7 @@ export default function CareSeekerApplyPage() {
                     type="checkbox" 
                     id="privacy" 
                     checked={formData.privacyAccepted} 
-                    onChange={e => setFormData({...formData, privacyAccepted: e.target.checked})} 
+                    onChange={e => setFormData({ ...formData, privacyAccepted: e.target.checked })} 
                     className="mt-0.5 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer shrink-0" 
                   />
                   <span className="text-xs text-slate-600 leading-snug select-none">
@@ -311,8 +294,10 @@ export default function CareSeekerApplyPage() {
               </div>
 
               <div className="flex gap-3">
-                <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 font-bold py-4 rounded-2xl">Zurück</button>
-                <button disabled={loading || !formData.privacyAccepted || !isValidEmail(formData.email)} type="submit" className="w-2/3 bg-emerald-600 text-white font-bold py-4 rounded-2xl hover:bg-emerald-500 disabled:opacity-70 cursor-pointer">{loading ? 'Wird geleitet...' : 'Abschicken 🚀'}</button>
+                <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 font-bold py-4 rounded-2xl cursor-pointer">Zurück</button>
+                <button disabled={loading || !formData.privacyAccepted || !isValidEmail(formData.email)} type="submit" className="w-2/3 bg-emerald-600 text-white font-bold py-4 rounded-2xl hover:bg-emerald-500 disabled:opacity-70 cursor-pointer">
+                  {loading ? 'Sende Anfrage...' : 'Kostenlos & unverbindlich anfragen 🚀'}
+                </button>
               </div>
             </form>
           </div>
@@ -322,7 +307,6 @@ export default function CareSeekerApplyPage() {
       {showPrivacyModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] flex flex-col p-6 sm:p-8 shadow-2xl border border-slate-100 text-left">
-            
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
               <button
                 type="button"
@@ -404,7 +388,6 @@ export default function CareSeekerApplyPage() {
                 <span>Gelesen & Akzeptieren</span>
               </button>
             </div>
-
           </div>
         </div>
       )}

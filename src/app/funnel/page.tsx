@@ -3,23 +3,21 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, CheckCircle2, HeartHandshake, ShoppingBag, Home, Sparkles, Loader2, ShieldCheck, CreditCard } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, HeartHandshake, ShoppingBag, Home, Sparkles, Loader2, ShieldCheck, CreditCard, MapPin } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 function FunnelContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const zipFromUrl = searchParams.get('zip') || '';
 
   const supabase = createClient();
 
-  const isValidZip = (zip: string) => {
-    const cleanZip = zip.trim();
-    return cleanZip.length === 4 || cleanZip.length === 5;
-  };
+  // Für das Pilotprojekt fest auf 1190 Wien (Döbling) fixiert
+  const FIXED_ZIP = '1190';
+  const FIXED_DISTRICT = '1190 Wien (Döbling)';
 
-  const [step, setStep] = useState(isValidZip(zipFromUrl) ? 2 : 1);
-  const [zipCode, setZipCode] = useState(zipFromUrl);
+  const [step, setStep] = useState(1);
+  const [zipCode, setZipCode] = useState(FIXED_ZIP);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [otherService, setOtherService] = useState('');
   
@@ -30,15 +28,6 @@ function FunnelContent() {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  useEffect(() => {
-    if (zipFromUrl) {
-      setZipCode(zipFromUrl);
-      if (isValidZip(zipFromUrl)) {
-        setStep(2);
-      }
-    }
-  }, [zipFromUrl]);
 
   const handleServiceToggle = (service: string) => {
     if (selectedServices.includes(service)) {
@@ -59,10 +48,37 @@ function FunnelContent() {
     setErrorMessage('');
 
     try {
-      const { error } = await supabase.from('care_requests').insert([{ region: zipCode, service_types: selectedServices, other_service: otherService, name: name, email: email, phone: phone, status: 'pending', source: 'landing_funnel' }]);
+      // 1. In Supabase speichern
+      const { error } = await supabase.from('care_requests').insert([{ 
+        region: FIXED_DISTRICT, 
+        service_types: selectedServices, 
+        other_service: otherService, 
+        name: name, 
+        email: email, 
+        phone: phone, 
+        status: 'pending', 
+        source: 'landing_funnel' 
+      }]);
 
       if (error) throw error;
 
+      // 2. E-Mail-Benachrichtigung auslösen
+      await fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          role: 'care_seeker',
+          name: name,
+          email: email,
+          phone: phone,
+          district: FIXED_DISTRICT,
+          services: selectedServices,
+          other_service: otherService,
+          source: 'landing_funnel',
+        }),
+      });
+
+      // 3. Auf Danke-Seite weiterleiten
       router.push('/danke');
     } catch (err: any) {
       console.error('Fehler beim Speichern in Supabase:', err);
@@ -84,27 +100,28 @@ function FunnelContent() {
 
       <main className="max-w-xl w-full mx-auto bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200/80 my-auto">
         
-        {/* SCHRITT 1: PLZ */}
+        {/* SCHRITT 1: FESTE PILOTREGION DÖBLING */}
         {step === 1 && (
           <div className="space-y-6 text-center">
-            <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Wo wird die Unterstützung benötigt?</h2>
-            <p className="text-xs text-slate-500">Gib deine Postleitzahl ein, um Helfer in deiner Nähe zu finden.</p>
+            <div className="inline-flex items-center gap-1.5 bg-[#E6F4EA] text-[#1B4D3E] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+              <MapPin className="w-3.5 h-3.5" />
+              <span>Exklusive Pilotregion</span>
+            </div>
+
+            <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Unterstützung im 19. Bezirk</h2>
+            <p className="text-xs text-slate-500 leading-relaxed max-w-sm mx-auto">
+              Helpify startet aktuell exklusiv in <strong className="text-slate-800">1190 Wien (Döbling)</strong>, um höchste Qualität und persönliche Erreichbarkeit zu garantieren.
+            </p>
             
-            <input 
-              type="text"
-              maxLength={5}
-              value={zipCode}
-              onChange={(e) => setZipCode(e.target.value)}
-              placeholder="PLZ eingeben (z. B. 1170)"
-              className="w-full text-center text-xl font-bold py-3.5 px-4 rounded-xl border border-slate-300 focus:border-[#1B4D3E] focus:outline-none tracking-widest bg-slate-50"
-            />
+            <div className="p-4 bg-slate-50 rounded-2xl border-2 border-[#1B4D3E] text-[#0A2E23] font-bold text-base sm:text-lg flex items-center justify-center gap-2 shadow-xs">
+              <span>📍 {FIXED_DISTRICT}</span>
+            </div>
 
             <button
-              disabled={!isValidZip(zipCode)}
               onClick={() => setStep(2)}
-              className="w-full bg-[#1B4D3E] hover:bg-[#143a2e] disabled:opacity-40 text-white font-bold text-sm py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:cursor-not-allowed"
+              className="w-full bg-[#1B4D3E] hover:bg-[#143a2e] text-white font-bold text-sm py-4 rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
             >
-              <span>Weiter</span>
+              <span>Jetzt Hilfe auswählen</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -116,7 +133,7 @@ function FunnelContent() {
             <div className="text-center space-y-1">
               <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Wobei wird Hilfe benötigt?</h2>
               <p className="text-xs text-slate-500">
-                Für PLZ <span className="font-bold text-[#1B4D3E]">{zipCode}</span> (Mehrfachauswahl möglich)
+                Für <span className="font-bold text-[#1B4D3E]">{FIXED_DISTRICT}</span> (Mehrfachauswahl möglich)
               </p>
             </div>
 
@@ -169,7 +186,7 @@ function FunnelContent() {
                 onClick={() => setStep(1)}
                 className="w-1/3 border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-sm py-3.5 rounded-xl transition cursor-pointer"
               >
-                PLZ ändern
+                Zurück
               </button>
               <button
                 disabled={selectedServices.length === 0}
@@ -189,7 +206,7 @@ function FunnelContent() {
             <div className="space-y-1">
               <h2 className="text-2xl font-serif font-bold text-[#0A2E23]">Fast geschafft!</h2>
               <p className="text-xs text-slate-500">
-                Wohin dürfen wir die passenden Angebote für PLZ <span className="font-bold text-[#1B4D3E]">{zipCode}</span> senden?
+                Wohin dürfen wir die passenden Angebote für <span className="font-bold text-[#1B4D3E]">{FIXED_DISTRICT}</span> senden?
               </p>
             </div>
 
@@ -240,7 +257,7 @@ function FunnelContent() {
               />
             </div>
 
-            {/* DATENSCHUTZ CHECKBOX MIT POP-UP MODAL TRIGGER */}
+            {/* DATENSCHUTZ CHECKBOX */}
             <div className="flex items-start gap-2.5 text-left px-1">
               <input
                 type="checkbox"
@@ -302,12 +319,11 @@ function FunnelContent() {
         © {new Date().getFullYear()} Helpify – Sichere Vermittlung von Alltagshilfe
       </footer>
 
-      {/* DATENSCHUTZ MODAL OVERLAY MIT ZURÜCK-PFEIL */}
+      {/* DATENSCHUTZ MODAL */}
       {showPrivacyModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
           <div className="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] flex flex-col p-6 sm:p-8 shadow-2xl border border-slate-200">
             
-            {/* Header mit Zurück-Pfeil */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
               <button
                 type="button"
@@ -319,7 +335,6 @@ function FunnelContent() {
               <span className="text-xs font-bold text-slate-400">Datenschutz</span>
             </div>
 
-            {/* Inhaltsbereich */}
             <div className="overflow-y-auto text-xs text-slate-600 space-y-4 pr-2">
               <h3 className="text-lg font-serif font-bold text-[#0A2E23]">Datenschutzerklärung</h3>
               
@@ -352,7 +367,6 @@ function FunnelContent() {
               </p>
             </div>
 
-            {/* Aktion-Footer */}
             <div className="pt-4 border-t border-slate-100 mt-4 flex gap-3">
               <button
                 type="button"
