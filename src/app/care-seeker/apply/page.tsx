@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, MapPin } from 'lucide-react';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -43,13 +43,8 @@ export default function CareSeekerApplyPage() {
     { id: 'Terminbegleitung', icon: '🤝', title: 'Terminbegleitung', desc: 'Sicherer Begleitschutz zum Arzt oder Ämtern' }
   ];
 
-  const districtOptions = [
-    '19. Döbling', '1. Innere Stadt', '2. Leopoldstadt', '3. Landstraße', '4. Wieden', '5. Margareten',
-    '6. Mariahilf', '7. Neubau', '8. Josefstadt', '9. Alsergrund', '10. Favoriten',
-    '11. Simmering', '12. Meidling', '13. Hietzing', '14. Penzing', '15. Rudolfsheim-Fünfhaus',
-    '16. Ottakring', '17. Hernals', '18. Währing', '20. Brigittenau',
-    '21. Floridsdorf', '22. Donaustadt', '23. Liesing'
-  ];
+  // Für die Pilotphase fest auf den 19. Bezirk beschränkt
+  const districtOptions = ['19. Döbling'];
 
   const targetGroupOptions = ['Für mich selbst', 'Für meine Eltern / Angehörigen', 'Für Bekannte'];
 
@@ -90,10 +85,13 @@ export default function CareSeekerApplyPage() {
         status: 'submitted'
       }]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase Fehler:', error);
+        throw error;
+      }
 
-      // 2. Benachrichtigungs-Mail auslösen
-      await fetch('/api/notify', {
+      // 2. Benachrichtigungs-Mail im Hintergrund auslösen (blockiert die UI NICHT)
+      fetch('/api/notify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -107,12 +105,12 @@ export default function CareSeekerApplyPage() {
           target_group: formData.targetGroup,
           source: formData.source,
         }),
-      });
+      }).catch(err => console.error('Hintergrund-E-Mail gescheitert:', err));
 
-      // 3. Erfolgsseite anzeigen
+      // 3. Sofort auf Danke-Ansicht umschalten
       setSubmitted(true);
 
-    } catch (err) {
+    } catch (err: any) {
       console.error('Fehler beim Speichern der Anfrage:', err);
       alert('Es gab ein Problem beim Absenden. Bitte versuche es erneut.');
     } finally {
@@ -176,7 +174,7 @@ export default function CareSeekerApplyPage() {
               {serviceOptions.map(s => {
                 const isSelected = formData.services.includes(s.id);
                 return (
-                  <button key={s.id} type="button" onClick={() => toggleService(s.id)} className={`flex items-center p-4 rounded-2xl border-2 text-left transition-all ${isSelected ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-100 bg-white'}`}>
+                  <button key={s.id} type="button" onClick={() => toggleService(s.id)} className={`flex items-center p-4 rounded-2xl border-2 text-left transition-all cursor-pointer ${isSelected ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-100 bg-white'}`}>
                     <span className="text-2xl mr-4">{s.icon}</span>
                     <div>
                       <span className="block font-bold text-slate-800">{s.title}</span>
@@ -185,7 +183,7 @@ export default function CareSeekerApplyPage() {
                   </button>
                 );
               })}
-              <button type="button" onClick={() => toggleService('Sonstiges')} className={`flex items-center p-4 rounded-2xl border-2 text-left transition-all ${isOtherSelected ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-100 bg-white'}`}>
+              <button type="button" onClick={() => toggleService('Sonstiges')} className={`flex items-center p-4 rounded-2xl border-2 text-left transition-all cursor-pointer ${isOtherSelected ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-100 bg-white'}`}>
                 <span className="text-2xl mr-4">💡</span>
                 <div>
                   <span className="block font-bold text-slate-800">Sonstiges</span>
@@ -206,7 +204,7 @@ export default function CareSeekerApplyPage() {
               </div>
             )}
 
-            <button type="button" onClick={() => setStep(2)} disabled={formData.services.length === 0} className="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-emerald-600 disabled:opacity-40">
+            <button type="button" onClick={() => setStep(2)} disabled={formData.services.length === 0} className="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-emerald-600 disabled:opacity-40 cursor-pointer">
               Weiter →
             </button>
           </div>
@@ -218,15 +216,19 @@ export default function CareSeekerApplyPage() {
             <div className="space-y-4 mb-6">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Für wen suchst du?</label>
-                <select value={formData.targetGroup} onChange={e => setFormData({ ...formData, targetGroup: e.target.value })} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium">
+                <select value={formData.targetGroup} onChange={e => setFormData({ ...formData, targetGroup: e.target.value })} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium cursor-pointer">
                   {targetGroupOptions.map(tg => <option key={tg} value={tg}>{tg}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">In welchem Bezirk?</label>
-                <select value={formData.district} onChange={e => setFormData({ ...formData, district: e.target.value })} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-medium">
-                  {districtOptions.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
+                <div className="relative">
+                  <select disabled value={formData.district} className="w-full px-4 py-3.5 bg-emerald-50/60 border border-emerald-300 rounded-2xl text-emerald-900 font-bold appearance-none cursor-not-allowed">
+                    {districtOptions.map(d => <option key={d} value={d}>{d} (Exklusive Pilotregion)</option>)}
+                  </select>
+                  <MapPin className="w-4 h-4 text-emerald-700 absolute right-4 top-4" />
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1">Helpify startet im Rahmen des Pilotprojekts exklusiv in Döbling.</p>
               </div>
             </div>
             <div className="flex gap-3">
@@ -295,7 +297,7 @@ export default function CareSeekerApplyPage() {
 
               <div className="flex gap-3">
                 <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 font-bold py-4 rounded-2xl cursor-pointer">Zurück</button>
-                <button disabled={loading || !formData.privacyAccepted || !isValidEmail(formData.email)} type="submit" className="w-2/3 bg-emerald-600 text-white font-bold py-4 rounded-2xl hover:bg-emerald-500 disabled:opacity-70 cursor-pointer">
+                <button disabled={loading || !formData.privacyAccepted || !isValidEmail(formData.email)} type="submit" className="w-2/3 bg-emerald-600 text-[#FFFFFF] font-bold py-4 rounded-2xl hover:bg-emerald-500 disabled:opacity-70 cursor-pointer">
                   {loading ? 'Sende Anfrage...' : 'Kostenlos & unverbindlich anfragen 🚀'}
                 </button>
               </div>
