@@ -3,7 +3,6 @@ import { Resend } from 'resend';
 
 export async function POST(req: Request) {
   try {
-    // Resend erst hier initialisieren, damit der Build nicht crasht
     const resend = new Resend(process.env.RESEND_API_KEY || '');
 
     const data = await req.json();
@@ -13,9 +12,10 @@ export async function POST(req: Request) {
       ? `🚀 Neue Helfer-Bewerbung: ${data.name}` 
       : `📩 Neue Pflege-Anfrage (Döbling): ${data.name}`;
 
-    await resend.emails.send({
+    // Resend gibt { data, error } zurück
+    const { data: resendData, error: resendError } = await resend.emails.send({
       from: 'Helpify <onboarding@resend.dev>', 
-      to: ['f75256694@gmail.com'], // DEINE E-MAIL-ADRESSE
+      to: ['office@helpifyservices.at'],
       subject: subject,
       html: `
         <div style="font-family: sans-serif; padding: 20px;">
@@ -34,9 +34,16 @@ export async function POST(req: Request) {
       `,
     });
 
-    return NextResponse.json({ success: true });
+    if (resendError) {
+      console.error('❌ Resend API Fehler:', resendError);
+      return NextResponse.json({ error: resendError.message }, { status: 400 });
+    }
+
+    console.log('✅ Resend Erfolgreich:', resendData);
+    return NextResponse.json({ success: true, resendData });
+
   } catch (error: any) {
-    console.error('Fehler beim E-Mail-Versand:', error);
-    return NextResponse.json({ error: 'E-Mail konnte nicht gesendet werden.' }, { status: 500 });
+    console.error('❌ Server Fehler:', error);
+    return NextResponse.json({ error: 'Serverfehler beim Mailversand' }, { status: 500 });
   }
 }
