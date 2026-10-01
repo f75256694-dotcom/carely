@@ -11,11 +11,11 @@ export async function POST(req: Request) {
 
     const subject = isCaregiver 
       ? `🚀 Neue Helfer-Bewerbung: ${data.name}` 
-      : `📩 Neue Pflege-Anfrage: ${data.name}`;
+      : `📩 Neue Pflege-Anfrage (Döbling): ${data.name}`;
 
     await resend.emails.send({
       from: 'Helpify <onboarding@resend.dev>', 
-      to: ['deine-admin-email@domain.at'], 
+      to: ['f75256694@gmail.com'], // DEINE E-MAIL-ADRESSE
       subject: subject,
       html: `
         <div style="font-family: sans-serif; padding: 20px;">
@@ -25,12 +25,11 @@ export async function POST(req: Request) {
           <p><strong>Name:</strong> ${data.name}</p>
           <p><strong>E-Mail:</strong> ${data.email}</p>
           <p><strong>Telefon:</strong> ${data.phone}</p>
-          <p><strong>Bezirk(e):</strong> ${data.district}</p>
+          <p><strong>Bezirk:</strong> ${data.district}</p>
           <p><strong>Ausgewählte Leistungen:</strong> ${Array.isArray(data.services) ? data.services.join(', ') : data.services}</p>
-          ${data.package ? `<p><strong>Paket:</strong> ${data.package}</p>` : ''}
-          ${data.hours_per_week ? `<p><strong>Zeit/Woche:</strong> ${data.hours_per_week}</p>` : ''}
+          ${data.package ? `<p><strong>Paket/Umfang:</strong> ${data.package}</p>` : ''}
           ${data.target_group ? `<p><strong>Zielgruppe:</strong> ${data.target_group}</p>` : ''}
-          <p><strong>Quelle:</strong> ${data.source || 'direkt'}</p>
+          <p><strong>Quelle:</strong> ${data.source || 'direkt (Flyer)'}</p>
         </div>
       `,
     });
