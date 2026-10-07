@@ -13,13 +13,13 @@ export default function WiderrufPage() {
           
           <div className="border-b border-slate-200 pb-6">
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">Widerrufsbelehrung</h1>
-            <p className="text-sm text-slate-500 mt-2">Stand: September 2026 – Anwendbares Recht: FAGG (Österreich)</p>
+            <p className="text-sm text-slate-500 mt-2">Stand: Oktober 2026 – Anwendbares Recht: FAGG (Österreich)</p>
           </div>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-slate-900">Widerrufsrecht</h2>
+            <h2 className="text-xl font-semibold text-slate-900">Widerrufsrecht für Vermittlungsverträge</h2>
             <p className="text-slate-600 leading-relaxed">
-              Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag über die Vermittlung von Alltagshilfe und Betreuungsleistungen zu widerrufen. Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.
+              Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag über die <strong>Vermittlung von Alltagshilfe</strong> zu widerrufen. Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.
             </p>
             <p className="text-slate-600 leading-relaxed">
               Um Ihr Widerrufsrecht auszuüben, müssen Sie uns:
@@ -34,22 +34,35 @@ export default function WiderrufPage() {
             <p className="text-slate-600 leading-relaxed">
               mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das beigefügte Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.
             </p>
+            <p className="text-slate-600 leading-relaxed font-medium text-slate-900">
+              Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.
+            </p>
           </section>
 
           <section className="space-y-4">
             <h2 className="text-xl font-semibold text-slate-900">Folgen des Widerrufs</h2>
             <p className="text-slate-600 leading-relaxed">
-              Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist. Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben, es sei denn, mit Ihnen wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.
+              Wenn Sie diesen Vermittlungsvertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist. Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben, es sei denn, mit Ihnen wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.
             </p>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-slate-900">Vorzeitiges Erlöschen des Widerrufsrechts</h2>
-            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-slate-700 leading-relaxed space-y-2">
+            <h2 className="text-xl font-semibold text-slate-900">Vorzeitiges Erlöschen des Widerrufsrechts & Wertersatz (§ 16, § 18 FAGG)</h2>
+            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 text-slate-700 leading-relaxed space-y-3">
               <p>
                 <strong>Besonderer Hinweis (§ 18 Abs. 1 Z 1 FAGG):</strong> Ihr Widerrufsrecht bezüglich der Vermittlungsdienstleistung erlischt vorzeitig, wenn Helpify die geschuldete Vermittlung auf Ihren ausdrücklichen Wunsch hin vollständig erbracht hat und Sie vor Beginn der Ausführung bestätigt haben, dass Sie Ihr Widerrufsrecht bei vollständiger Vertragserfüllung verlieren.
               </p>
+              <p>
+                <strong>Wertersatzpflicht (§ 16 FAGG):</strong> Haben Sie verlangt, dass die Vermittlung von Alltagshilfe während der Widerrufsfrist beginnen soll, so haben Sie uns einen angemessenen Betrag zu zahlen, der dem Anteil der bis zu dem Zeitpunkt, zu dem Sie uns von der Ausübung des Widerrufsrechts hinsichtlich dieses Vertrags unterrichten, bereits erbrachten Vermittlungsleistungen im Vergleich zum Gesamtumfang der im Vertrag vorgesehenen Vermittlungsleistungen entspricht.
+              </p>
             </div>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-xl font-semibold text-slate-900">Online-Widerruf (§ 13a FAGG)</h2>
+            <p className="text-slate-600 leading-relaxed">
+              Sie können Ihren Widerruf auch elektronisch über die auf unserer Website bereitgestellte Schaltfläche („Vertrag widerrufen“) übermitteln. Machen Sie von dieser Möglichkeit Gebrauch, so werden wir Ihnen unverzüglich (z. B. per E-Mail) eine Bestätigung über den Eingang eines solchen Widerrufs übermitteln.
+            </p>
           </section>
 
           <section className="space-y-4">
