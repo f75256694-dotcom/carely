@@ -16,7 +16,7 @@ export default function ImprintPage() {
           
           <div className="border-b border-slate-200 pb-6">
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">Impressum</h1>
-            <p className="text-xs text-slate-400 mt-1">Offenlegung gemäß § 5 E-Commerce-Gesetz (ECG) und § 25 Mediengesetz (MedienG)</p>
+            <p className="text-xs text-slate-400 mt-1">Offenlegung gemäß § 5 E-Commerce-Gesetz (ECG)</p>
           </div>
 
           <section className="space-y-4">

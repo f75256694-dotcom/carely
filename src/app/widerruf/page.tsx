@@ -61,14 +61,14 @@ export default function WiderrufPage() {
           <section className="space-y-4">
             <h2 className="text-xl font-semibold text-slate-900">Online-Widerruf (§ 13a FAGG)</h2>
             <p className="text-slate-600 leading-relaxed">
-              Sie können Ihren Widerruf auch elektronisch über die auf unserer Website bereitgestellte Schaltfläche („Vertrag widerrufen“) übermitteln. Machen Sie von dieser Möglichkeit Gebrauch, so werden wir Ihnen unverzüglich (z. B. per E-Mail) eine Bestätigung über den Eingang eines solchen Widerrufs übermitteln.
+              Sie können Ihr Widerrufsrecht auch online unter <strong className="text-slate-900">www.helpifyservices.at</strong> ausüben. Wenn Sie diese Online-Funktion nutzen, übermitteln wir Ihnen auf einem dauerhaften Datenträger (z. B. durch eine E-Mail) unverzüglich eine Eingangsbestätigung mit Informationen zum Inhalt der Widerrufserklärung sowie dem Datum und der Uhrzeit ihres Eingangs.
             </p>
           </section>
 
           <section className="space-y-4">
             <h2 className="text-xl font-semibold text-slate-900">Muster-Widerrufsformular</h2>
             <p className="text-slate-600 leading-relaxed italic">
-              (Wenn Sie den Vertrag widerrufen wollen, können Sie dieses Formular ausfüllen und an uns zurücksenden):
+              (Wenn Sie den Vertrag widerrufen wollen, können Sie dieses Formular ausfüllen und an ns zurücksenden):
             </p>
             <div className="bg-slate-900 text-slate-100 p-6 rounded-xl text-sm font-mono overflow-x-auto leading-relaxed space-y-2">
               <p>An: Helpify – Florian Touraj Saubiez, Kulmgasse 44, 1170 Wien</p>

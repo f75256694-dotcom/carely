@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function AgbPage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-800 py-12 px-4 sm:px-6 lg:px-8">
@@ -5,7 +7,7 @@ export default function AgbPage() {
         
         <div className="border-b border-slate-200 pb-6">
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">Allgemeine Geschäftsbedingungen (AGB)</h1>
-          <p className="text-sm text-slate-500 mt-2">Fassung vom 07.10.2026</p>
+          <p className="text-sm text-slate-500 mt-2">Fassung vom Oktober 2026</p>
         </div>
 
         <section className="space-y-4">
@@ -20,9 +22,9 @@ export default function AgbPage() {
         <section className="space-y-4">
           <h2 className="text-xl font-semibold text-slate-900">2. Abgrenzung zur Gesundheits- und Krankenpflege (GuKG)</h2>
           <p className="text-slate-600 leading-relaxed">
-            Vermittelt werden ausschließlich nicht-medizinische Alltagshilfen im Sinne der gewerblichen Personenbetreuung (§ 159 GewO). Dies umfasst Hilfestellungen bei der Haushaltsführung und Lebensführung wie Einkäufe, Erledigungen, Begleitung zu Arztterminen und Gesellschaft leisten. 
+            Vermittelt werden ausschließlich nicht-medizinische Alltagshilfen im Sinne der gewerberechtlichen Personenbetreuung (§ 159 GewO). Dies umfasst Hilfestellungen bei der Haushaltsführung und Lebensführung wie Einkäufe, Erledigungen, Begleitung zu Arztterminen und Gesellschaft leisten. 
             <br /><br />
-            Nicht Gegenstand der Vermittlung sind Leistungen der Gesundheits- und Krankenpflege nach dem GuKG. Es erfolgen insbesondere keine Behandlungs- oder Hauskrankenpflege, keine Medikamentengabe und keine pflegerischen Tätigkeiten, die medizinisches oder pflegerisches Fachwissen erfordern.
+            Nicht Gegenstand der Vermittlung sind Leistungen der Gesundheits- und Krankenpflege nach dem GuKG. Es erfolgen insbesondere keine Behandlungs- oder Hauskrankenpflege, keine Medikamentengabe und keine pflegerischen Tätigkeiten, die medizinisches oder pflegerisches Fachwissen erfordern. Ergeben sich Anhaltspunkte für einen pflegerischen Bedarf, weist Helpify darauf hin; eine Vermittlung entsprechender Tätigkeiten erfolgt nicht.
           </p>
         </section>
 
@@ -36,9 +38,9 @@ export default function AgbPage() {
         <section className="space-y-4">
           <h2 className="text-xl font-semibold text-slate-900">4. Preise und Zahlungsbedingungen</h2>
           <p className="text-slate-600 leading-relaxed">
-            Die Bezahlung der erbrachten Alltagshilfe erfolgt direkt zwischen dem Kunden und dem jeweiligen selbständigen Helfer gemäß deren Vereinbarung.
+            Die Vermittlung durch Helpify ist derzeit kostenfrei. Die Bezahlung der erbrachten Alltagshilfe erfolgt direkt zwischen dem Kunden und dem jeweiligen selbständigen Helfer gemäß deren Vereinbarung.
             <br /><br />
-            Für Leistungen von Helpify (sofern Entgelte für die Vermittlung anfallen) gelten die auf der Website angegebenen Preise. Gegenüber Verbrauchern gelten bei Zahlungsverzug die gesetzlichen Verzugszinsen in Höhe von 4 % p.a. (§ 1000 ABGB). Mahn- und Betreibungskosten werden nur ersetzt, soweit sie gesondert und aufgeschlüsselt ausgewiesen und zur zweckentsprechenden Betreibung notwendig waren.
+            Für allfällige künftige kostenpflichtige Vermittlungsleistungen werden die Preise vor Vertragsschluss transparent auf der Website ausgewiesen. Gegenüber Verbrauchern gelten bei Zahlungsverzug die gesetzlichen Verzugszinsen in Höhe von 4 % p.a. (§ 1000 ABGB). Mahn- und Betreibungskosten werden nur ersetzt, soweit sie gesondert und aufgeschlüsselt ausgewiesen und zur zweckentsprechenden Betreibung notwendig waren.
           </p>
         </section>
 
@@ -61,7 +63,14 @@ export default function AgbPage() {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-slate-900">7. Schlussbestimmungen</h2>
+          <h2 className="text-xl font-semibold text-slate-900">7. Datenschutz</h2>
+          <p className="text-slate-600 leading-relaxed">
+            Die Verarbeitung personenbezogener Daten im Rahmen der Vermittlung erfolgt im Einklang mit der DSGVO und unserer gesonderten <Link href="/datenschutz" className="text-emerald-700 hover:underline font-medium">Datenschutzerklärung</Link>.
+          </p>
+        </section>
+
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-slate-900">8. Schlussbestimmungen</h2>
           <p className="text-slate-600 leading-relaxed">
             Es gilt österreichisches Recht. 
             <br /><br />

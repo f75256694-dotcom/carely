@@ -54,18 +54,16 @@ export default function DatenschutzPage() {
             </ul>
           </section>
 
-          {/* 4. Neu: Verarbeitung Helfer-Daten & Strafregister */}
+          {/* 4. Neu: Verarbeitung Helfer-Daten & Strafregister (Rechtsgrundlagen getrennt) */}
           <section className="space-y-4 border-t border-slate-200 pt-6">
             <h2 className="text-xl font-semibold text-slate-900">4. Datenverarbeitung für selbständige Alltagshelfer</h2>
             <p className="text-slate-600 leading-relaxed">
               Wenn Sie sich bei Helpify als selbständiger Alltagshelfer bewerben oder registrieren, verarbeiten wir personenbezogene Daten zur Überprüfung Ihrer Eignung und zur Bereitstellung von Vermittlungsaufträgen.
             </p>
             <ul className="list-disc pl-5 space-y-2 text-slate-600">
-              <li><strong>Stammdaten & Nachweise:</strong> Wir verarbeiten Name, Adresse, Kontaktdaten, Geburtsdatum, Identitätsnachweise (Lichtbildausweis), Gewerbeberechtigung (z. B. freies Gewerbe Personenbetreuung nach § 159 GewO) sowie Bankverbindungen.</li>
-              <li><strong>Überprüfung der Strafregisterbescheinigung (Art. 10 DSGVO i.V.m. § 7 DSG):</strong> Zur Sicherstellung der Zuverlässigkeit und zum Schutz unserer Kunden (insbesondere älterer oder unterstützungsbedürftiger Personen) verlangen wir vor Aufnahmen in den Vermittlungspool die Vorlage einer aktuellen Strafregisterbescheinigung. 
-              <br />
-              <em>Verarbeitungsmodus:</em> Die Einsichtnahme dient ausschließlich der Prüfung auf gerichtliche Verurteilungen im Rahmen des Berechtigungsprozesses. Strafregisterdaten werden nicht dauerhaft gespeichert oder veröffentlicht, sondern nach der erfolgreichen oder abgelehnten Registrierungsprüfung unverzüglich gelöscht, sofern keine rechtlichen Nachweispflichten entgegenstehen.</li>
-              <li><strong>Rechtsgrundlage:</strong> Die Verarbeitung basiert auf der Anbahnung und Durchführung des Vermittlungsrahmenvertrags mit dem Helfer (Art. 6 Abs. 1 lit. b DSGVO) sowie unseren berechtigten Interessen an der Qualitätssicherung und Selektion vertrauenswürdiger Dienstleister (Art. 6 Abs. 1 lit. f DSGVO i.V.m. § 7 DSG).</li>
+              <li><strong>Stammdaten & Nachweise:</strong> Wir verarbeiten Name, Adresse, Kontaktdaten, Geburtsdatum, Identitätsnachweise (Lichtbildausweis), Gewerbeberechtigung (z. B. freies Gewerbe Personenbetreuung nach § 159 GewO) sowie Bankverbindungen. Sämtliche übrigen Eignungsdaten verarbeiten wir auf Basis von Art. 6 Abs. 1 lit. b und f DSGVO[cite: 18].</li>
+              <li><strong>Überprüfung der Strafregisterbescheinigung (Art. 10 DSGVO i.V.m. § 7 DSG):</strong> Zur Sicherstellung der Zuverlässigkeit und zum Schutz unserer Kunden (insbesondere älterer oder unterstützungsbedürftiger Personen) verlangen wir vor Aufnahme in den Vermittlungspool die Vorlage einer aktuellen Strafregisterbescheinigung. <br />
+              <em>Rechtsgrundlage & Modus:</em> Die Einsichtnahme in die Strafregisterbescheinigung erfolgt ausschließlich auf Grundlage von § 7 DSG (Umsetzung von Art. 10 DSGVO)[cite: 18]. Strafregisterdaten werden nicht dauerhaft gespeichert oder veröffentlicht, sondern nach der erfolgreichen oder abgelehnten Registrierungsprüfung unverzüglich gelöscht, sofern keine rechtlichen Nachweispflichten entgegenstehen[cite: 12].</li>
             </ul>
           </section>
 
