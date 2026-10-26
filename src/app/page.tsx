@@ -44,20 +44,14 @@ export default function HomePage() {
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-3">
-          <Link 
-            href="/login" 
-            className="text-xs sm:text-sm font-bold text-slate-700 hover:text-[#1B4D3E] transition px-2.5 py-2"
-          >
-            Anmelden
-          </Link>
-          <Link 
-            href="/register" 
+          <Link
+            href="/caregiver/apply"
             className="text-xs sm:text-sm font-bold text-slate-700 hover:text-[#1B4D3E] transition px-2.5 py-2 border border-slate-200 rounded-xl hover:bg-slate-50"
           >
-            Registrieren
+            Helfer werden
           </Link>
-          <Link 
-            href="/funnel" 
+          <Link
+            href="/care-seeker/apply"
             className="bg-[#1B4D3E] hover:bg-[#13382d] text-white text-xs sm:text-sm font-bold px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl transition shadow-md flex items-center gap-1.5"
           >
             <span>Hilfe finden</span>
@@ -98,7 +92,7 @@ export default function HomePage() {
                 />
               </div>
               <Link 
-                href={zipCode ? `/funnel?zip=${zipCode}` : '/funnel'}
+                href={zipCode ? `/care-seeker/apply?zip=${zipCode}` : '/care-seeker/apply'}
                 className="bg-[#1B4D3E] hover:bg-[#143a2e] text-white font-bold text-sm px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md active:scale-[0.98]"
               >
                 <span>Helfer finden</span>
@@ -194,18 +188,17 @@ export default function HomePage() {
           <div className="space-y-2.5">
             <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Plattform</h4>
             <ul className="space-y-2 text-slate-400">
-              <li><Link href="/funnel" className="hover:text-white transition">Helfer suchen</Link></li>
-              <li><Link href="/register?role=caregiver" className="hover:text-white transition">Helfer werden</Link></li>
-              <li><Link href="/login" className="hover:text-white transition">Anmelden</Link></li>
+              <li><Link href="/care-seeker/apply" className="hover:text-white transition">Helfer suchen</Link></li>
+              <li><Link href="/caregiver/apply" className="hover:text-white transition">Helfer werden</Link></li>
             </ul>
           </div>
 
           <div className="space-y-2.5">
             <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Rechtliches</h4>
             <ul className="space-y-2 text-slate-400">
-              <li><Link href="/imprint" className="hover:text-white transition block">Impressum</Link></li>
+              <li><Link href="/impressum" className="hover:text-white transition block">Impressum</Link></li>
               <li><Link href="/datenschutz" className="hover:text-white transition block">Datenschutz & DSGVO</Link></li>
-              <li><Link href="/AGB" className="hover:text-white transition block">AGB</Link></li>
+              <li><Link href="/agb" className="hover:text-white transition block">AGB</Link></li>
               <li><Link href="/widerruf" className="hover:text-white transition block">Widerrufsbelehrung</Link></li>
             </ul>
           </div>
@@ -213,7 +206,7 @@ export default function HomePage() {
           <div className="space-y-2.5">
             <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Kontakt</h4>
             <div className="text-slate-400 space-y-1.5">
-              <p className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-emerald-400" /> support@helpifyservices.de</p>
+              <p className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-emerald-400" /> office@helpifyservices.at</p>
               <p className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-emerald-400" /> +49 176 32089328</p>
             </div>
           </div>

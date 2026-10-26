@@ -342,12 +342,12 @@ export default function CareSeekerApplyPage() {
                 <p>
                   Impressum:{' '}
                   <a
-                    href="/imprint"
+                    href="/impressum"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-emerald-700 font-bold underline hover:text-emerald-800"
                   >
-                    /imprint
+                    /impressum
                   </a>
                 </p>
               </div>
