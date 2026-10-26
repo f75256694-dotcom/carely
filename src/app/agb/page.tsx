@@ -49,7 +49,7 @@ export default function AgbPage() {
           <p className="text-slate-600 leading-relaxed">
             Der Rücktritt vom Vermittlungsauftrag bei Helpify ist bis zur erfolgten Vermittlung eines Helfers kostenfrei möglich. Für Stornierungen der tatsächlichen Alltagshilfen oder bei Nichterscheinen gelten ausschließlich die zwischen dem Kunden und dem Helfer getroffenen Vereinbarungen.
             <br /><br />
-            <strong>Hinweis für Verbraucher:</strong> Dem Kunden steht für den Vermittlungsvertrag das gesetzliche Widerrufsrecht nach dem FAGG zu. Details hierzu finden sich in unserer gesonderten Widerrufsbelehrung.
+            <strong>Hinweis für Verbraucher:</strong> Dem Kunden steht für den Vermittlungsvertrag das gesetzliche Widerrufsrecht nach dem FAGG zu. Details hierzu finden sich in unserer gesonderten <Link href="/widerruf" className="text-emerald-700 hover:underline font-medium">Widerrufsbelehrung</Link>.
           </p>
         </section>
 
