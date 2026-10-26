@@ -1,9 +1,15 @@
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export default function AgbPage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-800 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto bg-white shadow-sm rounded-2xl p-8 sm:p-12 border border-slate-100 space-y-8">
+      <div className="max-w-3xl mx-auto space-y-6">
+        <Link href="/" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium text-sm transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Zurück zur Startseite
+        </Link>
+
+      <div className="bg-white shadow-sm rounded-2xl p-8 sm:p-12 border border-slate-100 space-y-8">
         
         <div className="border-b border-slate-200 pb-6">
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">Allgemeine Geschäftsbedingungen (AGB)</h1>
@@ -83,6 +89,7 @@ export default function AgbPage() {
           <p>Alle Rechte vorbehalten.</p>
         </div>
 
+      </div>
       </div>
     </main>
   );

@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Carely',
-  description: 'Nachbarschaftshilfe neu gedacht',
+  title: 'Helpify – Alltagshilfe in Wien',
+  description: 'Helpify vermittelt selbständige Alltagshelfer:innen für Einkäufe, Begleitung, Haushalt und Gesellschaft – keine medizinische Pflege.',
 };
 
 export default function RootLayout({

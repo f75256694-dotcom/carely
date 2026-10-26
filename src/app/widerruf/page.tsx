@@ -68,7 +68,7 @@ export default function WiderrufPage() {
           <section className="space-y-4">
             <h2 className="text-xl font-semibold text-slate-900">Muster-Widerrufsformular</h2>
             <p className="text-slate-600 leading-relaxed italic">
-              (Wenn Sie den Vertrag widerrufen wollen, können Sie dieses Formular ausfüllen und an ns zurücksenden):
+              (Wenn Sie den Vertrag widerrufen wollen, können Sie dieses Formular ausfüllen und an uns zurücksenden):
             </p>
             <div className="bg-slate-900 text-slate-100 p-6 rounded-xl text-sm font-mono overflow-x-auto leading-relaxed space-y-2">
               <p>An: Helpify – Florian Touraj Saubiez, Kulmgasse 44, 1170 Wien</p>

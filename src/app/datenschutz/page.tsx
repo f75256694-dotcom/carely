@@ -61,9 +61,9 @@ export default function DatenschutzPage() {
               Wenn Sie sich bei Helpify als selbständiger Alltagshelfer bewerben oder registrieren, verarbeiten wir personenbezogene Daten zur Überprüfung Ihrer Eignung und zur Bereitstellung von Vermittlungsaufträgen.
             </p>
             <ul className="list-disc pl-5 space-y-2 text-slate-600">
-              <li><strong>Stammdaten & Nachweise:</strong> Wir verarbeiten Name, Adresse, Kontaktdaten, Geburtsdatum, Identitätsnachweise (Lichtbildausweis), Gewerbeberechtigung (z. B. freies Gewerbe Personenbetreuung nach § 159 GewO) sowie Bankverbindungen. Sämtliche übrigen Eignungsdaten verarbeiten wir auf Basis von Art. 6 Abs. 1 lit. b und f DSGVO[cite: 18].</li>
+              <li><strong>Stammdaten & Nachweise:</strong> Wir verarbeiten Name, Adresse, Kontaktdaten, Geburtsdatum, Identitätsnachweise (Lichtbildausweis), Gewerbeberechtigung (z. B. freies Gewerbe Personenbetreuung nach § 159 GewO) sowie Bankverbindungen. Sämtliche übrigen Eignungsdaten verarbeiten wir auf Basis von Art. 6 Abs. 1 lit. b und f DSGVO.</li>
               <li><strong>Überprüfung der Strafregisterbescheinigung (Art. 10 DSGVO i.V.m. § 7 DSG):</strong> Zur Sicherstellung der Zuverlässigkeit und zum Schutz unserer Kunden (insbesondere älterer oder unterstützungsbedürftiger Personen) verlangen wir vor Aufnahme in den Vermittlungspool die Vorlage einer aktuellen Strafregisterbescheinigung. <br />
-              <em>Rechtsgrundlage & Modus:</em> Die Einsichtnahme in die Strafregisterbescheinigung erfolgt ausschließlich auf Grundlage von § 7 DSG (Umsetzung von Art. 10 DSGVO)[cite: 18]. Strafregisterdaten werden nicht dauerhaft gespeichert oder veröffentlicht, sondern nach der erfolgreichen oder abgelehnten Registrierungsprüfung unverzüglich gelöscht, sofern keine rechtlichen Nachweispflichten entgegenstehen[cite: 12].</li>
+              <em>Rechtsgrundlage & Modus:</em> Die Einsichtnahme in die Strafregisterbescheinigung erfolgt ausschließlich auf Grundlage von § 7 DSG (Umsetzung von Art. 10 DSGVO). Strafregisterdaten werden nicht dauerhaft gespeichert oder veröffentlicht, sondern nach der erfolgreichen oder abgelehnten Registrierungsprüfung unverzüglich gelöscht, sofern keine rechtlichen Nachweispflichten entgegenstehen.</li>
             </ul>
           </section>
 

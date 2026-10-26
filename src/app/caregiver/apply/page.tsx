@@ -1,17 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import Link from 'next/link';
+import { getSupabase, isValidEmail, isValidPhone, logSubmitError, notifyTeam, submitErrorMessage } from '@/lib/supabase';
 
 export default function CaregiverApplyPage() {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const [formData, setFormData] = useState({
     tasks: [] as string[],
@@ -22,6 +21,7 @@ export default function CaregiverApplyPage() {
     email: '',
     phone: '',
     privacyAccepted: false,
+    selfEmployedConfirmed: false,
     source: 'direct',
   });
 
@@ -37,7 +37,7 @@ export default function CaregiverApplyPage() {
     { id: 'Einkäufe & Besorgungen', icon: '🛒', title: 'Einkäufe & Besorgungen', desc: 'Unterstützung beim wöchentlichen Einkauf' },
     { id: 'Gesellschaft & Spaziergänge', icon: '☀️', title: 'Gesellschaft & Spaziergänge', desc: 'Gemeinsame Zeit & frische Luft' },
     { id: 'Leichte Haushaltshilfe', icon: '✨', title: 'Leichte Haushaltshilfe', desc: 'Hilfe im Haushalt & Ordnung halten' },
-    { id: 'Terminbegleitung', icon: '🤝', title: 'Terminbegleitung', desc: 'Sicherer Begleitschutz zum Arzt oder Ämtern' }
+    { id: 'Terminbegleitung', icon: '🤝', title: 'Terminbegleitung', desc: 'Begleitung zu Arztterminen, Behörden & Ämtern' }
   ];
 
   const districtOptions = [
@@ -51,11 +51,7 @@ export default function CaregiverApplyPage() {
     { id: '22', label: '22. Donaustadt' }, { id: '23', label: '23. Liesing' }
   ];
 
-  const hoursOptions = ['2-5 Std./Woche', '5-10 Std./Woche', '10-20 Std./Woche', 'Vollzeit / Flexibel'];
-
-  const isValidEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
-  };
+  const hoursOptions = ['2-5 Std./Woche', '5-10 Std./Woche', '10-20 Std./Woche', 'Mehr als 20 Std./Woche'];
 
   const toggleTask = (taskId: string) => {
     setFormData(prev => ({ 
@@ -74,7 +70,9 @@ export default function CaregiverApplyPage() {
  const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   setEmailTouched(true);
-  if (!formData.privacyAccepted || !isValidEmail(formData.email)) return;
+  setPhoneTouched(true);
+  setSubmitError('');
+  if (!canSubmit) return;
   setLoading(true);
   try {
     const finalTasks = [...formData.tasks];
@@ -82,40 +80,37 @@ export default function CaregiverApplyPage() {
       finalTasks.push(`Sonstiges: ${formData.otherTaskText.trim()}`);
     }
 
-    const { error } = await supabase.from('care_requests').insert([{
+    const { error } = await getSupabase().from('care_requests').insert([{
       role: 'caregiver',
-      name: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
+      name: formData.fullName.trim(),
+      email: formData.email.trim(),
+      phone: formData.phone.trim(),
       services: finalTasks,
       district: formData.districts.join(', '),
       hours_per_week: formData.hoursPerWeek,
-      source: formData.source,
       status: 'submitted'
     }]);
 
     if (error) throw error;
 
-    // 📩 E-Mail-Benachrichtigung senden
-    await fetch('/api/notify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        role: 'caregiver',
-        name: formData.fullName,
-        email: formData.email,
-        phone: formData.phone,
-        district: formData.districts.join(', '),
-        services: finalTasks,
-        hours_per_week: formData.hoursPerWeek,
-        source: formData.source,
-      }),
+    // 📩 E-Mail-Benachrichtigung im Hintergrund – die Registrierung ist bereits gespeichert,
+    // ein Mailfehler darf daher keine Fehlermeldung (und doppelte Einträge) auslösen.
+    notifyTeam({
+      role: 'caregiver',
+      name: formData.fullName.trim(),
+      email: formData.email.trim(),
+      phone: formData.phone.trim(),
+      district: formData.districts.join(', '),
+      services: finalTasks,
+      hours_per_week: formData.hoursPerWeek,
+      source: formData.source,
+      self_employed_confirmed: formData.selfEmployedConfirmed,
     });
 
     setSubmitted(true);
   } catch (err) {
-    console.error('Fehler beim Speichern der Helfer-Bewerbung:', err);
-    alert('Es gab ein Problem beim Absenden. Bitte versuche es erneut.');
+    logSubmitError('Fehler beim Speichern der Helfer-Registrierung', err);
+    setSubmitError(submitErrorMessage(err));
   } finally {
     setLoading(false);
   }
@@ -133,8 +128,8 @@ export default function CaregiverApplyPage() {
             </svg>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Vielen Dank!</h1>
-          <p className="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed">Deine Bewerbung als Alltagsheld ist sicher eingegangen. Wir melden uns in Kürze bei dir!</p>
-          <div className="inline-block px-6 py-3 rounded-2xl bg-white/10 text-emerald-400 font-semibold text-sm border border-white/10">Du kannst dieses Fenster jetzt schließen.</div>
+          <p className="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed">Deine Registrierung als selbständige:r Alltagshelfer:in ist sicher eingegangen. Wir melden uns in Kürze für ein Kennenlerngespräch und die nächsten Schritte (Nachweise, Gewerbeberechtigung) bei dir!</p>
+          <Link href="/" className="inline-block px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-emerald-400 font-semibold text-sm border border-white/10 transition">Zurück zur Startseite</Link>
         </div>
       </main>
     );
@@ -142,13 +137,20 @@ export default function CaregiverApplyPage() {
 
   const isOtherSelected = formData.tasks.includes('Sonstiges');
   const isEmailInvalid = emailTouched && formData.email.length > 0 && !isValidEmail(formData.email);
+  const isPhoneInvalid = phoneTouched && formData.phone.length > 0 && !isValidPhone(formData.phone);
+  const canSubmit =
+    formData.fullName.trim().length > 1 &&
+    isValidEmail(formData.email) &&
+    isValidPhone(formData.phone) &&
+    formData.privacyAccepted &&
+    formData.selfEmployedConfirmed;
 
   return (
     <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-50 via-slate-50 to-white py-6 sm:py-12 px-4 flex flex-col items-center selection:bg-emerald-200">
       
       {/* Header Bereich mit Helpify Logo */}
       <div className="max-w-xl w-full text-center mb-6 sm:mb-10">
-        <div className="flex items-center justify-center gap-2.5 mb-6">
+        <Link href="/" aria-label="Zur Startseite" className="flex items-center justify-center gap-2.5 mb-6 w-fit mx-auto">
           <div className="w-10 h-10 rounded-2xl bg-[#1B4D3E] text-white flex items-center justify-center shadow-sm shrink-0">
             <svg className="w-5 h-5 text-[#86EFAC]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
@@ -156,16 +158,16 @@ export default function CaregiverApplyPage() {
             </svg>
           </div>
           <span className="text-3xl font-bold tracking-tight text-[#0A2E23] font-serif">Helpify</span>
-        </div>
+        </Link>
 
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-xs sm:text-sm mb-4 border border-emerald-200 shadow-sm">
           <span className="relative flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span></span>
           Exklusiver Pilotbetrieb für Alltagshelden
         </div>
         <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-3">
-          Sinn stiften. Gut verdienen. <br className="hidden sm:block"/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">Dein flexibler Nebenjob in Wien.</span>
+          Sinn stiften. Selbständig helfen. <br className="hidden sm:block"/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">Als Alltagshelfer:in in Wien.</span>
         </h1>
-        <p className="text-slate-600 text-base sm:text-xl">Unterstütze ältere Menschen in deiner Nachbarschaft. <strong>100% deines Verdienstes</strong> gehören komplett dir.</p>
+        <p className="text-slate-600 text-base sm:text-xl">Unterstütze ältere Menschen in deiner Nachbarschaft – als selbständige:r Personenbetreuer:in mit eigenen Zeiten und eigenen Preisen. <strong>Keine Provision:</strong> Dein Honorar gehört dir.</p>
       </div>
 
       {/* Formular Box */}
@@ -186,7 +188,7 @@ export default function CaregiverApplyPage() {
 
         {/* SCHRITT 1 */}
         {step === 1 && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="animate-fade-in">
             <div className="flex flex-col gap-1 mb-2">
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Wie möchtest du helfen?</h2>
               <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100 w-fit">✨ Mehrfachauswahl möglich</span>
@@ -223,7 +225,7 @@ export default function CaregiverApplyPage() {
             </div>
 
             {isOtherSelected && (
-              <div className="mb-6 animate-in fade-in duration-300">
+              <div className="mb-6 animate-fade-in">
                 <label className="block text-sm font-bold text-slate-700 mb-1.5">Was möchtest du noch anbieten?</label>
                 <input type="text" placeholder="z. B. Gartenarbeit, Technik-Hilfe..." value={formData.otherTaskText} onChange={e => setFormData({...formData, otherTaskText: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 rounded-2xl text-slate-900 font-medium outline-none text-base" />
               </div>
@@ -242,7 +244,7 @@ export default function CaregiverApplyPage() {
 
         {/* SCHRITT 2 */}
         {step === 2 && (
-          <div className="animate-in fade-in slide-in-from-right-8 duration-500">
+          <div className="animate-fade-in">
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">In welchen Bezirken?</h2>
             <p className="text-slate-500 text-sm sm:text-base mb-6">Wähle deine bevorzugten Wiener Bezirke aus.</p>
             
@@ -266,11 +268,11 @@ export default function CaregiverApplyPage() {
 
         {/* SCHRITT 3 */}
         {step === 3 && (
-          <div className="animate-in fade-in slide-in-from-right-8 duration-500">
+          <div className="animate-fade-in">
             <form onSubmit={handleSubmit}>
               <div className="mb-6">
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">Zeitinvestment</h2>
-                <p className="text-slate-500 text-sm sm:text-base mb-4">Wie viel Zeit möchtest du investieren?</p>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">Deine Verfügbarkeit</h2>
+                <p className="text-slate-500 text-sm sm:text-base mb-4">Wie viel Zeit kannst du ungefähr anbieten? Du entscheidest jederzeit selbst, welche Aufträge du annimmst.</p>
                 <div className="grid grid-cols-2 gap-2.5">
                   {hoursOptions.map(opt => (
                     <button key={opt} type="button" onClick={() => setFormData({...formData, hoursPerWeek: opt})} className={`p-3.5 rounded-xl border-2 font-semibold text-xs sm:text-sm transition-all text-center ${formData.hoursPerWeek === opt ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-sm' : 'border-slate-100 text-slate-600 bg-white'}`}>{opt}</button>
@@ -283,14 +285,16 @@ export default function CaregiverApplyPage() {
               
               <div className="space-y-4 mb-6">
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Vollständiger Name</label>
-                  <input required type="text" placeholder="Maria Musterfrau" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
+                  <label htmlFor="fullName" className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Vollständiger Name</label>
+                  <input id="fullName" required autoComplete="name" type="text" placeholder="Maria Musterfrau" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
                 </div>
                 
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">E-Mail-Adresse</label>
-                  <input 
-                    required 
+                  <label htmlFor="email" className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">E-Mail-Adresse</label>
+                  <input
+                    id="email"
+                    autoComplete="email"
+                    required
                     type="email" 
                     placeholder="maria@beispiel.at" 
                     value={formData.email} 
@@ -303,33 +307,54 @@ export default function CaregiverApplyPage() {
                     }`} 
                   />
                   {isEmailInvalid && (
-                    <p className="text-red-500 text-xs mt-1.5 font-medium animate-in fade-in duration-200">
+                    <p className="text-red-500 text-xs mt-1.5 font-medium animate-fade-in">
                       Bitte gib eine gültige E-Mail-Adresse ein (z. B. name@domain.at).
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Handynummer</label>
-                  <input required type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 rounded-2xl text-slate-900 font-medium outline-none text-base" />
+                  <label htmlFor="phone" className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Handynummer</label>
+                  <input id="phone" required autoComplete="tel" type="tel" placeholder="+43 660 1234567" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} onBlur={() => setPhoneTouched(true)} className={`w-full px-4 py-3.5 bg-slate-50 border focus:bg-white rounded-2xl text-slate-900 font-medium outline-none text-base ${isPhoneInvalid ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-emerald-500'}`} />
+                  {isPhoneInvalid && (
+                    <p className="text-red-500 text-xs mt-1.5 font-medium">Bitte gib eine gültige Telefonnummer ein (z. B. +43 660 1234567).</p>
+                  )}
                 </div>
 
-                <div className="flex items-start gap-3 pt-2">
-                  <input required type="checkbox" id="privacy" checked={formData.privacyAccepted} onChange={e => setFormData({...formData, privacyAccepted: e.target.checked})} className="mt-1 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-                  <label htmlFor="privacy" className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    Ich stimme zu, dass meine Angaben zur Vermittlung gemäß der <a href="/datenschutz" target="_blank" className="text-emerald-700 underline font-semibold">Datenschutzerklärung</a> verarbeitet werden.
+                <div className="bg-emerald-50/60 border border-emerald-100 rounded-2xl p-4 text-xs sm:text-sm text-slate-700 leading-relaxed space-y-1.5">
+                  <p className="font-bold text-emerald-900">Gut zu wissen</p>
+                  <p>Helpify ist reiner Vermittler. Du wirst nicht bei Helpify angestellt, sondern arbeitest als selbständige:r Personenbetreuer:in mit eigener Gewerbeberechtigung (§ 159 GewO) und eigener Sozialversicherung (SVS). Zeiten, Honorar und die Annahme von Aufträgen bestimmst du selbst; den Vertrag schließt du direkt mit deinen Kund:innen.</p>
+                  <p>Vermittelt wird ausschließlich nicht-medizinische Alltagshilfe – keine pflegerischen Tätigkeiten nach dem GuKG (z. B. Medikamentengabe, Wundversorgung).</p>
+                  <p>Noch keine Gewerbeberechtigung? Kein Problem – wir erklären dir im Erstgespräch, wie du sie anmeldest.</p>
+                </div>
+
+                <div className="flex items-start gap-3 pt-1">
+                  <input required type="checkbox" id="selfEmployed" checked={formData.selfEmployedConfirmed} onChange={e => setFormData({...formData, selfEmployedConfirmed: e.target.checked})} className="mt-1 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 shrink-0" />
+                  <label htmlFor="selfEmployed" className="text-xs sm:text-sm text-slate-600 leading-relaxed cursor-pointer">
+                    Mir ist bewusst, dass ich über Helpify als <strong>selbständige:r Unternehmer:in</strong> tätig werde (kein Dienstverhältnis mit Helpify) und keine pflegerischen oder medizinischen Tätigkeiten übernehme.
+                  </label>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <input required type="checkbox" id="privacy" checked={formData.privacyAccepted} onChange={e => setFormData({...formData, privacyAccepted: e.target.checked})} className="mt-1 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 shrink-0" />
+                  <label htmlFor="privacy" className="text-xs sm:text-sm text-slate-600 leading-relaxed cursor-pointer">
+                    Ich stimme zu, dass meine Angaben zur Vermittlung gemäß der <a href="/datenschutz" target="_blank" rel="noopener noreferrer" className="text-emerald-700 underline font-semibold">Datenschutzerklärung</a> verarbeitet werden.
                   </label>
                 </div>
               </div>
 
+              {submitError && (
+                <p role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-2xl px-4 py-3 mb-4">{submitError}</p>
+              )}
+
               <div className="flex gap-3">
                 <button type="button" onClick={() => setStep(2)} className="w-1/3 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold py-4 rounded-2xl text-sm sm:text-base transition-colors">Zurück</button>
                 <button 
-                  disabled={loading || !formData.privacyAccepted || !isValidEmail(formData.email)} 
-                  type="submit" 
+                  disabled={loading || !canSubmit}
+                  type="submit"
                   className="w-2/3 bg-emerald-600 text-white font-bold text-sm sm:text-base py-4 rounded-2xl shadow-lg shadow-emerald-200 hover:bg-emerald-500 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
                 >
-                  {loading ? 'Wird gesendet...' : 'Abschicken 🚀'}
+                  {loading ? 'Wird gesendet...' : 'Registrierung absenden 🚀'}
                 </button>
               </div>
             </form>
@@ -339,8 +364,8 @@ export default function CaregiverApplyPage() {
 
       {/* Footer Badges */}
       <div className="max-w-xl w-full flex flex-wrap justify-center items-center gap-3 mt-8 text-slate-500 text-xs sm:text-sm font-medium">
-        <span className="flex items-center gap-1.5 bg-white/70 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">🛡️ 100% eigener Verdienst</span>
-        <span className="flex items-center gap-1.5 bg-white/70 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">⚡ Flexible Zeiten</span>
+        <span className="flex items-center gap-1.5 bg-white/70 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-sm">🛡️ Keine Vermittlungsprovision</span>
+        <span className="flex items-center gap-1.5 bg-white/70 px-3.5 py-1.5 rounded-full border border-slate-200 shadow-sm">⚡ Selbstbestimmte Zeiten</span>
       </div>
     </main>
   );

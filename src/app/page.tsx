@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   ShieldCheck, 
   ArrowRight, 
@@ -16,6 +17,8 @@ import {
 
 export default function HomePage() {
   const [zipCode, setZipCode] = useState('');
+  const router = useRouter();
+  const findHref = zipCode.length === 4 ? `/care-seeker/apply?zip=${zipCode}` : '/care-seeker/apply';
 
   return (
     <div className="min-h-screen bg-[#FAFAF7] font-sans text-slate-800 flex flex-col selection:bg-emerald-200">
@@ -76,7 +79,7 @@ export default function HomePage() {
             </h1>
 
             <p className="text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto font-light leading-relaxed">
-              Wir vermitteln qualifizierte Alltagsbegleitung – fürs Einkaufen, Spaziergänge, Haushalt oder liebevolle Gesellschaft.
+              Wir vermitteln selbständige, geprüfte Alltagsbegleiter:innen – fürs Einkaufen, Spaziergänge, Haushalt oder liebevolle Gesellschaft.
             </p>
 
             <div className="p-2 bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-200/80 max-w-md mx-auto flex flex-col sm:flex-row gap-2">
@@ -84,15 +87,19 @@ export default function HomePage() {
                 <Search className="w-4 h-4 text-slate-400 shrink-0" />
                 <input 
                   type="text" 
-                  maxLength={5}
+                  inputMode="numeric"
+                  autoComplete="postal-code"
+                  aria-label="Postleitzahl"
+                  maxLength={4}
                   value={zipCode}
-                  onChange={(e) => setZipCode(e.target.value)}
-                  placeholder="Deine PLZ eingeben..." 
+                  onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  onKeyDown={(e) => { if (e.key === 'Enter') router.push(findHref); }}
+                  placeholder="Deine PLZ eingeben (z. B. 1190)" 
                   className="w-full bg-transparent text-slate-800 placeholder-slate-400 focus:outline-none text-sm font-medium"
                 />
               </div>
               <Link 
-                href={zipCode ? `/care-seeker/apply?zip=${zipCode}` : '/care-seeker/apply'}
+                href={findHref}
                 className="bg-[#1B4D3E] hover:bg-[#143a2e] text-white font-bold text-sm px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md active:scale-[0.98]"
               >
                 <span>Helfer finden</span>
@@ -206,8 +213,8 @@ export default function HomePage() {
           <div className="space-y-2.5">
             <h4 className="text-[#86EFAC] font-bold uppercase tracking-wider">Kontakt</h4>
             <div className="text-slate-400 space-y-1.5">
-              <p className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-emerald-400" /> office@helpifyservices.at</p>
-              <p className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-emerald-400" /> +49 176 32089328</p>
+              <a href="mailto:office@helpifyservices.at" className="flex items-center gap-2 hover:text-white transition"><Mail className="w-3.5 h-3.5 text-emerald-400" /> office@helpifyservices.at</a>
+              <a href="tel:+4917632089328" className="flex items-center gap-2 hover:text-white transition"><Phone className="w-3.5 h-3.5 text-emerald-400" /> +49 176 32089328</a>
             </div>
           </div>
         </div>
